@@ -14,6 +14,8 @@ type RuntimeEvent = {
   timestamp: string
   sessionId: string
   threadId: string
+  taskId?: string
+  runId?: string
   turnId?: string
   sequence?: number
   payload?: unknown
@@ -21,10 +23,12 @@ type RuntimeEvent = {
 
 async function submitTurn(input: SubmitTurn): Promise<AcceptedTurn> {
   const ids = allocateIds(input)
+  emit({ type: 'task.created', ...ids, payload: { objective: input.objective } })
   emit({ type: 'turn.submitted', ...ids, payload: { source: input.source } })
-  persistThreadRead(ids.threadId, { status: 'preparing', activeTurnId: ids.turnId })
+  persistThreadRead(ids.threadId, { status: 'preparing', activeTurnId: ids.turnId, tasks: [{ taskId: ids.taskId, status: 'accepted' }] })
 
   try {
+    emit({ type: 'task.started', ...ids })
     emit({ type: 'turn.started', ...ids })
     const context = await resolveContext(input)
     emit({ type: 'context.resolved', ...ids, payload: context.summary })
@@ -36,11 +40,13 @@ async function submitTurn(input: SubmitTurn): Promise<AcceptedTurn> {
       emit(mapProviderPart(part, ids))
     }
 
+    emit({ type: 'task.completed', ...ids })
     emit({ type: 'turn.completed', ...ids })
-    persistThreadRead(ids.threadId, { status: 'completed', activeTurnId: undefined })
+    persistThreadRead(ids.threadId, { status: 'completed', activeTurnId: undefined, tasks: [{ taskId: ids.taskId, status: 'completed' }] })
   } catch (error) {
+    emit({ type: 'task.failed', ...ids, payload: normalizeError(error) })
     emit({ type: 'turn.failed', ...ids, payload: normalizeError(error) })
-    persistThreadRead(ids.threadId, { status: 'failed', lastOutcome: normalizeError(error) })
+    persistThreadRead(ids.threadId, { status: 'failed', lastOutcome: normalizeError(error), tasks: [{ taskId: ids.taskId, status: 'failed' }] })
   }
 
   return ids

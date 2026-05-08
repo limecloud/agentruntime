@@ -17,10 +17,10 @@ Agent Runtime sits below Agent UI. The runtime owns execution facts. Agent UI ow
 
 ## What the current draft defines
 
-- Runtime identity model: `session`, `thread`, `turn`, `task`, `step`, `tool_call`, `action_request`, `subagent`, `artifact_ref`, and `evidence_ref`.
-- A typed runtime event stream for lifecycle, model, reasoning, tool, action, queue, context, artifact, evidence, subagent, limit, snapshot, warning, and error events.
-- A control plane for submit, interrupt, resume, queue, respond-action, inspect, list sessions, spawn subagents, and export evidence/replay.
-- Durable read models for session snapshots, thread status, pending requests, incidents, queue state, tool inventory, and evidence summaries.
+- Runtime identity model: `session`, `thread`, `task`, `run`, `turn`, `step`, `tool_call`, `action_request`, `subagent`, `artifact_ref`, and `evidence_ref`.
+- A typed runtime event stream for lifecycle, task orchestration, model, reasoning, tool, action, queue, context, artifact, evidence, subagent, limit, snapshot, warning, and error events.
+- A control plane for submit, interrupt, resume, task create/update/cancel/retry, queue, respond-action, inspect, list sessions, spawn subagents, and export evidence/replay.
+- Durable read models for session snapshots, thread status, task state, pending requests, incidents, queue state, tool inventory, and evidence summaries.
 - Permission, sandbox, hook, process, remote channel, model routing, cost/limit, job, recovery, and large-output contracts drawn from real runtimes.
 - Compatibility guidance for MCP, A2A, OpenTelemetry, CloudEvents, JSON-RPC, provider streaming APIs, and Agent UI projection.
 
@@ -60,6 +60,7 @@ Key pages:
 - [Hooks and policy](docs/en/contracts/hooks-and-policy.md)
 - [Execution environment](docs/en/contracts/execution-environment.md)
 - [Model routing and limits](docs/en/contracts/model-routing-limits.md)
+- [Agent task](docs/en/contracts/agent-task.md)
 - [Subagents and jobs](docs/en/contracts/subagents-and-jobs.md)
 - [Remote channels](docs/en/contracts/remote-channels.md)
 - [Session history and recovery](docs/en/contracts/session-history-recovery.md)

@@ -22,7 +22,7 @@ Agent Runtime standardizes these implementation concerns:
 7. Evidence, replay, and observability export boundaries.
 8. Permission, sandbox, hooks, process execution, and remote recovery.
 9. Model routing, candidate sets, cost, quota, rate limit, and budget facts.
-10. Subagent graphs, background jobs, large output storage, and session reconstruction.
+10. Agent task lifecycle, attempts, task graphs, subagent graphs, background jobs, large output storage, and session reconstruction.
 
 Agent Runtime does **not** standardize a UI component model, model provider protocol, tool registry format, workflow language, vector store, artifact format, or observability backend.
 
@@ -37,10 +37,11 @@ Agent Runtime is not a wrapper around chat streaming. Real implementations show 
 4. Hooks are governance points and must write runtime facts, not create a side execution path.
 5. Context compaction, rollback, and reconstruction need explicit boundaries.
 6. Subagents need a parent-child graph, isolation, status, and recoverable child threads.
-7. Jobs need item status, attempts, assignment, and progress.
-8. Remote channels need identity, resume cursors, permission bridges, and disconnect semantics.
-9. Model routing needs task profiles, candidate sets, decisions, fallback, single-candidate, and no-candidate facts.
-10. Cost, quota, rate limits, request telemetry, and evidence must join through stable correlation ids.
+7. Tasks need objective, owner, status, attempts, dependencies, progress, output refs, and delivery state; todo lists are not enough.
+8. Jobs need item status, attempts, assignment, and progress.
+9. Remote channels need identity, resume cursors, permission bridges, and disconnect semantics.
+10. Model routing needs task profiles, candidate sets, decisions, fallback, single-candidate, and no-candidate facts.
+11. Cost, quota, rate limits, request telemetry, and evidence must join through stable correlation ids.
 
 ## Execution architecture
 
@@ -78,8 +79,9 @@ The runtime may keep internal provider-native records, but external consumers SH
 | `session_id` | Durable user-visible work container. | Owns one or more threads. |
 | `thread_id` | Ordered execution context. | Belongs to one session. |
 | `turn_id` | One submitted input cycle. | Belongs to one thread. |
-| `task_id` | Unit of work that may span turns or run in background. | Belongs to a thread or parent task. |
-| `step_id` | Ordered runtime item, such as status, message, tool, artifact, or action. | Belongs to a turn or task. |
+| `task_id` | Unit of work with objective, lifecycle, attempts, relationships, and acceptance. | Belongs to a session, thread, or parent task. |
+| `run_id` / `attempt_id` | One execution attempt for a task. | Belongs to one task and may bind a thread, worker, or job item. |
+| `step_id` | Ordered runtime item, such as status, message, tool, artifact, or action. | Belongs to a turn, task, or run. |
 | `tool_call_id` | One tool invocation. | Belongs to a step and may have result refs. |
 | `action_id` | One pending human or policy decision. | Belongs to a turn, task, or tool call. |
 | `subagent_id` | Child agent execution context. | Has parent session/thread/turn links. |
@@ -100,7 +102,7 @@ Every emitted event SHOULD include:
 | `sequence` | Monotonic within a stream when possible. |
 | `schema_version` | Runtime event schema version. |
 | `session_id`, `thread_id`, `turn_id` | Present whenever the event belongs to a thread or turn. |
-| `task_id`, `step_id`, `tool_call_id`, `action_id`, `subagent_id` | Present when applicable. |
+| `task_id`, `run_id`, `attempt_id`, `step_id`, `tool_call_id`, `action_id`, `subagent_id` | Present when applicable. |
 | `trace_id`, `span_id` | Present when telemetry is available. |
 | `payload` | Typed event payload. |
 | `refs` | Stable references to large or owned external facts. |
@@ -114,7 +116,7 @@ Large tool outputs, artifacts, evidence packs, and raw provider payloads SHOULD 
 | `session.created` / `session.updated` | Session metadata changed. |
 | `thread.started` / `thread.updated` | Thread lifecycle or read-model relevant state changed. |
 | `turn.submitted` / `turn.started` / `turn.completed` / `turn.failed` | User or system turn lifecycle. |
-| `task.started` / `task.updated` / `task.completed` / `task.failed` | Long-running or background task lifecycle. |
+| `task.created` / `task.accepted` / `task.queued` / `task.started` / `task.updated` / `task.progress` / `task.waiting` / `task.blocked` / `task.paused` / `task.resumed` / `task.retrying` / `task.cancel_requested` / `task.cancelled` / `task.timed_out` / `task.failed` / `task.lost` / `task.completed` / `task.archived` | Agent task lifecycle, progress, waiting, retry, cancellation, loss, and terminal state. |
 | `run.status` | Human-readable runtime status with phase, title, detail, checkpoints, and metadata. |
 | `model.requested` / `model.delta` / `model.completed` / `model.failed` | Provider adapter lifecycle and text/structured output stream. |
 | `reasoning.delta` / `reasoning.summary` | Reasoning or planning stream outside final text. |
@@ -144,6 +146,7 @@ Real coding, desktop, and remote runtimes SHOULD also expose these event familie
 | Hook / policy | `hook.started` / `hook.completed` / `hook.failed` / `policy.changed` | Record governance inputs, outcomes, duration, and failure behavior. |
 | Process | `process.started` / `process.output` / `process.input` / `process.completed` / `process.failed` / `process.terminated` | Record commands, PTY sessions, long-running processes, and output refs. |
 | Routing | `task.profile.resolved` / `routing.candidates.resolved` / `routing.decided` / `routing.fallback.applied` / `routing.not_possible` / `routing.single_candidate` | Explain model candidates, selection, fallback, blocking, and single-candidate paths. |
+| Task orchestration | `task.delegated` / `task.dependency.updated` / `task.attempt.started` / `task.attempt.completed` / `task.attempt.failed` | Record task graph edges, delegation, dependencies, and per-attempt execution history. |
 | Cost / limits | `cost.estimated` / `cost.recorded` / `rate_limit.hit` / `quota.low` / `quota.blocked` | Make cost, limits, and quota runtime facts. |
 | Channel | `channel.connected` / `channel.disconnected` / `channel.resumed` / `channel.message` / `channel.permission_forwarded` / `channel.permission_returned` | Record remote channels, recovery, and cross-channel approval. |
 | Jobs | `job.created` / `job.started` / `job.progress` / `job.item.started` / `job.item.completed` / `job.item.failed` / `job.completed` / `job.failed` / `job.cancelled` | Record batch and background work. |
@@ -160,6 +163,10 @@ A compatible runtime SHOULD expose these commands, regardless of transport:
 | `submit_turn` | `session_id`, `thread_id` or create policy, input parts, options, metadata. | Accepted turn or queued turn. |
 | `interrupt_turn` | `session_id`, optional `thread_id` / `turn_id`, reason. | Interrupt accepted or no-op. |
 | `resume_thread` | `session_id`, `thread_id`, optional resume token. | Resume attempt result. |
+| `create_task` / `update_task` / `start_task` / `append_task_progress` | Task objective, scope, profile, constraints, assignee, or progress refs. | Task lifecycle and progress events. |
+| `pause_task` / `resume_task` / `cancel_task` / `retry_task` | `task_id`, reason, optional propagation policy. | Task pause, resume, cancellation, or new attempt facts. |
+| `complete_task` / `fail_task` / `list_tasks` / `get_task` | Task scope or terminal facts. | Durable task read model or terminal reconciliation events. |
+| `link_tasks` / `unlink_tasks` | Parent, child, dependency, source, artifact, evidence, or subagent edge. | Task graph update event. |
 | `respond_action` | `action_id`, decision, optional structured payload. | Action resolved event. |
 | `remove_queued_turn` / `promote_queued_turn` | `queued_turn_id`, target session/thread. | Queue changed event. |
 | `get_session` | `session_id`, history window or cursor. | Durable session snapshot. |
@@ -185,6 +192,7 @@ The event stream is necessary but not enough. A compatible runtime SHOULD mainta
 - `thread_read_model`: current status, active turn, pending requests, last outcome, incidents, queued turns, diagnostics.
 - `tool_inventory_snapshot`: tools available for the current caller, policy, context, and mode.
 - `queue_snapshot`: queued turn ids, order, source, policy, and resume state.
+- `task_snapshot`: active, waiting, failed, lost, recent terminal tasks, task graph, current attempts, and delivery state.
 - `context_boundary_snapshot`: selected refs, compaction summaries, context warnings, missing facts.
 - `artifact_checkpoint_summary`: artifact refs, versions, previews, validation issue counts, diff refs.
 - `evidence_summary`: trace ids, verification outcomes, replay refs, review refs, audit notes.
@@ -204,9 +212,14 @@ A runtime SHOULD distinguish:
 - `queued`: work is waiting behind another turn or policy gate.
 - `preparing`: context, model, tools, or policy are being resolved.
 - `running`: the execution loop is active.
-- `blocked`: an action, credential, policy, context, tool, or quota is missing.
+- `waiting_input`: user or external structured input is required.
+- `waiting_permission`: human, policy, or host approval is required.
+- `waiting_resource`: credential, quota, file, network, worker, or external system is unavailable.
+- `blocked`: an action, credential, policy, context, dependency, tool, or quota is missing.
 - `streaming`: model or tool output is being emitted.
 - `retrying`: retry or fallback is active.
+- `lost`: runtime cannot prove whether the worker is still alive.
+- `timed_out`: time or inactivity budget stopped the work.
 - `completed`: owner declared work complete and durable facts are reconciled.
 - `failed`: work cannot continue without a new request or repair.
 - `cancelled`: user, policy, or runtime interrupted the work.
@@ -223,6 +236,7 @@ A validator SHOULD check behavior, not only file presence:
 - Tool calls preserve input refs, result refs, errors, and policy decisions.
 - Human actions pause execution and resume only through `respond_action`.
 - Queue mutations survive restart and emit `queue.changed`.
+- Task lifecycle survives restart, keeps prior attempts, and can recover parent/child and dependency edges.
 - Old sessions hydrate through snapshots and cursor windows.
 - Evidence/replay exports derive from the same runtime facts as UI and diagnostics.
 - Missing facts are marked `unknown`, `unavailable`, `stale`, or `blocked` instead of inferred from prose.

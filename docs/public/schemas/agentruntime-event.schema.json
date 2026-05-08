@@ -21,10 +21,24 @@
         "turn.started",
         "turn.completed",
         "turn.failed",
+        "task.created",
+        "task.accepted",
+        "task.queued",
         "task.started",
         "task.updated",
-        "task.completed",
+        "task.progress",
+        "task.waiting",
+        "task.blocked",
+        "task.paused",
+        "task.resumed",
+        "task.retrying",
+        "task.cancel_requested",
+        "task.cancelled",
+        "task.timed_out",
         "task.failed",
+        "task.lost",
+        "task.completed",
+        "task.archived",
         "run.status",
         "model.requested",
         "model.delta",
@@ -78,6 +92,11 @@
         "routing.fallback.applied",
         "routing.not_possible",
         "routing.single_candidate",
+        "task.delegated",
+        "task.dependency.updated",
+        "task.attempt.started",
+        "task.attempt.completed",
+        "task.attempt.failed",
         "cost.estimated",
         "cost.recorded",
         "rate_limit.hit",
@@ -138,6 +157,57 @@
     "taskId": {
       "type": "string",
       "minLength": 1
+    },
+    "runId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "attemptId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "parentTaskId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "rootTaskId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "task": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "taskAttempt": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "taskRelationship": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "taskGraph": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "taskProgress": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "taskAcceptance": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "worker": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "deliveryState": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "nativeStatus": {
+      "type": "string"
     },
     "stepId": {
       "type": "string",

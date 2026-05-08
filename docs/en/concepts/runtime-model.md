@@ -10,20 +10,22 @@ Agent Runtime uses a small identity hierarchy so long-running work can be resume
 ```text
 runtime
   session
+    task
+      run
     thread
       turn
-        task
-          step
-            tool_call | action_request | artifact_ref | evidence_ref
+        step
+          tool_call | action_request | artifact_ref | evidence_ref
       subagent
 ```
 
 ## Identities
 
 - `session`: durable user-visible container. It may map to a conversation, workspace task, remote channel thread, or workflow job.
+- `task`: durable unit of work with objective, lifecycle, attempts, relationships, acceptance, and recovery state. It may belong to a thread, span multiple turns, or run in the background.
+- `run`: one execution attempt for a task. Retries, resumes, and alternate worker executions should create new runs instead of overwriting task history.
 - `thread`: ordered execution context inside a session. A session can contain multiple threads when work branches, delegates, or runs in parallel.
 - `turn`: one submitted input cycle. It starts when work is accepted or queued and ends when completed, failed, or cancelled.
-- `task`: a unit of work that can outlive a single model call, run in the background, or coordinate subagents.
 - `step`: ordered runtime item such as status, text, reasoning, tool call, approval request, artifact, warning, or evidence link.
 - `subagent`: child runtime context with parent ids and its own lifecycle.
 - `artifact_ref` and `evidence_ref`: stable references to owned systems, not copied content.
@@ -48,6 +50,7 @@ A compatible runtime SHOULD carry correlation ids through every boundary:
 - `trace_id` and `span_id` for telemetry.
 - `request_id` for transport or API request correlation.
 - `turn_id` and `tool_call_id` for tool and provider calls.
+- `task_id` and `run_id` for task lifecycle, retries, and background work.
 - `action_id` for human decisions.
 - `artifact_id` and `evidence_id` for durable refs.
 

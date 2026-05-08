@@ -9,8 +9,9 @@ description: Agent Runtime glossary.
 - `session`: Durable user-visible work container.
 - `thread`: Ordered execution context inside a session.
 - `turn`: One submitted input cycle.
-- `task`: Unit of work that may span turns or run in background.
-- `step`: Ordered runtime item in a turn or task.
+- `task`: Durable objective with lifecycle, attempts, relationships, progress, acceptance, and recovery state.
+- `run` / `attempt`: One execution attempt for a task.
+- `step`: Ordered runtime item in a turn, task, or run.
 - `tool_call`: One invocation of a tool or connector.
 - `action_request`: Pending human or policy decision.
 - `subagent`: Child runtime context delegated by a parent runtime.

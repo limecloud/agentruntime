@@ -15,6 +15,7 @@ Session snapshot SHOULD 包含：
 - active thread ids 和 pinned thread ids
 - 带 cursor 的 recent history window
 - thread summaries
+- task summaries 与 active task graph refs
 - child subagent summaries
 - 最新 evidence 和 artifact refs
 - stale 或 truncated flags
@@ -30,20 +31,21 @@ Thread read model SHOULD 包含：
 - last outcome
 - active incidents
 - queued turns
+- active、waiting、blocked、failed、lost 与 recent terminal tasks
 - latest compaction boundary
 - diagnostics summary
 - tool/artifact/evidence summaries
 - model routing 和 limit state
 - permission state、sandbox profile 和 pending approvals
 - active processes、output refs 和 execution environment
-- subagent graph、job progress 和 remote channel state
+- task graph、subagent graph、job progress 和 remote channel state
 - telemetry correlation summary
 
 这个 read model 是“当前发生了什么”的事实入口。消费者不应从 UI state 独立计算。
 
 ## Diagnostics
 
-Diagnostics 可以包括 warnings、failed tools、failed commands、pending requests、stalled turns、interrupt state、quota blocks 和 context gaps。缺少 diagnostic 不等于 healthy；不支持的事实应标为 `unavailable`。
+Diagnostics 可以包括 warnings、failed tools、failed commands、pending requests、stalled turns、stalled tasks、lost workers、interrupt state、quota blocks 和 context gaps。缺少 diagnostic 不等于 healthy；不支持的事实应标为 `unavailable`。
 
 ## History windows
 

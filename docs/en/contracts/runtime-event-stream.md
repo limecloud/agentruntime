@@ -19,6 +19,8 @@ The runtime event stream is the canonical stream of execution facts. It can be d
   "sessionId": "sess_123",
   "threadId": "thread_123",
   "turnId": "turn_123",
+  "taskId": "task_123",
+  "runId": "run_123",
   "stepId": "step_123",
   "toolCallId": "tool_123",
   "traceId": "4bf92f3577b34da6a3ce929d0e0e4736",
@@ -48,6 +50,7 @@ The stream should carry previews and refs for large data:
 Runtime SHOULD support both coarse lifecycle and item lifecycle:
 
 - `turn.*` describes one input cycle.
+- `task.*` describes objective lifecycle, waiting, progress, retry, cancellation, terminal state, and task graph updates.
 - `item.*` describes ordered agent message, reasoning, tool call, command, file change, web search, todo, and error items.
 - `process.*` describes commands, PTY sessions, and long-running processes.
 - `hook.*`, `permission.*`, and `sandbox.*` describe governance.
@@ -59,6 +62,7 @@ SDKs can consume `item.*` while audit and GUI consumers can read deeper runtime 
 Model routing and remote channels also belong to the stream:
 
 - `task.profile.resolved`, `routing.candidates.resolved`, `routing.decided`.
+- `task.attempt.started`, `task.attempt.completed`, and `task.attempt.failed` for per-run execution history.
 - `cost.estimated`, `cost.recorded`, `rate_limit.hit`, `quota.low`, `quota.blocked`.
 - `channel.connected`, `channel.resumed`, `channel.permission_forwarded`.
 

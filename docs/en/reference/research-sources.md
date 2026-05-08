@@ -24,6 +24,9 @@ Agent Runtime v0.1 was informed by current standards and implementation patterns
 - [Anthropic tool use](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/implement-tool-use): tool use and tool result blocks as explicit content, not prose-only execution.
 - [Vercel AI SDK](https://ai-sdk.dev/docs): `streamText`, `generateObject`, tool calls, tool results, steps, stop conditions, and typed UI messages.
 - [LangGraph durable execution](https://docs.langchain.com/oss/python/langgraph/durable-execution): persistence, checkpoints, threads, human-in-the-loop, and time-travel patterns for long-running agents.
+- [LangGraph interrupts and streaming](https://docs.langchain.com/oss/python/langgraph/interrupts): checkpointer-backed interrupts, resume commands, thread ids, and task-mode streaming.
+- [OpenAI Agents SDK](https://openai.github.io/openai-agents-python/): agents, handoffs, sessions, guardrails, tracing spans, and streaming events for multi-agent workflows.
+- [Temporal workflows](https://docs.temporal.io/workflows): workflow ids, run ids, task queues, activities, child workflows, signals, cancellation, retry policies, history, and durable execution.
 
 ## Design conclusions
 
@@ -32,4 +35,5 @@ Agent Runtime v0.1 was informed by current standards and implementation patterns
 - Tool calls and human approvals need explicit ids and lifecycle records.
 - Durable snapshots are required because event streams alone do not solve old sessions or process restart.
 - Observability correlation belongs in the runtime contract, not only in logs.
-- Agent-to-agent work should be modeled as subagents or remote tasks with parent links.
+- Agent-to-agent work should be modeled as tasks, subagents, jobs, or remote tasks with parent links.
+- Task lifecycle must be separate from todo/checklist state and preserve attempts, dependencies, waiting reasons, and delivery state.

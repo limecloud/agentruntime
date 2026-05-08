@@ -16,6 +16,8 @@ Runtime events、request logs、spans、metrics 和 evidence SHOULD 共享：
 - `thread_id`
 - `turn_id`
 - `task_id`
+- `run_id`
+- `attempt_id`
 - `tool_call_id`
 - `process_id`
 - `request_id`
@@ -33,6 +35,7 @@ Runtime events、request logs、spans、metrics 和 evidence SHOULD 共享：
 | Span | 语义 |
 | --- | --- |
 | `interaction` | 一次用户或系统输入到 runtime 结束。 |
+| `task.run` | 某个 task attempt 的执行时间、worker、retry 和 outcome。 |
 | `context.resolve` | 上下文、memory、policy、tool inventory 解析。 |
 | `model.request` | provider 请求、stream、usage 和 retry。 |
 | `tool.call` | 工具审批、执行和结果。 |
@@ -49,6 +52,7 @@ Span attributes SHOULD 使用 safe metadata，不复制敏感 prompt、文件内
 
 - TTFT。
 - model latency 与 retry count。
+- task duration、attempt count 和 retry reason。
 - token usage。
 - tool duration。
 - hook duration。

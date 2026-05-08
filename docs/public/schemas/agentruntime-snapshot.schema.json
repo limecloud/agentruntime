@@ -74,6 +74,30 @@
     "historySummary": {
       "type": "object",
       "additionalProperties": true
+    },
+    "taskSummary": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "tasks": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/task"
+      }
+    },
+    "taskGraph": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "blockedTasks": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "deliveryState": {
+      "type": "object",
+      "additionalProperties": true
     }
   },
   "$defs": {
@@ -201,6 +225,22 @@
         "evidenceSummary": {
           "type": "object",
           "additionalProperties": true
+        },
+        "tasks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/task"
+          }
+        },
+        "taskGraph": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "blockedTasks": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
         }
       }
     },
@@ -280,6 +320,21 @@
           "items": {
             "type": "object"
           }
+        },
+        "taskId": {
+          "type": "string"
+        },
+        "runId": {
+          "type": "string"
+        },
+        "attemptId": {
+          "type": "string"
+        },
+        "tasks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/task"
+          }
         }
       }
     },
@@ -301,6 +356,269 @@
         "unavailable",
         "not_applicable"
       ]
+    },
+    "taskStatusValue": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "accepted",
+        "queued",
+        "preparing",
+        "running",
+        "waiting_input",
+        "waiting_permission",
+        "waiting_resource",
+        "blocked",
+        "paused",
+        "retrying",
+        "cancelling",
+        "cancelled",
+        "timed_out",
+        "failed",
+        "lost",
+        "completed",
+        "archived",
+        "stale",
+        "unknown"
+      ]
+    },
+    "taskAttempt": {
+      "type": "object",
+      "required": [
+        "runId",
+        "status"
+      ],
+      "properties": {
+        "runId": {
+          "type": "string"
+        },
+        "attemptId": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/statusValue"
+        },
+        "worker": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "inputRefs": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "outputRefs": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "checkpointRefs": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "startedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "endedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "attemptCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "retryPolicy": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "lastError": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "completionSummary": {
+          "type": "string"
+        }
+      }
+    },
+    "taskRelationship": {
+      "type": "object",
+      "required": [
+        "kind",
+        "targetId"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "task": {
+      "type": "object",
+      "required": [
+        "taskId",
+        "status"
+      ],
+      "properties": {
+        "taskId": {
+          "type": "string"
+        },
+        "parentTaskId": {
+          "type": "string"
+        },
+        "rootTaskId": {
+          "type": "string"
+        },
+        "sessionId": {
+          "type": "string"
+        },
+        "threadId": {
+          "type": "string"
+        },
+        "turnId": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "objective": {
+          "type": "string"
+        },
+        "taskKind": {
+          "type": "string"
+        },
+        "taskFamily": {
+          "type": "string"
+        },
+        "visibility": {
+          "type": "string",
+          "enum": [
+            "foreground",
+            "background",
+            "internal",
+            "hidden",
+            "unknown"
+          ]
+        },
+        "status": {
+          "$ref": "#/$defs/taskStatusValue"
+        },
+        "nativeStatus": {
+          "type": "string"
+        },
+        "priority": {
+          "type": "string"
+        },
+        "requestedBy": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "owner": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "assignee": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "scope": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "constraints": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "taskProfile": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "acceptance": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "progress": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "currentRunId": {
+          "type": "string"
+        },
+        "attempts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/taskAttempt"
+          }
+        },
+        "relationships": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/taskRelationship"
+          }
+        },
+        "artifacts": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "evidenceRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "deliveryState": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "lastError": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "statusReason": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "startedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "endedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
     }
   }
 }

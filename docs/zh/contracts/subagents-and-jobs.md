@@ -5,10 +5,12 @@ description: Agent Runtime 子代理、后台任务和批处理 job 契约。
 
 # Subagents 与 jobs
 
-子代理和 job 都是 runtime work，但语义不同：
+子代理和 job 都是 runtime work，但语义不同。二者都可以被分配给 `agent task`，但不能替代 task semantics：
 
 - `subagent` 是带 parent links 的子执行上下文，可以有自己的 thread、tools、permissions 和 history。
 - `job` 是可持久化的批处理或后台目标，可以拆成多个 items，并把 items 分配给一个或多个 threads。
+
+Objective、lifecycle、attempts、relationships、acceptance 与 recovery 使用 [Agent task](./agent-task.md) 契约；本页只定义 child agent coordination 与 batch/background item processing。
 
 标准 SHOULD 同时支持两者，避免把所有后台工作都压扁成“一个子代理消息”。
 
@@ -47,6 +49,7 @@ description: Agent Runtime 子代理、后台任务和批处理 job 契约。
 | Field | 含义 |
 | --- | --- |
 | `job_id` | durable job id。 |
+| `task_id` | 可选，job 所属 agent task。 |
 | `status` | pending、running、completed、failed、cancelled。 |
 | `instruction_ref` | job 指令引用。 |
 | `input_refs` | CSV、JSON、artifact、queue 或 external trigger。 |

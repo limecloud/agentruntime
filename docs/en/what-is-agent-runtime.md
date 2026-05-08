@@ -9,7 +9,7 @@ Agent Runtime defines how agent work is accepted, executed, observed, controlled
 
 Use Agent Runtime when a product needs stable semantics for:
 
-- submitted user turns and background tasks
+- submitted user turns and agent tasks with attempts, progress, graph edges, and delivery state
 - model routing, fallback, limits, and token/cost accounting
 - streaming text, reasoning, and structured output
 - tool calls, tool results, large output refs, and tool errors
@@ -25,7 +25,7 @@ Do not use it to define the visual interface, model provider API, connector prot
 | Layer | Main question | Runtime facts |
 | --- | --- | --- |
 | `input` | What work was submitted and by whom? | session, thread, turn, draft, attachments, source channel, request ids. |
-| `execution` | What is running and why? | turn status, task status, model routing, tool calls, action requests, subagents. |
+| `execution` | What is running and why? | turn status, task lifecycle, task attempts, model routing, tool calls, action requests, subagents. |
 | `state` | What can be resumed or inspected later? | snapshots, thread read model, queue, pending requests, incidents, checkpoints. |
 | `coordination` | What external systems were used? | tool inventory, context refs, artifact refs, evidence refs, policy decisions. |
 | `observability` | Can the work be traced, replayed, reviewed, or audited? | trace ids, spans, timeline, evidence pack, replay case, verification summaries. |

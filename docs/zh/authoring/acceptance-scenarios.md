@@ -31,6 +31,10 @@ description: Agent Runtime 的行为级验收场景。
 
 当 parent turn 生成 child agent，parent/child ids 保持关联。等待、发送输入、失败和关闭都可见，不需要解析 child prose。
 
+## Agent task retry 与 graph
+
+当长任务创建 child work 后失败，runtime 保留原 `task_id`，用 `run_id` 记录失败 attempt，保留 parent/dependency edges，并在 retry 时创建新 attempt，而不是覆盖历史。
+
 ## Evidence export
 
 当 turn completed 或 failed，evidence export 包含 runtime summary、timeline、tool failures、artifact refs，以及可用的 verification/review refs。

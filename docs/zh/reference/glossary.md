@@ -9,8 +9,9 @@ description: Agent Runtime 术语表。
 - `session`：用户可见的 durable work container。
 - `thread`：session 内的有序执行上下文。
 - `turn`：一次提交输入周期。
-- `task`：可跨 turn 或后台运行的工作单元。
-- `step`：turn 或 task 内的有序 runtime item。
+- `task`：带 lifecycle、attempts、relationships、progress、acceptance 和 recovery state 的 durable objective。
+- `run` / `attempt`：某个 task 的一次执行尝试。
+- `step`：turn、task 或 run 内的有序 runtime item。
 - `tool_call`：一次工具或 connector 调用。
 - `action_request`：等待 human 或 policy decision 的请求。
 - `subagent`：由 parent runtime 委派的 child runtime context。

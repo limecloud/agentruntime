@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.3.0 - 2026-05-08
+
+### Added
+
+- Added Agent Task as a first-class Agent Runtime contract covering lifecycle, attempts/runs, task graph relationships, progress, delivery state, control-plane operations, snapshots, and anti-patterns.
+- Expanded the latest specification and public JSON Schemas with task orchestration events, task attempts, task read models, dependency edges, and normalized waiting/lost/timeout states.
+- Updated implementation analysis and research sources with task pressure from real terminal, scheduler, typed systems, desktop, durable graph, and workflow runtimes.
+
 ## v0.2.0 - 2026-05-08
 
 ### Added

@@ -15,6 +15,7 @@ A session snapshot SHOULD include:
 - active thread ids and pinned thread ids
 - recent history window with cursor
 - thread summaries
+- task summaries and active task graph refs
 - child subagent summaries
 - latest evidence and artifact refs
 - stale or truncated flags
@@ -30,20 +31,21 @@ A thread read model SHOULD include:
 - last outcome
 - active incidents
 - queued turns
+- active, waiting, blocked, failed, lost, and recent terminal tasks
 - latest compaction boundary
 - diagnostics summary
 - tool/artifact/evidence summaries
 - model routing and limit state
 - permission state, sandbox profile, and pending approvals
 - active processes, output refs, and execution environment
-- subagent graph, job progress, and remote channel state
+- task graph, subagent graph, job progress, and remote channel state
 - telemetry correlation summary
 
 This read model is the current answer to “what is happening now?” Consumers should not compute it independently from UI state.
 
 ## Diagnostics
 
-Diagnostics can include warnings, failed tools, failed commands, pending requests, stalled turns, interrupt state, quota blocks, and context gaps. A missing diagnostic is not the same as a healthy state; mark unsupported facts as `unavailable`.
+Diagnostics can include warnings, failed tools, failed commands, pending requests, stalled turns, stalled tasks, lost workers, interrupt state, quota blocks, and context gaps. A missing diagnostic is not the same as a healthy state; mark unsupported facts as `unavailable`.
 
 ## History windows
 

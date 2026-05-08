@@ -14,6 +14,11 @@ The control plane is the write boundary for runtime state. It may be implemented
 | `submit_turn` | Accept user or system input, create or select session/thread, and start or queue a turn. |
 | `interrupt_turn` | Request cancellation of current work and clear or preserve queued work according to policy. |
 | `resume_thread` | Continue a thread after restart, queue pause, provider continuation, or blocked state. |
+| `create_task` / `update_task` | Create or update an agent task with objective, profile, constraints, owner, acceptance, and idempotency. |
+| `start_task` / `append_task_progress` | Start a task run or append phase, counters, progress summaries, delivery state, or output refs. |
+| `pause_task` / `resume_task` / `cancel_task` / `retry_task` | Mutate task execution state while preserving attempts and graph edges. |
+| `complete_task` / `fail_task` | Reconcile terminal task state with artifacts, evidence, delivery, and errors. |
+| `list_tasks` / `get_task` / `link_tasks` / `unlink_tasks` | Read task state and update parent, dependency, source, artifact, evidence, or subagent edges. |
 | `respond_action` | Resolve a pending human or policy request. |
 | `remove_queued_turn` | Remove a queued turn by id. |
 | `promote_queued_turn` | Move a queued turn ahead according to policy. |
@@ -54,6 +59,10 @@ The runtime may continue unrelated tasks, but it must not treat an unresolved ac
 ## Queue and resume
 
 Queue state is runtime-owned. A busy thread can accept new input as queued work only if policy allows it. Queue snapshots must survive restart. Resume should be explicit when the runtime cannot prove that background work is already active.
+
+## Tasks
+
+Task commands MUST write runtime facts. A task retry should create a new run or attempt instead of overwriting the previous attempt. Cancellation should record intent first, then propagate to active child tasks, jobs, processes, or subagents according to policy.
 
 
 ## Process and Channel Control

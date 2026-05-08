@@ -5,7 +5,9 @@ description: Agent Runtime subagent, background task, and batch job contract.
 
 # Subagents and jobs
 
-A `subagent` is a child execution context with parent links. A `job` is durable batch or background work that can contain many items. Both are runtime work, but they need different facts.
+A `subagent` is a child execution context with parent links. A `job` is durable batch or background work that can contain many items. Both can be assigned to an `agent task`, but neither replaces task semantics.
+
+Use the [Agent task](./agent-task.md) contract for objective, lifecycle, attempts, relationships, acceptance, and recovery. Use this contract for child agent coordination and batch/background item processing.
 
 ## Subagents
 
@@ -17,7 +19,7 @@ Parent-child edges SHOULD be durable enough to list direct children and descenda
 
 ## Jobs
 
-A job SHOULD include `job_id`, status, instruction ref, input refs, optional output schema ref, max runtime, item cursor, progress counts, and assigned thread ids.
+A job SHOULD include `job_id`, optional `task_id`, status, instruction ref, input refs, optional output schema ref, max runtime, item cursor, progress counts, and assigned thread ids.
 
 Job item status SHOULD be independent: pending, running, completed, failed, reported. Failed items SHOULD keep attempt count, last error, retryability, and assigned thread.
 

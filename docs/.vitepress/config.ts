@@ -10,6 +10,8 @@ const enNav = [
     text: 'Version',
     items: [
       { text: 'latest', link: '/en/specification' },
+      { text: 'v0.3.0 overview', link: '/en/versions/v0.3.0/overview' },
+      { text: 'v0.3.0', link: '/en/versions/v0.3.0/specification' },
       { text: 'v0.2.0 overview', link: '/en/versions/v0.2.0/overview' },
       { text: 'v0.2.0', link: '/en/versions/v0.2.0/specification' },
       { text: 'v0.1.0 overview', link: '/en/versions/v0.1.0/overview' },
@@ -26,6 +28,8 @@ const zhNav = [
     text: '版本',
     items: [
       { text: 'latest', link: '/zh/specification' },
+      { text: 'v0.3.0 概览', link: '/zh/versions/v0.3.0/overview' },
+      { text: 'v0.3.0', link: '/zh/versions/v0.3.0/specification' },
       { text: 'v0.2.0 概览', link: '/zh/versions/v0.2.0/overview' },
       { text: 'v0.2.0', link: '/zh/versions/v0.2.0/specification' },
       { text: 'v0.1.0 概览', link: '/zh/versions/v0.1.0/overview' },
@@ -61,6 +65,7 @@ const enSidebar = [
       { text: 'Hooks and policy', link: '/en/contracts/hooks-and-policy' },
       { text: 'Execution environment', link: '/en/contracts/execution-environment' },
       { text: 'Model routing and limits', link: '/en/contracts/model-routing-limits' },
+      { text: 'Agent task', link: '/en/contracts/agent-task' },
       { text: 'Subagents and jobs', link: '/en/contracts/subagents-and-jobs' },
       { text: 'Remote channels', link: '/en/contracts/remote-channels' },
       { text: 'Telemetry and tracing', link: '/en/contracts/telemetry-tracing' },
@@ -93,6 +98,9 @@ const enSidebar = [
   {
     text: 'Versions',
     items: [
+      { text: 'v0.3.0 overview', link: '/en/versions/v0.3.0/overview' },
+      { text: 'v0.3.0 specification', link: '/en/versions/v0.3.0/specification' },
+      { text: 'v0.3.0 changelog', link: '/en/versions/v0.3.0/changelog' },
       { text: 'v0.2.0 overview', link: '/en/versions/v0.2.0/overview' },
       { text: 'v0.2.0 specification', link: '/en/versions/v0.2.0/specification' },
       { text: 'v0.2.0 changelog', link: '/en/versions/v0.2.0/changelog' },
@@ -130,6 +138,7 @@ const zhSidebar = [
       { text: 'Hooks 与 policy', link: '/zh/contracts/hooks-and-policy' },
       { text: 'Execution environment', link: '/zh/contracts/execution-environment' },
       { text: 'Model routing 与 limits', link: '/zh/contracts/model-routing-limits' },
+      { text: 'Agent task', link: '/zh/contracts/agent-task' },
       { text: 'Subagents 与 jobs', link: '/zh/contracts/subagents-and-jobs' },
       { text: 'Remote channels', link: '/zh/contracts/remote-channels' },
       { text: 'Telemetry 与 tracing', link: '/zh/contracts/telemetry-tracing' },
@@ -162,6 +171,9 @@ const zhSidebar = [
   {
     text: '版本',
     items: [
+      { text: 'v0.3.0 概览', link: '/zh/versions/v0.3.0/overview' },
+      { text: 'v0.3.0 规范', link: '/zh/versions/v0.3.0/specification' },
+      { text: 'v0.3.0 变更记录', link: '/zh/versions/v0.3.0/changelog' },
       { text: 'v0.2.0 概览', link: '/zh/versions/v0.2.0/overview' },
       { text: 'v0.2.0 规范', link: '/zh/versions/v0.2.0/specification' },
       { text: 'v0.2.0 变更记录', link: '/zh/versions/v0.2.0/changelog' },

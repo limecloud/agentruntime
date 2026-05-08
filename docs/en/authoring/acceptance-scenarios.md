@@ -31,6 +31,10 @@ Given a long thread requires compaction, the runtime emits compaction start and 
 
 Given a parent turn spawns a child agent, parent and child ids are linked. Waiting, sending input, failure, and close events are visible without parsing child prose.
 
+## Agent task retry and graph
+
+Given a long-running task creates child work and then fails, the runtime preserves the original `task_id`, records the failed attempt with `run_id`, keeps parent/dependency edges, and starts a new attempt on retry instead of overwriting history.
+
 ## Evidence export
 
 Given a completed or failed turn, evidence export includes runtime summary, timeline, tool failures, artifact refs, and verification/review refs when available.
