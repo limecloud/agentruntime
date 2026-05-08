@@ -11,6 +11,9 @@ const enNav = [
     text: 'Version',
     items: [
       { text: 'latest', link: '/en/specification' },
+      { text: 'v0.3.7 overview', link: '/en/versions/v0.3.7/overview' },
+      { text: 'v0.3.7 specification', link: '/en/versions/v0.3.7/specification' },
+      { text: 'v0.3.7 changelog', link: '/en/versions/v0.3.7/changelog' },
       { text: 'v0.3.6 overview', link: '/en/versions/v0.3.6/overview' },
       { text: 'v0.3.6 specification', link: '/en/versions/v0.3.6/specification' },
       { text: 'v0.3.6 changelog', link: '/en/versions/v0.3.6/changelog' },
@@ -43,6 +46,9 @@ const zhNav = [
     text: '版本',
     items: [
       { text: 'latest', link: '/zh/specification' },
+      { text: 'v0.3.7 概览', link: '/zh/versions/v0.3.7/overview' },
+      { text: 'v0.3.7 规范', link: '/zh/versions/v0.3.7/specification' },
+      { text: 'v0.3.7 变更记录', link: '/zh/versions/v0.3.7/changelog' },
       { text: 'v0.3.6 概览', link: '/zh/versions/v0.3.6/overview' },
       { text: 'v0.3.6 规范', link: '/zh/versions/v0.3.6/specification' },
       { text: 'v0.3.6 变更记录', link: '/zh/versions/v0.3.6/changelog' },
@@ -127,6 +133,9 @@ const enSidebar = [
   {
     text: 'Versions',
     items: [
+      { text: 'v0.3.7 overview', link: '/en/versions/v0.3.7/overview' },
+      { text: 'v0.3.7 specification', link: '/en/versions/v0.3.7/specification' },
+      { text: 'v0.3.7 changelog', link: '/en/versions/v0.3.7/changelog' },
       { text: 'v0.3.6 overview', link: '/en/versions/v0.3.6/overview' },
       { text: 'v0.3.6 specification', link: '/en/versions/v0.3.6/specification' },
       { text: 'v0.3.6 changelog', link: '/en/versions/v0.3.6/changelog' },
@@ -219,6 +228,9 @@ const zhSidebar = [
   {
     text: '版本',
     items: [
+      { text: 'v0.3.7 概览', link: '/zh/versions/v0.3.7/overview' },
+      { text: 'v0.3.7 规范', link: '/zh/versions/v0.3.7/specification' },
+      { text: 'v0.3.7 变更记录', link: '/zh/versions/v0.3.7/changelog' },
       { text: 'v0.3.6 概览', link: '/zh/versions/v0.3.6/overview' },
       { text: 'v0.3.6 规范', link: '/zh/versions/v0.3.6/specification' },
       { text: 'v0.3.6 变更记录', link: '/zh/versions/v0.3.6/changelog' },

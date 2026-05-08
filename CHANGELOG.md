@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.3.7 - 2026-05-08
+
+### Added
+
+- Promoted Agent Artifact from future candidate to current Agent standards ecosystem links.
+- Added Agent Artifact to README and LLM navigation entrypoints.
+- Refreshed version navigation and public LLM copies for ecosystem discovery.
+
 ## v0.3.6 - 2026-05-08
 
 ### Added
