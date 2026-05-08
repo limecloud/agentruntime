@@ -1636,17 +1636,16 @@ These candidates should remain design notes until they can be specified without 
 
 External protocols are references, not ownership transfers. The Agent standards should preserve their native ids and semantics while defining agent-specific relationships.
 
-# Agent Runtime v0.3.4
-Source: https://limecloud.github.io/agentruntime/en/versions/v0.3.4/overview
+# Agent Runtime v0.3.5
+Source: https://limecloud.github.io/agentruntime/en/versions/v0.3.5/overview
 
-# Agent Runtime v0.3.4
+# Agent Runtime v0.3.5
 
-Agent Runtime v0.3.4 fixes the Simplified Chinese homepage and aligns both localized index pages with the home landing layout.
+Agent Runtime v0.3.5 fixes repository-base homepage asset links. The localized home pages now keep their home layout while LLM entrypoint links resolve under the project site path and the navigation logo loads from the correct public asset path.
 
 ## Highlights
 
-- Converts localized index pages into proper `layout: home` landing pages.
-- Adds clearer hero actions for the specification, quickstart, standards ecosystem, and LLM context.
-- Keeps the homepage concise while routing detailed concepts to dedicated documentation pages.
-- Fixes the GitHub Pages logo path so repository-base deployments load the site logo correctly.
-- Keeps the core Agent Runtime specification compatible with v0.3.3.
+- Fixes LLM entrypoint links on localized home pages for repository-base deployments.
+- Fixes documentation logo asset paths for repository-base deployments.
+- Keeps the localized home page structure introduced in v0.3.4.
+- Keeps the core Agent Runtime specification compatible with v0.3.4.
