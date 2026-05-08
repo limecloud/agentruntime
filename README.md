@@ -11,6 +11,7 @@ Agent Runtime sits below Agent UI. The runtime owns execution facts. Agent UI ow
 | Agent UI | Visible surfaces, local drafts, interaction affordances, progressive rendering. | Authoritative session, thread, turn, task, queue, status, action, and event facts. |
 | Model providers | Model APIs, provider-native streams, token accounting, provider errors. | Provider selection, routing trace, normalized generation lifecycle, retry/fallback state. |
 | Tools and connectors | External systems, tool schemas, execution backends, connector auth. | Tool inventory snapshot, invocation lifecycle, safe arguments/results references, policy checks. |
+| A2A peers | Remote agent cards, peer tasks, messages, artifacts, streaming, push notifications. | Local task refs, channel facts, permission bridges, artifact refs, and native peer id mapping. |
 | Context and memory | Knowledge, memory, source retrieval, policy facts, trust metadata. | Context assembly trace, selected refs, compaction boundaries, missing-context warnings. |
 | Artifacts and evidence | Files, versions, exports, traces, replay cases, verification and review facts. | Stable refs, lifecycle events, ownership links, evidence export requests and correlation ids. |
 | Host application | Workspaces, accounts, storage, product navigation, deployment policy. | Runtime control plane, durable snapshots, queue/resume/interrupt semantics, read models. |
@@ -22,6 +23,7 @@ Agent Runtime sits below Agent UI. The runtime owns execution facts. Agent UI ow
 - A control plane for submit, interrupt, resume, task create/update/cancel/retry, queue, respond-action, inspect, list sessions, spawn subagents, and export evidence/replay.
 - Durable read models for session snapshots, thread status, task state, pending requests, incidents, queue state, tool inventory, and evidence summaries.
 - Permission, sandbox, hook, process, remote channel, model routing, cost/limit, job, recovery, and large-output contracts drawn from real runtimes.
+- A2A peer-task alignment for Agent Cards, task/context ids, messages, artifacts, streaming, push notifications, and in-task authorization.
 - Compatibility guidance for MCP, A2A, OpenTelemetry, CloudEvents, JSON-RPC, provider streaming APIs, and Agent UI projection.
 
 ## Runtime architecture

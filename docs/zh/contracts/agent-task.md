@@ -129,6 +129,24 @@ Task graph SHOULD 显式表达关系：
 
 Edges SHOULD 携带 `created_at`、`updated_at`、`status` 和可选 `reason`。Cancellation intent SHOULD 粘在 graph 上，让 scheduler 立即停止新增 child work，同时允许 active children 自然结算到取消态。
 
+## A2A peer tasks
+
+当 task 委派给 Agent2Agent peer 时，本地 runtime SHOULD 创建 local task wrapper 或 remote task ref，而不是把自己的 task model 替换成 peer protocol object。
+
+A2A mapping SHOULD 保留：
+
+| Field | 目的 |
+| --- | --- |
+| `native_protocol` | `a2a` 或其他 peer protocol 名称。 |
+| `remote_task_id` | A2A `taskId` 或 peer-native task id。 |
+| `remote_context_id` | A2A `contextId`，如果存在。 |
+| `remote_agent_ref` / `agent_card_ref` | Agent Card、discovery record 或 configured peer。 |
+| `delivery_mechanism` | polling、streaming、subscription、push notification 或 custom。 |
+| `remote_status` / `native_status` | 归一化之前的 peer-native state。 |
+| `remote_artifact_refs` | 从 peer 收到的 artifact refs。 |
+
+A2A messages SHOULD 映射为 task input、clarification 或 status events。A2A artifacts SHOULD 映射为 durable artifact refs 和 task graph edges。Completion SHOULD 同时满足 peer terminal state，以及本地 artifacts、evidence 与 delivery facts 的 reconcile。
+
 ## Progress 与 output
 
 Runtime SHOULD 以 facts 报告进度，而不只靠自然语言：

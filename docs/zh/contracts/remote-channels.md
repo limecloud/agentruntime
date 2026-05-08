@@ -14,12 +14,13 @@ Agent Runtime 可以在本地进程、远程服务、浏览器扩展、IDE、移
 | Field | 含义 |
 | --- | --- |
 | `channel_id` | 稳定通道 id。 |
-| `transport` | websocket、sse、json_rpc、stdio、http、in_process 或 custom。 |
-| `peer_role` | client、host、worker、remote_runtime、tool_server。 |
-| `account_ref` | host 账号或租户引用。 |
-| `capabilities` | 支持 streaming、resume、permissions、files、artifacts 等。 |
+| `transport` | `websocket`、`sse`、`json_rpc`、`grpc`、`http_json`、`stdio`、`in_process` 或 custom。 |
+| `peer_role` | `client`、`host`、`worker`、`remote_runtime`、`peer_agent` 或 `tool_server`。 |
+| `account_ref` | Host 账号或租户引用。 |
+| `capabilities` | 支持 streaming、resume、permissions、files、artifacts、task delegation 等。 |
 | `last_seen_at` | 最近心跳或事件时间。 |
 | `resume_token_ref` | 可选恢复 token 引用。 |
+| `native_protocol` | 可选 peer protocol，例如 `a2a`、`mcp`、`json_rpc` 或 custom。 |
 
 ## Remote session ingress
 
@@ -27,9 +28,26 @@ Agent Runtime 可以在本地进程、远程服务、浏览器扩展、IDE、移
 
 1. authenticate / enroll channel。
 2. resolve session、thread 和 workspace scope。
-3. submit turn 或 append remote action。
+3. submit turn、create task、append remote input 或 link peer task。
 4. emit channel events。
-5. persist read model 和 recovery cursor。
+5. persist read models、native ids 和 recovery cursors。
+
+## A2A alignment
+
+当 peer 使用 Agent2Agent Protocol 时，runtime SHOULD 把 A2A 视为 peer transport 与 interaction contract，同时继续让 Agent Runtime 负责内部执行真相。
+
+| A2A concept | Runtime mapping |
+| --- | --- |
+| Agent Card | Peer capability snapshot、routing input、`channel.capabilities` 与可选 `agent_card_ref`。 |
+| `SendMessage` / `SendStreamingMessage` | 视 scope 映射为 `submit_turn`、`create_task`、`append_task_progress` 与 channel events。 |
+| A2A `taskId` / `contextId` | 关联到本地 `task_id`、`parent_task_id`、`subagent_id` 或 `channel_id` 的 `remote_task_ref`。 |
+| A2A Task state | 归一化 task status 加 `native_status`；不要覆盖 retries 或 local attempts。 |
+| Message | Remote input、clarification、status 或 task interaction；不要把 message 当成 durable task output。 |
+| Artifact / `TaskArtifactUpdateEvent` | Artifact refs、`artifact.changed`，以及 produced/consumed artifact task graph edges。 |
+| Streaming / subscribe / push notifications | `channel.connected`、`channel.message`、`task.progress`、`task.completed`、`channel.resumed`、ack、cursor 和 snapshot repair facts。 |
+| In-task authorization | `action.required`、`permission.requested`、`channel.permission_forwarded` 和 `channel.permission_returned`。 |
+
+Runtime MAY 暴露 A2A adapter，但 adapter 必须同时保留两套身份：本地 runtime `task_id` 与远端 A2A `taskId` / `contextId`。
 
 ## Remote permission bridge
 
@@ -53,6 +71,8 @@ Agent Runtime 可以在本地进程、远程服务、浏览器扩展、IDE、移
 | `channel.message` | 非 turn 的通道级消息或状态。 |
 | `channel.permission_forwarded` | permission request 跨 channel 转发。 |
 | `channel.permission_returned` | 远端或本地裁决返回。 |
+| `channel.peer_task.linked` | remote peer task 关联到本地 task 或 subagent。 |
+| `channel.peer_task.updated` | remote peer task 状态变化。 |
 
 ## Recovery
 
@@ -62,6 +82,8 @@ Agent Runtime 可以在本地进程、远程服务、浏览器扩展、IDE、移
 
 - remote session 仍在 running。
 - remote session idle 但未完成。
+- remote peer task 正在等待 input 或 authorization。
+- remote peer task 已完成但本地 delivery 尚未 reconcile。
 - remote session archived 或 missing。
 - auth / network 暂时不可用。
 
@@ -70,6 +92,8 @@ Agent Runtime 可以在本地进程、远程服务、浏览器扩展、IDE、移
 ## 反模式
 
 - 远程消息直接写 UI，不进入 runtime event stream。
+- 把 A2A `taskId` 当成本地 `task_id`，导致 peer 边界丢失。
+- 用 A2A message 充当 durable output，而不是 artifact refs。
 - 重连后从头重复投递，产生重复 turn。
 - 远程权限由浏览器或 host 私下批准，evidence 里没有记录。
-- channel 状态丢失导致 running job 被错误标记 completed。
+- channel 断开导致 running peer task 被错误标记 completed。

@@ -20,7 +20,7 @@ Agent Runtime 标准化这些实现问题：
 5. Tool/context/model/policy orchestration facts。
 6. Human-in-the-loop requests 与 queue/resume semantics。
 7. Evidence、replay 和 observability export boundaries。
-8. Permission、sandbox、hooks、process execution 与 remote channel recovery。
+8. Permission、sandbox、hooks、process execution、remote channel recovery 与 peer task mapping。
 9. Model routing、candidate set、cost、quota、rate limit 和 budget facts。
 10. Agent task lifecycle、attempts、task graphs、subagent graph、background jobs、large output storage 与 session reconstruction。
 
@@ -39,7 +39,7 @@ Agent Runtime 不是把聊天流包装成协议。真实实现暴露出十个必
 6. Subagents 需要 parent-child graph、isolation、status 和可恢复 child thread，而不是一段临时文本。
 7. Tasks 需要 objective、owner、status、attempts、dependencies、progress、output refs 和 delivery state；todo lists 不够。
 8. Jobs 需要 item 级状态、attempt、assignment 和 progress。
-9. Remote channels 需要 channel identity、resume cursor、permission bridge 和断线语义。
+9. Remote channels 需要 channel identity、native peer ids、resume cursor、permission bridge 和断线语义。
 10. Model routing 需要 task profile、candidate set、routing decision、fallback、single-candidate 和 no-candidate 事实。
 11. Cost、quota、rate limit、request telemetry 和 evidence 必须能用同一组 correlation ids join。
 

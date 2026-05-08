@@ -10,7 +10,10 @@ Agent Runtime v0.1 was informed by current standards and implementation patterns
 ## Standards and protocols
 
 - [Model Context Protocol specification](https://modelcontextprotocol.io/specification/2025-06-18): tools, resources, prompts, sampling, roots, JSON-RPC message shape, and capability negotiation.
-- [Agent2Agent Protocol specification](https://a2a-protocol.org/dev/specification/): agent cards, tasks, messages, artifacts, streaming, and push-style coordination between agents.
+- [Agent2Agent Protocol specification](https://a2a-protocol.org/latest/specification/): agent cards, peer tasks, messages, artifacts, streaming, push notifications, security, and protocol bindings for agent-to-agent interoperability.
+- [Google Developers Blog: Announcing the Agent2Agent Protocol](https://developers.googleblog.com/en/a2a-a-new-era-of-agent-interoperability/): original A2A positioning around capability discovery, task management, artifacts, collaboration, existing web standards, and MCP complementarity.
+- [Linux Foundation A2A project announcement](https://www.linuxfoundation.org/press/linux-foundation-launches-the-agent2agent-protocol-project-to-enable-secure-intelligent-communication-between-ai-agents): project governance and vendor-neutral direction for A2A as an open agent-to-agent communication protocol.
+- [A2A GitHub project](https://github.com/a2aproject/A2A): released specification, protocol assets, SDKs, samples, and issue history.
 - [CloudEvents specification](https://github.com/cloudevents/spec): portable event envelope concepts such as event type, source, id, time, subject, content type, and extension attributes.
 - [JSON-RPC 2.0 specification](https://www.jsonrpc.org/specification): request, response, notification, method, params, result, and error semantics for transport-neutral control planes.
 - [OpenTelemetry concepts](https://opentelemetry.io/docs/concepts/): traces, spans, logs, metrics, context propagation, baggage, and service/resource attribution.
@@ -35,5 +38,6 @@ Agent Runtime v0.1 was informed by current standards and implementation patterns
 - Tool calls and human approvals need explicit ids and lifecycle records.
 - Durable snapshots are required because event streams alone do not solve old sessions or process restart.
 - Observability correlation belongs in the runtime contract, not only in logs.
-- Agent-to-agent work should be modeled as tasks, subagents, jobs, or remote tasks with parent links.
+- Agent-to-agent work should be modeled as local tasks, subagents, jobs, or remote task refs with parent links; A2A is the peer interoperability reference, not a replacement for runtime facts.
 - Task lifecycle must be separate from todo/checklist state and preserve attempts, dependencies, waiting reasons, and delivery state.
+- A2A messages and artifacts support the same separation used by Agent Runtime: communication belongs in messages or channel events, while durable outputs belong in artifact refs linked to tasks.

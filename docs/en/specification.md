@@ -20,7 +20,7 @@ Agent Runtime standardizes these implementation concerns:
 5. Tool/context/model/policy orchestration facts.
 6. Human-in-the-loop requests and queue/resume semantics.
 7. Evidence, replay, and observability export boundaries.
-8. Permission, sandbox, hooks, process execution, and remote recovery.
+8. Permission, sandbox, hooks, process execution, remote channel recovery, and peer task mapping.
 9. Model routing, candidate sets, cost, quota, rate limit, and budget facts.
 10. Agent task lifecycle, attempts, task graphs, subagent graphs, background jobs, large output storage, and session reconstruction.
 
@@ -39,7 +39,7 @@ Agent Runtime is not a wrapper around chat streaming. Real implementations show 
 6. Subagents need a parent-child graph, isolation, status, and recoverable child threads.
 7. Tasks need objective, owner, status, attempts, dependencies, progress, output refs, and delivery state; todo lists are not enough.
 8. Jobs need item status, attempts, assignment, and progress.
-9. Remote channels need identity, resume cursors, permission bridges, and disconnect semantics.
+9. Remote channels need identity, native peer ids, resume cursors, permission bridges, and disconnect semantics.
 10. Model routing needs task profiles, candidate sets, decisions, fallback, single-candidate, and no-candidate facts.
 11. Cost, quota, rate limits, request telemetry, and evidence must join through stable correlation ids.
 

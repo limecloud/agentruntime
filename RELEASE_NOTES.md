@@ -1,3 +1,25 @@
+# Agent Runtime v0.3.1
+
+Agent Runtime v0.3.1 strengthens A2A alignment without turning Agent Runtime into an A2A implementation. A2A is now documented as the peer-agent interoperability reference for remote delegation, while Agent Runtime remains the owner of local execution facts, attempts, permissions, evidence, and recovery.
+
+## Highlights
+
+- Added official A2A references: latest protocol specification, Google launch post, Linux Foundation project announcement, and A2A GitHub project.
+- Added an A2A boundary map for Agent Card, A2A task/context ids, messages, artifacts, streaming, push notifications, and in-task authorization.
+- Expanded remote channels with `native_protocol`, peer-agent roles, native peer ids, remote task refs, and peer task lifecycle events.
+- Added A2A peer-task fields including `remote_task_id`, `remote_context_id`, `agent_card_ref`, `delivery_mechanism`, `native_status`, and `remote_artifact_refs`.
+- Clarified that A2A messages are communication or interaction facts, while durable outputs should be artifact refs linked to tasks.
+
+## Validation
+
+- `npm run build`
+- `VITEPRESS_BASE="/agentruntime/" npm run build`
+- `npm audit --omit=dev`
+- `npm pack --dry-run`
+- Forbidden coupling scan outside generated output
+
+---
+
 # Agent Runtime v0.3.0
 
 Agent Runtime v0.3.0 adds Agent Task as a first-class execution object. It turns tasks from loose UI cards, checklist items, or background labels into durable runtime truth with lifecycle, attempts, task graph relationships, progress, delivery state, and recovery semantics.

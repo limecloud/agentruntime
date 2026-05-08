@@ -129,6 +129,24 @@ A task graph SHOULD represent relationships explicitly:
 
 Edges SHOULD carry `created_at`, `updated_at`, `status`, and optional `reason`. Cancellation intent SHOULD stick to the graph so schedulers stop adding new child work while active children settle.
 
+## A2A peer tasks
+
+When a task is delegated to an Agent2Agent peer, the local runtime SHOULD create a local task wrapper or remote task ref instead of replacing its task model with the peer protocol object.
+
+An A2A mapping SHOULD preserve:
+
+| Field | Purpose |
+| --- | --- |
+| `native_protocol` | `a2a` or another peer protocol name. |
+| `remote_task_id` | A2A `taskId` or peer-native task id. |
+| `remote_context_id` | A2A `contextId` when supplied. |
+| `remote_agent_ref` / `agent_card_ref` | Agent Card, discovery record, or configured peer. |
+| `delivery_mechanism` | polling, streaming, subscription, push notification, or custom. |
+| `remote_status` / `native_status` | Peer-native state before normalization. |
+| `remote_artifact_refs` | Artifact refs received from the peer. |
+
+A2A messages SHOULD map to task input, clarification, or status events. A2A artifacts SHOULD map to durable artifact refs and task graph edges. Completion SHOULD require both peer terminal state and local reconciliation of artifacts, evidence, and delivery facts.
+
 ## Progress and output
 
 A runtime SHOULD report progress as facts, not only natural language:

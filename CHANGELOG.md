@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.3.1 - 2026-05-08
+
+### Added
+
+- Added official A2A research sources covering the latest Agent2Agent Protocol specification, Google launch post, Linux Foundation project announcement, and A2A GitHub project.
+- Added explicit A2A peer-task mapping for Agent Card, A2A `taskId` / `contextId`, messages, artifacts, streaming, push notifications, and in-task authorization.
+- Added remote channel fields and events for peer protocol identity, remote task refs, native status, and peer task linking.
+
+### Changed
+
+- Clarified that A2A is a peer-agent interoperability reference, not a replacement for Agent Runtime execution facts.
+- Clarified that A2A messages should map to input, clarification, status, or task interaction, while durable outputs should map to artifact refs.
+
 ## v0.3.0 - 2026-05-08
 
 ### Added
