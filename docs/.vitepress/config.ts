@@ -6,10 +6,13 @@ const enNav = [
   { text: 'Guide', link: '/en/what-is-agent-runtime' },
   { text: 'Specification', link: '/en/specification' },
   { text: 'Examples', link: '/en/examples/basic-runtime-adapter' },
+  { text: 'Ecosystem', link: '/en/reference/agent-ecosystem' },
   {
     text: 'Version',
     items: [
       { text: 'latest', link: '/en/specification' },
+      { text: 'v0.3.3 overview', link: '/en/versions/v0.3.3/overview' },
+      { text: 'v0.3.3', link: '/en/versions/v0.3.3/specification' },
       { text: 'v0.3.2 overview', link: '/en/versions/v0.3.2/overview' },
       { text: 'v0.3.2', link: '/en/versions/v0.3.2/specification' },
       { text: 'v0.3.1 overview', link: '/en/versions/v0.3.1/overview' },
@@ -28,10 +31,13 @@ const zhNav = [
   { text: '指南', link: '/zh/what-is-agent-runtime' },
   { text: '规范', link: '/zh/specification' },
   { text: '示例', link: '/zh/examples/basic-runtime-adapter' },
+  { text: '生态', link: '/zh/reference/agent-ecosystem' },
   {
     text: '版本',
     items: [
       { text: 'latest', link: '/zh/specification' },
+      { text: 'v0.3.3 概览', link: '/zh/versions/v0.3.3/overview' },
+      { text: 'v0.3.3', link: '/zh/versions/v0.3.3/specification' },
       { text: 'v0.3.2 概览', link: '/zh/versions/v0.3.2/overview' },
       { text: 'v0.3.2', link: '/zh/versions/v0.3.2/specification' },
       { text: 'v0.3.1 概览', link: '/zh/versions/v0.3.1/overview' },
@@ -92,6 +98,7 @@ const enSidebar = [
     text: 'Reference',
     items: [
       { text: 'Glossary', link: '/en/reference/glossary' },
+    { text: 'Agent standards ecosystem', link: '/en/reference/agent-ecosystem' },
       { text: 'Ecosystem boundaries', link: '/en/reference/ecosystem-boundaries' },
       { text: 'Research sources', link: '/en/reference/research-sources' },
       { text: 'Source analysis', link: '/en/reference/source-analysis' }
@@ -171,6 +178,7 @@ const zhSidebar = [
     text: '参考',
     items: [
       { text: '术语表', link: '/zh/reference/glossary' },
+    { text: 'Agent 标准生态', link: '/zh/reference/agent-ecosystem' },
       { text: '生态边界', link: '/zh/reference/ecosystem-boundaries' },
       { text: '调研来源', link: '/zh/reference/research-sources' },
       { text: '实现分析摘要', link: '/zh/reference/source-analysis' }
