@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.3.8 - 2026-05-08
+
+- Adds Agent Tool to the current standards ecosystem map.
+- Refreshes README, LLM entrypoints, and version snapshots for Agent Tool discovery.
+
 ## v0.3.7 - 2026-05-08
 
 ### Added

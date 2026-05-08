@@ -1599,6 +1599,7 @@ Runtime accepts, executes, observes, controls, resumes, and audits agent work.
 | Agent Evidence | Evidence, provenance, verification, review, replay, and export. | [site](https://limecloud.github.io/agentevidence/) | [llms-full](https://limecloud.github.io/agentevidence/llms-full.txt) | [repo](https://github.com/limecloud/agentevidence) |
 | Agent Policy | Risk, permission, approval, retention, waiver, access, and policy decision facts. | [site](https://limecloud.github.io/agentpolicy/) | [llms-full](https://limecloud.github.io/agentpolicy/llms-full.txt) | [repo](https://github.com/limecloud/agentpolicy) |
 | Agent Artifact | Durable deliverables, versions, parts, previews, exports, source links, and handoff packages. | [site](https://limecloud.github.io/agentartifact/) | [llms-full](https://limecloud.github.io/agentartifact/llms-full.txt) | [repo](https://github.com/limecloud/agentartifact) |
+| Agent Tool | Tool declarations, surfaces, invocations, progress, results, permissions, and audit refs. | [site](https://limecloud.github.io/agenttool/) | [llms-full](https://limecloud.github.io/agenttool/llms-full.txt) | [repo](https://github.com/limecloud/agenttool) |
 
 ## Boundary rule
 
@@ -1609,6 +1610,7 @@ Agent UI        -> how agent work is projected into user-visible surfaces
 Agent Evidence  -> why an agent outcome can be trusted, reviewed, replayed, and exported
 Agent Policy    -> whether an agent action may proceed and under which constraints
 Agent Artifact  -> what durable deliverable the agent produced and how it changes
+Agent Tool      -> what capability was exposed, invoked, progressed, and returned
 ```
 
 No standard should become the whole stack. A compatible implementation should preserve native ids and link across standards with refs.
@@ -1617,7 +1619,6 @@ No standard should become the whole stack. A compatible implementation should pr
 
 | Candidate | Why it may become a standard |
 | --- | --- |
-| Agent Tool | Capability declarations, permissions, progress, results, large outputs, and audit refs. |
 | Agent Context | Working context, memory, compaction, missing context, and source selection boundaries. |
 | Agent Evaluation | Acceptance scenarios, rubrics, eval runs, quality gates, and evidence-backed benchmark records. |
 | Agent Workflow | Portable multi-step work plans, scene launches, background jobs, and handoff states. |
@@ -1651,3 +1652,17 @@ Agent Runtime v0.3.5 fixes repository-base homepage asset links. The localized h
 - Fixes documentation logo asset paths for repository-base deployments.
 - Keeps the localized home page structure introduced in v0.3.4.
 - Keeps the core Agent Runtime specification compatible with v0.3.4.
+
+# v0.3.8 overview
+Source: https://limecloud.github.io/agentruntime/en/versions/v0.3.8/overview
+
+# v0.3.8 Overview
+
+Agent Runtime v0.3.8 is a patch release that refreshes the Agent standards ecosystem after Agent Tool became a current published standard.
+
+## Included
+
+- Agent Tool link in current standards tables.
+- Updated boundary map with the portable tool layer.
+- LLM entrypoint refresh for AI clients.
+- No breaking protocol changes to Agent Runtime.
