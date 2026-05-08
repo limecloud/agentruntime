@@ -1,2 +1,73 @@
-# agentruntime
-agent runtime 统一标准协议
+# Agent Runtime
+
+Agent Runtime is a runtime-first draft standard for portable agent execution. It defines how an AI client, host product, workflow system, or agent platform submits work, observes execution, coordinates tools and subagents, handles human decisions, writes durable state, and exports evidence without tying those behaviors to one UI, model provider, or tool framework.
+
+Agent Runtime sits below Agent UI. The runtime owns execution facts. Agent UI owns projection into interaction surfaces. Model providers own generation APIs. Tool systems own external capabilities. Artifact and evidence systems own durable deliverables and verification records.
+
+## Core boundary
+
+| Adjacent system | It owns | Agent Runtime owns |
+| --- | --- | --- |
+| Agent UI | Visible surfaces, local drafts, interaction affordances, progressive rendering. | Authoritative session, thread, turn, task, queue, status, action, and event facts. |
+| Model providers | Model APIs, provider-native streams, token accounting, provider errors. | Provider selection, routing trace, normalized generation lifecycle, retry/fallback state. |
+| Tools and connectors | External systems, tool schemas, execution backends, connector auth. | Tool inventory snapshot, invocation lifecycle, safe arguments/results references, policy checks. |
+| Context and memory | Knowledge, memory, source retrieval, policy facts, trust metadata. | Context assembly trace, selected refs, compaction boundaries, missing-context warnings. |
+| Artifacts and evidence | Files, versions, exports, traces, replay cases, verification and review facts. | Stable refs, lifecycle events, ownership links, evidence export requests and correlation ids. |
+| Host application | Workspaces, accounts, storage, product navigation, deployment policy. | Runtime control plane, durable snapshots, queue/resume/interrupt semantics, read models. |
+
+## What v0.1 defines
+
+- Runtime identity model: `session`, `thread`, `turn`, `task`, `step`, `tool_call`, `action_request`, `subagent`, `artifact_ref`, and `evidence_ref`.
+- A typed runtime event stream for lifecycle, model, reasoning, tool, action, queue, context, artifact, evidence, subagent, limit, snapshot, warning, and error events.
+- A control plane for submit, interrupt, resume, queue, respond-action, inspect, list sessions, spawn subagents, and export evidence/replay.
+- Durable read models for session snapshots, thread status, pending requests, incidents, queue state, tool inventory, and evidence summaries.
+- Compatibility guidance for MCP, A2A, OpenTelemetry, CloudEvents, JSON-RPC, provider streaming APIs, and Agent UI projection.
+
+## Runtime architecture
+
+```text
+client / channel / workflow input
+  -> runtime control plane
+  -> provider + context + policy + tool orchestration
+  -> typed runtime event stream
+  -> durable snapshots and read models
+  -> Agent UI projection / evidence / replay / audit consumers
+```
+
+Compatible implementations should:
+
+1. Treat runtime events and snapshots as execution facts, not as UI state.
+2. Keep provider-native chunks behind an adapter and emit normalized runtime events.
+3. Resolve tools, context, policy, model routing, and output schemas before or during each turn with traceable decisions.
+4. Represent human approvals and structured input as `action.required` records with stable ids.
+5. Persist enough state to resume, replay, audit, and explain a turn after process restart.
+6. Export evidence and replay from the same facts that drive the UI and diagnostics.
+7. Use stable correlation ids across runtime events, traces, tool calls, artifacts, and evidence.
+
+## Documentation
+
+Key pages:
+
+- [Specification](docs/en/specification.md)
+- [Runtime model](docs/en/concepts/runtime-model.md)
+- [Runtime event stream](docs/en/contracts/runtime-event-stream.md)
+- [Control plane](docs/en/contracts/control-plane.md)
+- [State snapshots](docs/en/contracts/state-snapshots.md)
+- [Evidence and replay](docs/en/contracts/evidence-replay.md)
+- [Research sources](docs/en/reference/research-sources.md)
+- [中文规范](docs/zh/specification.md)
+
+## Local development
+
+```bash
+npm install
+npm run dev
+```
+
+## Build
+
+```bash
+npm run build
+```
+
+The static site is generated at `docs/.vitepress/dist`.

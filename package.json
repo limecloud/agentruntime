@@ -1,0 +1,37 @@
+{
+  "name": "agentruntime-standard",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Draft documentation for the Agent Runtime standard.",
+  "homepage": "https://limecloud.github.io/agentruntime/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/limecloud/agentruntime.git"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "agent",
+    "runtime",
+    "llm",
+    "standard"
+  ],
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "files": [
+    "docs/public/schemas/",
+    "docs/en/",
+    "docs/zh/",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "dev": "vitepress dev docs",
+    "build": "vitepress build docs",
+    "preview": "vitepress preview docs"
+  },
+  "devDependencies": {
+    "mermaid": "^11.14.0",
+    "vitepress": "^1.6.4"
+  }
+}

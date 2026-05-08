@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentruntime.example/schemas/agentruntime-snapshot.schema.json",
+  "title": "Agent Runtime snapshot",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schemaVersion",
+    "sessionId",
+    "threads"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string"
+    },
+    "sessionId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "workspaceId": {
+      "type": "string"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "threads": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/thread"
+      }
+    },
+    "toolInventoryRef": {
+      "type": "string"
+    },
+    "evidenceRefs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "$defs": {
+    "thread": {
+      "type": "object",
+      "required": [
+        "threadId",
+        "status"
+      ],
+      "properties": {
+        "threadId": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "idle",
+            "queued",
+            "running",
+            "blocked",
+            "completed",
+            "failed",
+            "cancelled",
+            "stale",
+            "unknown"
+          ]
+        },
+        "activeTurnId": {
+          "type": "string"
+        },
+        "turns": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/turn"
+          }
+        },
+        "pendingRequests": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "queuedTurns": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "incidents": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "turn": {
+      "type": "object",
+      "required": [
+        "turnId",
+        "status"
+      ],
+      "properties": {
+        "turnId": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "startedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "completedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  }
+}

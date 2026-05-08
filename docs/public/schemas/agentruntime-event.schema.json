@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentruntime.example/schemas/agentruntime-event.schema.json",
+  "title": "Agent Runtime event",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "type",
+    "eventId",
+    "timestamp"
+  ],
+  "properties": {
+    "type": {
+      "type": "string",
+      "enum": [
+        "session.created",
+        "session.updated",
+        "thread.started",
+        "thread.updated",
+        "turn.submitted",
+        "turn.started",
+        "turn.completed",
+        "turn.failed",
+        "task.started",
+        "task.updated",
+        "task.completed",
+        "task.failed",
+        "run.status",
+        "model.requested",
+        "model.delta",
+        "model.completed",
+        "model.failed",
+        "reasoning.delta",
+        "reasoning.summary",
+        "tool.catalog.resolved",
+        "tool.started",
+        "tool.args",
+        "tool.progress",
+        "tool.result",
+        "tool.failed",
+        "action.required",
+        "action.resolved",
+        "queue.changed",
+        "context.resolved",
+        "context.compaction.started",
+        "context.compaction.completed",
+        "context.compaction.failed",
+        "artifact.changed",
+        "evidence.changed",
+        "subagent.spawned",
+        "subagent.status",
+        "subagent.input",
+        "subagent.completed",
+        "subagent.failed",
+        "subagent.closed",
+        "limit.changed",
+        "snapshot.updated",
+        "runtime.warning",
+        "runtime.error"
+      ]
+    },
+    "eventId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "schemaVersion": {
+      "type": "string"
+    },
+    "runtimeId": {
+      "type": "string"
+    },
+    "sessionId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "threadId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "turnId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "taskId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "stepId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "toolCallId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "actionId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "subagentId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "artifactId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "evidenceId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "traceId": {
+      "type": "string"
+    },
+    "spanId": {
+      "type": "string"
+    },
+    "sequence": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "status": {
+      "type": "string"
+    },
+    "phase": {
+      "type": "string"
+    },
+    "payload": {
+      "type": [
+        "object",
+        "array",
+        "string",
+        "number",
+        "boolean",
+        "null"
+      ]
+    },
+    "refs": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}
