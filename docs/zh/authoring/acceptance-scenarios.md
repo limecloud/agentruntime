@@ -38,3 +38,31 @@ description: Agent Runtime 的行为级验收场景。
 ## Old session recovery
 
 当旧 session 有大量消息，runtime 先返回 shell 和 recent window，再通过 cursor 和按需详情暴露 older history。
+
+## Permission 与 sandbox fact
+
+当 shell 或文件工具请求写入，runtime 先记录 `permission.evaluated` 与 `sandbox.applied`。如果被拒绝或越界，thread read 能说明是 rule、mode、hook、host policy 还是 sandbox violation 导致。
+
+## Hook 修改输入
+
+当 `pre_tool_use` hook 修改工具输入或阻断工具，event stream 包含 `hook.started` / `hook.completed`、updated input ref 或 block reason。最终工具结果不能掩盖 hook 决策。
+
+## Process stdin 与输出溢写
+
+当长期进程需要 stdin，`write_process_stdin` 发出 `process.input`。stdout/stderr 大于预算时，runtime 发出 `output.spilled` 或 `output.truncated`，并保留 output ref。
+
+## Model routing 与单候选
+
+当只有一个可用模型候选，runtime 发出 `routing.single_candidate`，并在 read model 中显示 candidate count、decision reason、capability gap、cost state 和 limit state。
+
+## Quota 或 rate limit
+
+当 provider 或 host 返回限流/配额错误，runtime 发出 `rate_limit.hit`、`quota.low` 或 `quota.blocked`，并把 request log 与 turn ids 关联到 evidence。
+
+## Remote channel reconnect
+
+当远程客户端断线重连，runtime 先返回 snapshot，再从 last acknowledged sequence 继续；无法 replay 时发出 `snapshot.repaired` 并标记 stale 或 unavailable。
+
+## Job item retry
+
+当 batch job 的一个 item 失败，job 保持 running 或 failed item 状态，允许只 retry 该 item，并保留 attempt count 与 last error。

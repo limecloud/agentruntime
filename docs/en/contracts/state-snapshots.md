@@ -34,6 +34,10 @@ A thread read model SHOULD include:
 - diagnostics summary
 - tool/artifact/evidence summaries
 - model routing and limit state
+- permission state, sandbox profile, and pending approvals
+- active processes, output refs, and execution environment
+- subagent graph, job progress, and remote channel state
+- telemetry correlation summary
 
 This read model is the current answer to “what is happening now?” Consumers should not compute it independently from UI state.
 
@@ -52,3 +56,16 @@ Old sessions should load progressively:
 5. tool, artifact, evidence, and older history on demand
 
 Bounded history and cursors are part of the runtime contract because they define whether clients can restore long-running work safely.
+
+
+## Snapshot Honesty
+
+Snapshots SHOULD prefer explicit status over optimistic inference:
+
+- `unknown`: runtime lacks enough facts.
+- `unavailable`: implementation or environment does not support the fact.
+- `not_applicable`: the signal does not apply to this thread.
+- `stale`: facts may not be current.
+- `blocked`: permission, credential, quota, network, context, or human action is required.
+
+Evidence, review, and UI consumers should use these statuses instead of filling in success defaults.

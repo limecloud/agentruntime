@@ -31,6 +31,8 @@ Tool lifecycle events 应保留：
 - progress 与 partial output
 - result ref、preview、images、artifacts 或 evidence refs
 - error category、retryability 和 recovery advice
+- concurrency safety、read-only/destructive flags 和 interrupt behavior
+- pre/post hook outcomes 与 permission/sandbox refs
 
 Tool results 不应被压扁成最终回答正文。
 
@@ -63,3 +65,15 @@ Model routing 与 fallback 应作为 runtime facts 可见：
 - decision reason
 
 这样 UI、replay 和 review 才能解释 runtime 为什么这样执行。
+
+
+## Concurrency 与 interrupt
+
+Tool inventory SHOULD 标记：
+
+- `is_read_only`：是否只读。
+- `is_concurrency_safe`：是否可与相邻工具并发。
+- `is_destructive`：是否可能删除、覆盖、发送或产生不可逆副作用。
+- `interrupt_behavior`：新输入到来时 cancel 还是 block。
+
+Runtime MAY 并发执行连续只读工具，但 SHOULD 串行执行写入或破坏性工具。工具被取消时应发出明确 cancelled / interrupted fact，而不是静默丢弃结果。

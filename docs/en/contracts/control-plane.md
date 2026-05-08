@@ -26,6 +26,13 @@ The control plane is the write boundary for runtime state. It may be implemented
 | `close_subagent` | Ask a child context to stop and release resources. |
 | `export_evidence` | Export evidence pack from runtime facts. |
 | `export_replay` | Export replay case from the same facts. |
+| `evaluate_permission` / `resolve_permission` | Let host policy, hooks, or approval systems participate in permission decisions. |
+| `get_execution_environment` | Return cwd, workspace roots, sandbox, network, and process limits. |
+| `write_process_stdin` / `terminate_process` | Interact with a long-running process or PTY session. |
+| `list_subagents` | Return parent-child graph and child thread state. |
+| `create_job` / `get_job` / `cancel_job` | Manage durable background or batch work. |
+| `reconnect_channel` / `ack_events` | Recover remote channels and acknowledge events. |
+| `export_review` | Export review template or audit refs from the same facts. |
 
 ## Idempotency
 
@@ -47,3 +54,14 @@ The runtime may continue unrelated tasks, but it must not treat an unresolved ac
 ## Queue and resume
 
 Queue state is runtime-owned. A busy thread can accept new input as queued work only if policy allows it. Queue snapshots must survive restart. Resume should be explicit when the runtime cannot prove that background work is already active.
+
+
+## Process and Channel Control
+
+`write_process_stdin` and `terminate_process` MUST target a runtime-known `process_id`. If the process cannot be recovered, return `unavailable` and emit a repair or warning event.
+
+`reconnect_channel` SHOULD receive channel id, last acknowledged sequence, and resume token. The runtime should return a snapshot first, then replay events where possible.
+
+## Jobs
+
+Job control SHOULD distinguish job status from job item status. Cancelling a job does not cancel completed items; retrying an item must not create duplicate output.

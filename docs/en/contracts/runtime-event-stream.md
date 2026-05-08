@@ -43,6 +43,27 @@ The stream should carry previews and refs for large data:
 - artifacts can use `artifact_id`, `read_ref`, `version_id`, `preview_ref`, and `diff_ref`.
 - evidence can use `evidence_id`, `pack_ref`, `trace_ref`, `replay_ref`, and `review_ref`.
 
+## Item and Process Lifecycle
+
+Runtime SHOULD support both coarse lifecycle and item lifecycle:
+
+- `turn.*` describes one input cycle.
+- `item.*` describes ordered agent message, reasoning, tool call, command, file change, web search, todo, and error items.
+- `process.*` describes commands, PTY sessions, and long-running processes.
+- `hook.*`, `permission.*`, and `sandbox.*` describe governance.
+
+SDKs can consume `item.*` while audit and GUI consumers can read deeper runtime facts.
+
+## Routing, Limits, and Remote Events
+
+Model routing and remote channels also belong to the stream:
+
+- `task.profile.resolved`, `routing.candidates.resolved`, `routing.decided`.
+- `cost.estimated`, `cost.recorded`, `rate_limit.hit`, `quota.low`, `quota.blocked`.
+- `channel.connected`, `channel.resumed`, `channel.permission_forwarded`.
+
+These events may be telemetry-only or read-model-only, but they must be joinable by evidence, replay, and review.
+
 ## Provider adaptation
 
 Provider-native streams differ. A runtime adapter SHOULD map them into:

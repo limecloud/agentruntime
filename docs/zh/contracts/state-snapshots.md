@@ -34,6 +34,10 @@ Thread read model SHOULD 包含：
 - diagnostics summary
 - tool/artifact/evidence summaries
 - model routing 和 limit state
+- permission state、sandbox profile 和 pending approvals
+- active processes、output refs 和 execution environment
+- subagent graph、job progress 和 remote channel state
+- telemetry correlation summary
 
 这个 read model 是“当前发生了什么”的事实入口。消费者不应从 UI state 独立计算。
 
@@ -52,3 +56,16 @@ Diagnostics 可以包括 warnings、failed tools、failed commands、pending req
 5. tool、artifact、evidence 与 older history 按需加载
 
 Bounded history 和 cursors 属于 runtime contract，因为它们决定客户端能否安全恢复长任务。
+
+
+## Snapshot honesty
+
+Snapshots SHOULD prefer explicit status over optimistic inference:
+
+- `unknown`：runtime 没有足够事实。
+- `unavailable`：当前实现或环境不支持。
+- `not_applicable`：该信号对当前 thread 不适用。
+- `stale`：事实可能不是当前状态。
+- `blocked`：需要 permission、credential、quota、network、context 或 human action。
+
+Evidence、review 和 UI 应消费这些状态，而不是自行补默认成功。

@@ -17,7 +17,7 @@ Evidence pack SHOULD 包含：
 - tool calls 与 failed calls
 - artifacts 与 artifact refs
 - context refs 与 compaction boundaries
-- provider routing 与 limit events
+- provider routing、permission、sandbox、hook、process 与 limit events
 - 适用时的 verification outcomes
 - 适用时的 review 或 audit notes
 
@@ -45,3 +45,15 @@ Replay 不能只依赖 UI 截图或最终正文。
 - token usage、latency、retries、queue wait 和 tool duration 作为 metrics
 
 可用时，trace ids 应出现在 runtime events 和 evidence exports 中。
+
+
+## Signal applicability
+
+Evidence SHOULD 区分四种状态：
+
+- `exported`：信号已导出并可关联。
+- `not_applicable`：当前 scope 不适用。
+- `unsupported`：runtime 不支持该信号。
+- `missing_correlation`：有原始日志但无法用 ids 关联到当前 scope。
+
+`known_gaps` 只能来自适用但未导出的信号。不要把所有可能的未来能力写成每个线程的 gap。

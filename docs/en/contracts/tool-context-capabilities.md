@@ -31,6 +31,8 @@ Tool lifecycle events should preserve:
 - progress and partial output
 - result ref, preview, images, artifacts, or evidence refs
 - error category, retryability, and recovery advice
+- concurrency safety, read-only/destructive flags, and interrupt behavior
+- pre/post hook outcomes and permission/sandbox refs
 
 Tool results should not be flattened into final assistant text.
 
@@ -63,3 +65,10 @@ Model routing and fallback should be visible as runtime facts:
 - decision reason
 
 This lets UI, replay, and review explain why a runtime behaved the way it did.
+
+
+## Concurrency and Interrupt
+
+Tool inventory SHOULD mark `is_read_only`, `is_concurrency_safe`, `is_destructive`, and `interrupt_behavior`.
+
+The runtime MAY run consecutive read-only tools concurrently, but SHOULD serialize write or destructive tools. Cancelled tools should emit explicit cancelled or interrupted facts instead of silently dropping results.

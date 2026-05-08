@@ -38,3 +38,31 @@ Given a completed or failed turn, evidence export includes runtime summary, time
 ## Old session recovery
 
 Given an old session with many messages, the runtime returns a shell and recent window first, then exposes older history through cursors and details on demand.
+
+## Permission and sandbox fact
+
+Given a shell or file tool requests a write, the runtime records `permission.evaluated` and `sandbox.applied` first. If denied or out of bounds, the thread read model explains whether a rule, mode, hook, host policy, or sandbox violation caused it.
+
+## Hook input rewrite
+
+Given a `pre_tool_use` hook rewrites tool input or blocks the tool, the stream contains `hook.started` / `hook.completed`, updated input ref, or block reason. The final tool result must not hide the hook decision.
+
+## Process stdin and output spill
+
+Given a long-running process needs stdin, `write_process_stdin` emits `process.input`. When stdout/stderr exceed budget, runtime emits `output.spilled` or `output.truncated` and preserves an output ref.
+
+## Model routing and single candidate
+
+Given only one model candidate is available, runtime emits `routing.single_candidate` and the read model shows candidate count, decision reason, capability gap, cost state, and limit state.
+
+## Quota or rate limit
+
+Given provider or host limits are hit, runtime emits `rate_limit.hit`, `quota.low`, or `quota.blocked`, and joins request logs to turn ids in evidence.
+
+## Remote channel reconnect
+
+Given a remote client reconnects, runtime returns a snapshot first and continues from the last acknowledged sequence. If replay is unavailable, it emits `snapshot.repaired` and marks stale or unavailable facts.
+
+## Job item retry
+
+Given one item in a batch job fails, the job keeps job/item status separately, allows retrying only that item, and preserves attempt count and last error.

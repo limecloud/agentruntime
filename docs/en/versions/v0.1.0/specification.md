@@ -5,7 +5,7 @@ description: Agent Runtime v0.1.0 snapshot.
 
 # Agent Runtime v0.1.0 Specification
 
-The v0.1.0 specification snapshot is aligned with the current [latest specification](/en/specification).
+The v0.1.0 specification snapshot records the initial baseline. The current [latest specification](/en/specification) has expanded beyond this baseline.
 
 ## v0.1.0 scope
 

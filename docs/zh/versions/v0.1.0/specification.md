@@ -5,7 +5,7 @@ description: Agent Runtime v0.1.0 快照。
 
 # Agent Runtime v0.1.0 规范
 
-v0.1.0 的规范快照与当前 [latest 规范](/zh/specification) 对齐。
+v0.1.0 的规范快照记录初始基线。当前 [latest 规范](/zh/specification) 已在此基线之上继续扩展。
 
 ## v0.1.0 范围
 

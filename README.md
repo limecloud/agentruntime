@@ -15,12 +15,13 @@ Agent Runtime sits below Agent UI. The runtime owns execution facts. Agent UI ow
 | Artifacts and evidence | Files, versions, exports, traces, replay cases, verification and review facts. | Stable refs, lifecycle events, ownership links, evidence export requests and correlation ids. |
 | Host application | Workspaces, accounts, storage, product navigation, deployment policy. | Runtime control plane, durable snapshots, queue/resume/interrupt semantics, read models. |
 
-## What v0.1 defines
+## What the current draft defines
 
 - Runtime identity model: `session`, `thread`, `turn`, `task`, `step`, `tool_call`, `action_request`, `subagent`, `artifact_ref`, and `evidence_ref`.
 - A typed runtime event stream for lifecycle, model, reasoning, tool, action, queue, context, artifact, evidence, subagent, limit, snapshot, warning, and error events.
 - A control plane for submit, interrupt, resume, queue, respond-action, inspect, list sessions, spawn subagents, and export evidence/replay.
 - Durable read models for session snapshots, thread status, pending requests, incidents, queue state, tool inventory, and evidence summaries.
+- Permission, sandbox, hook, process, remote channel, model routing, cost/limit, job, recovery, and large-output contracts drawn from real runtimes.
 - Compatibility guidance for MCP, A2A, OpenTelemetry, CloudEvents, JSON-RPC, provider streaming APIs, and Agent UI projection.
 
 ## Runtime architecture
@@ -40,9 +41,10 @@ Compatible implementations should:
 2. Keep provider-native chunks behind an adapter and emit normalized runtime events.
 3. Resolve tools, context, policy, model routing, and output schemas before or during each turn with traceable decisions.
 4. Represent human approvals and structured input as `action.required` records with stable ids.
-5. Persist enough state to resume, replay, audit, and explain a turn after process restart.
-6. Export evidence and replay from the same facts that drive the UI and diagnostics.
-7. Use stable correlation ids across runtime events, traces, tool calls, artifacts, and evidence.
+5. Record permission, sandbox, hook, process, routing, cost, and quota decisions as first-class facts.
+6. Persist enough state to resume, replay, audit, and explain a turn after process restart.
+7. Export evidence and replay from the same facts that drive the UI and diagnostics.
+8. Use stable correlation ids across runtime events, traces, tool calls, artifacts, and evidence.
 
 ## Documentation
 
@@ -54,6 +56,15 @@ Key pages:
 - [Control plane](docs/en/contracts/control-plane.md)
 - [State snapshots](docs/en/contracts/state-snapshots.md)
 - [Evidence and replay](docs/en/contracts/evidence-replay.md)
+- [Permission and sandbox](docs/en/contracts/permission-and-sandbox.md)
+- [Hooks and policy](docs/en/contracts/hooks-and-policy.md)
+- [Execution environment](docs/en/contracts/execution-environment.md)
+- [Model routing and limits](docs/en/contracts/model-routing-limits.md)
+- [Subagents and jobs](docs/en/contracts/subagents-and-jobs.md)
+- [Remote channels](docs/en/contracts/remote-channels.md)
+- [Session history and recovery](docs/en/contracts/session-history-recovery.md)
+- [Output storage and large results](docs/en/contracts/output-storage-large-results.md)
+- [Source analysis](docs/en/reference/source-analysis.md)
 - [Research sources](docs/en/reference/research-sources.md)
 - [中文规范](docs/zh/specification.md)
 

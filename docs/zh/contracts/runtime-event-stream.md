@@ -43,6 +43,27 @@ Stream 应为大数据携带 preview 和 refs：
 - artifacts 使用 `artifact_id`、`read_ref`、`version_id`、`preview_ref`、`diff_ref`。
 - evidence 使用 `evidence_id`、`pack_ref`、`trace_ref`、`replay_ref`、`review_ref`。
 
+## Item 与 process lifecycle
+
+Runtime SHOULD 同时支持 coarse lifecycle 和 item lifecycle：
+
+- `turn.*` 描述一次输入周期。
+- `item.*` 描述 agent message、reasoning、tool call、command、file change、web search、todo、error 等有序 item。
+- `process.*` 描述命令、PTY 或长期进程。
+- `hook.*`、`permission.*`、`sandbox.*` 描述治理链路。
+
+这让 SDK 可以只消费 `item.*`，而审计和 GUI 可以继续读取更细粒度的 runtime facts。
+
+## Routing, limits, and remote events
+
+Model routing 与远程通道也属于 event stream：
+
+- `task.profile.resolved`、`routing.candidates.resolved`、`routing.decided`。
+- `cost.estimated`、`cost.recorded`、`rate_limit.hit`、`quota.low`、`quota.blocked`。
+- `channel.connected`、`channel.resumed`、`channel.permission_forwarded`。
+
+这些事件可以是 telemetry-only 或 read-model-only，但必须能被 evidence/replay/review 关联。
+
 ## Provider adaptation
 
 不同 provider 的 stream 不同。Runtime adapter SHOULD 映射为：

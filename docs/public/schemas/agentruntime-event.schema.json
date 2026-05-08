@@ -56,7 +56,57 @@
         "limit.changed",
         "snapshot.updated",
         "runtime.warning",
-        "runtime.error"
+        "runtime.error",
+        "permission.evaluated",
+        "permission.requested",
+        "permission.resolved",
+        "sandbox.applied",
+        "sandbox.violation",
+        "hook.started",
+        "hook.completed",
+        "hook.failed",
+        "policy.changed",
+        "process.started",
+        "process.output",
+        "process.input",
+        "process.completed",
+        "process.failed",
+        "process.terminated",
+        "task.profile.resolved",
+        "routing.candidates.resolved",
+        "routing.decided",
+        "routing.fallback.applied",
+        "routing.not_possible",
+        "routing.single_candidate",
+        "cost.estimated",
+        "cost.recorded",
+        "rate_limit.hit",
+        "quota.low",
+        "quota.blocked",
+        "channel.connected",
+        "channel.disconnected",
+        "channel.resumed",
+        "channel.message",
+        "channel.permission_forwarded",
+        "channel.permission_returned",
+        "job.created",
+        "job.started",
+        "job.progress",
+        "job.item.started",
+        "job.item.completed",
+        "job.item.failed",
+        "job.completed",
+        "job.failed",
+        "job.cancelled",
+        "output.spilled",
+        "output.truncated",
+        "output.redacted",
+        "output.expired",
+        "history.window.loaded",
+        "history.reconstructed",
+        "history.rollback.started",
+        "history.rollback.completed",
+        "snapshot.repaired"
       ]
     },
     "eventId": {
@@ -142,6 +192,109 @@
     "refs": {
       "type": "object",
       "additionalProperties": true
+    },
+    "requestId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "processId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "channelId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "jobId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "jobItemId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "outputRef": {
+      "type": "string",
+      "minLength": 1
+    },
+    "modelRequestId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "queueId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "permissionDecision": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "sandboxProfile": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "routingDecision": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "candidateModelSet": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "taskProfile": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "limitState": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "limitEvent": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "costState": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "hookRun": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "executionEnvironment": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "channel": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "job": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "jobItem": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "output": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "historyBoundary": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "telemetry": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "correlation": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "statusReason": {
+      "type": "string"
     }
   }
 }

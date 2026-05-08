@@ -10,6 +10,8 @@ const enNav = [
     text: 'Version',
     items: [
       { text: 'latest', link: '/en/specification' },
+      { text: 'v0.2.0 overview', link: '/en/versions/v0.2.0/overview' },
+      { text: 'v0.2.0', link: '/en/versions/v0.2.0/specification' },
       { text: 'v0.1.0 overview', link: '/en/versions/v0.1.0/overview' },
       { text: 'v0.1.0', link: '/en/versions/v0.1.0/specification' }
     ]
@@ -24,6 +26,8 @@ const zhNav = [
     text: '版本',
     items: [
       { text: 'latest', link: '/zh/specification' },
+      { text: 'v0.2.0 概览', link: '/zh/versions/v0.2.0/overview' },
+      { text: 'v0.2.0', link: '/zh/versions/v0.2.0/specification' },
       { text: 'v0.1.0 概览', link: '/zh/versions/v0.1.0/overview' },
       { text: 'v0.1.0', link: '/zh/versions/v0.1.0/specification' }
     ]
@@ -52,7 +56,16 @@ const enSidebar = [
       { text: 'Control plane', link: '/en/contracts/control-plane' },
       { text: 'Tool and context', link: '/en/contracts/tool-context-capabilities' },
       { text: 'State snapshots', link: '/en/contracts/state-snapshots' },
-      { text: 'Evidence and replay', link: '/en/contracts/evidence-replay' }
+      { text: 'Evidence and replay', link: '/en/contracts/evidence-replay' },
+      { text: 'Permission and sandbox', link: '/en/contracts/permission-and-sandbox' },
+      { text: 'Hooks and policy', link: '/en/contracts/hooks-and-policy' },
+      { text: 'Execution environment', link: '/en/contracts/execution-environment' },
+      { text: 'Model routing and limits', link: '/en/contracts/model-routing-limits' },
+      { text: 'Subagents and jobs', link: '/en/contracts/subagents-and-jobs' },
+      { text: 'Remote channels', link: '/en/contracts/remote-channels' },
+      { text: 'Telemetry and tracing', link: '/en/contracts/telemetry-tracing' },
+      { text: 'Session history and recovery', link: '/en/contracts/session-history-recovery' },
+      { text: 'Output storage', link: '/en/contracts/output-storage-large-results' }
     ]
   },
   {
@@ -67,7 +80,8 @@ const enSidebar = [
     items: [
       { text: 'Glossary', link: '/en/reference/glossary' },
       { text: 'Ecosystem boundaries', link: '/en/reference/ecosystem-boundaries' },
-      { text: 'Research sources', link: '/en/reference/research-sources' }
+      { text: 'Research sources', link: '/en/reference/research-sources' },
+      { text: 'Source analysis', link: '/en/reference/source-analysis' }
     ]
   },
   {
@@ -79,6 +93,9 @@ const enSidebar = [
   {
     text: 'Versions',
     items: [
+      { text: 'v0.2.0 overview', link: '/en/versions/v0.2.0/overview' },
+      { text: 'v0.2.0 specification', link: '/en/versions/v0.2.0/specification' },
+      { text: 'v0.2.0 changelog', link: '/en/versions/v0.2.0/changelog' },
       { text: 'v0.1.0 overview', link: '/en/versions/v0.1.0/overview' },
       { text: 'v0.1.0 specification', link: '/en/versions/v0.1.0/specification' },
       { text: 'v0.1.0 changelog', link: '/en/versions/v0.1.0/changelog' }
@@ -108,7 +125,16 @@ const zhSidebar = [
       { text: 'Control plane', link: '/zh/contracts/control-plane' },
       { text: 'Tool 与 context', link: '/zh/contracts/tool-context-capabilities' },
       { text: 'State snapshots', link: '/zh/contracts/state-snapshots' },
-      { text: 'Evidence 与 replay', link: '/zh/contracts/evidence-replay' }
+      { text: 'Evidence 与 replay', link: '/zh/contracts/evidence-replay' },
+      { text: 'Permission 与 sandbox', link: '/zh/contracts/permission-and-sandbox' },
+      { text: 'Hooks 与 policy', link: '/zh/contracts/hooks-and-policy' },
+      { text: 'Execution environment', link: '/zh/contracts/execution-environment' },
+      { text: 'Model routing 与 limits', link: '/zh/contracts/model-routing-limits' },
+      { text: 'Subagents 与 jobs', link: '/zh/contracts/subagents-and-jobs' },
+      { text: 'Remote channels', link: '/zh/contracts/remote-channels' },
+      { text: 'Telemetry 与 tracing', link: '/zh/contracts/telemetry-tracing' },
+      { text: 'Session history 与 recovery', link: '/zh/contracts/session-history-recovery' },
+      { text: 'Output storage', link: '/zh/contracts/output-storage-large-results' }
     ]
   },
   {
@@ -123,7 +149,8 @@ const zhSidebar = [
     items: [
       { text: '术语表', link: '/zh/reference/glossary' },
       { text: '生态边界', link: '/zh/reference/ecosystem-boundaries' },
-      { text: '调研来源', link: '/zh/reference/research-sources' }
+      { text: '调研来源', link: '/zh/reference/research-sources' },
+      { text: '实现分析摘要', link: '/zh/reference/source-analysis' }
     ]
   },
   {
@@ -135,6 +162,9 @@ const zhSidebar = [
   {
     text: '版本',
     items: [
+      { text: 'v0.2.0 概览', link: '/zh/versions/v0.2.0/overview' },
+      { text: 'v0.2.0 规范', link: '/zh/versions/v0.2.0/specification' },
+      { text: 'v0.2.0 变更记录', link: '/zh/versions/v0.2.0/changelog' },
       { text: 'v0.1.0 概览', link: '/zh/versions/v0.1.0/overview' },
       { text: 'v0.1.0 规范', link: '/zh/versions/v0.1.0/specification' },
       { text: 'v0.1.0 变更记录', link: '/zh/versions/v0.1.0/changelog' }

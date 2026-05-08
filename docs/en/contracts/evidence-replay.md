@@ -17,7 +17,7 @@ An evidence pack SHOULD include:
 - tool calls and failed calls
 - artifacts and artifact refs
 - context refs and compaction boundaries
-- provider routing and limit events
+- provider routing, permission, sandbox, hook, process, and limit events
 - verification outcomes when available
 - review or audit notes when available
 
@@ -45,3 +45,10 @@ A compatible runtime SHOULD map execution into trace concepts:
 - token usage, latency, retries, queue wait, and tool duration as metrics
 
 Trace ids should appear in runtime events and evidence exports when available.
+
+
+## Signal Applicability
+
+Evidence SHOULD distinguish `exported`, `not_applicable`, `unsupported`, and `missing_correlation`.
+
+`known_gaps` should only describe signals that apply to the current scope but were not exported. Do not turn every future capability into a gap for every thread.
