@@ -1,13 +1,13 @@
-# Agent Runtime v0.3.3
+# Agent Runtime v0.3.4
 
-Agent Runtime v0.3.3 adds public ecosystem exposure across the Agent standards family. Each standard now links to the other published standards and documents future standard candidates.
+Agent Runtime v0.3.4 fixes the Simplified Chinese homepage and aligns both localized index pages with the home landing layout.
 
 ## Highlights
 
-- Adds an Agent standards ecosystem page under `reference/agent-ecosystem`.
-- Links Agent Knowledge, Agent UI, Agent Runtime, and Agent Evidence from the public docs.
-- Adds English and Simplified Chinese ecosystem pages.
-- Adds ecosystem links to `llms.txt` and `llms-full.txt`.
+- Fixes Simplified Chinese homepage rendering by using proper VitePress home layout for localized index pages.
+- Refines English and Simplified Chinese home pages with concise hero actions, quick links, ecosystem links, and LLM entrypoints.
+- Fixes repository-base GitHub Pages logo loading.
+- Keeps the core Agent Runtime specification compatible with v0.3.3.
 - Updates version snapshots and package metadata.
 
 ## Validation
@@ -17,4 +17,4 @@ Agent Runtime v0.3.3 adds public ecosystem exposure across the Agent standards f
 - `npm audit --omit=dev`
 - `npm pack --dry-run`
 - LLM file consistency checks
-- Forbidden local-coupling scan
+- Localized homepage layout checks

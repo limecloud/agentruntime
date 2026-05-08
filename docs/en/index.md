@@ -1,41 +1,67 @@
 ---
-title: Overview
-description: Agent Runtime overview.
+layout: home
+title: Agent Runtime
+description: Portable execution semantics for AI agents.
+
+hero:
+  name: Agent Runtime
+  text: Portable execution semantics for AI agents.
+  tagline: "Submit work, stream facts, control tools, resume state, route models, manage tasks, and export evidence without binding to one UI or provider."
+  actions:
+    - theme: brand
+      text: Read the specification
+      link: /en/specification
+    - theme: alt
+      text: Implementation quickstart
+      link: /en/authoring/quickstart
+    - theme: alt
+      text: Standards ecosystem
+      link: /en/reference/agent-ecosystem
+    - theme: alt
+      text: LLM full context
+      link: /llms-full.txt
+
+features:
+  - title: Execution authority
+    details: "Sessions, threads, turns, tasks, runs, steps, tools, actions, subagents, artifacts, and evidence are represented as typed runtime facts."
+  - title: Control plane included
+    details: "Submit, interrupt, resume, queue, steer, action response, task operations, subagent control, snapshots, and exports are standard boundaries."
+  - title: Task-native runtime
+    details: "Objectives, attempts, dependencies, progress, ownership, delivery state, and peer task refs are first-class facts."
+  - title: Provider neutral
+    details: "OpenAI, Anthropic, local models, graph runtimes, terminal agents, and custom streams can adapt into the same event model."
+  - title: Durable recovery
+    details: "Snapshots, read models, pending requests, incidents, queues, history windows, and replay exports survive restarts and migrations."
+  - title: Trust-ready telemetry
+    details: "Trace ids, spans, cost, limits, evidence refs, replay cases, and audit exports share stable correlation ids."
 ---
 
-# Agent Runtime
+## What Agent Runtime Defines
 
-Agent Runtime is a draft standard for the execution layer of agent products. It defines the facts and controls needed to run agent work across model providers, tools, context sources, subagents, artifacts, evidence, and UI clients.
+| Contract | What it answers |
+| --- | --- |
+| Runtime event stream | What happened, in which order, and under which ids? |
+| Control plane | Which writes are allowed, and who owns submit, interrupt, resume, queue, task, and action changes? |
+| Agent task | What work is planned, running, blocked, retried, delegated, accepted, or delivered? |
+| Tool and context | Which tools, capabilities, context refs, policies, and permissions were available? |
+| State snapshots | What can be hydrated, inspected, resumed, or repaired later? |
+| Evidence and replay | Which execution facts can be exported for review, replay, audit, and support? |
 
-A runtime is not a chat component. It is the authority that accepts work, resolves execution context, starts turns, emits typed events, persists durable snapshots, pauses for human decisions, resumes work, and exports evidence.
+## Start Here
 
-## Core idea
+- [What is Agent Runtime?](./what-is-agent-runtime.md)
+- [Latest specification](./specification.md)
+- [Runtime model](./concepts/runtime-model.md)
+- [Agent task](./contracts/agent-task.md)
+- [Control plane](./contracts/control-plane.md)
+- [Agent standards ecosystem](./reference/agent-ecosystem.md)
 
-```text
-input channel -> runtime control plane -> execution loop -> durable facts -> consumers
-```
+## For AI Clients
 
-Consumers can include Agent UI, workflow engines, remote channels, replay tools, review systems, test harnesses, and audit exports. They should not reconstruct runtime truth from prose or from UI state.
-
-## Current draft scope
-
-- Identity: `session`, `thread`, `task`, `run`, `turn`, `step`, `tool_call`, `action_request`, `subagent`, `artifact_ref`, `evidence_ref`.
-- Events: typed runtime stream for lifecycle, task orchestration, model, reasoning, tools, actions, queue, context, artifacts, evidence, subagents, limits, snapshots, warnings, and errors.
-- Control plane: submit, interrupt, resume, task create/update/cancel/retry, queue, action response, session reads, thread reads, tool inventory, subagent control, evidence export, and replay export.
-- State: durable snapshots and read models for recovery, old sessions, tasks, pending requests, incidents, queue state, and diagnostics.
-- Boundaries: clear ownership between runtime, UI, model provider, tool system, context store, artifact service, evidence system, and host product.
-- Runtime depth: permission, sandbox, hooks, process lifecycle, model routing, cost/limits, agent tasks, remote channels, subagent graph, jobs, history recovery, and large output refs.
-
-## Design pressure
-
-Real agent runtimes need more than streaming text. They must survive long turns, multi-attempt tasks, tool failures, process restarts, human approvals, queue mutations, context compaction, subagent delegation, background jobs, remote channels, model fallback, quota blocks, large output, and audit review. The current draft names those facts so different clients and backends can interoperate.
+- [llms.txt](/llms.txt): concise navigation index.
+- [llms-full.txt](/llms-full.txt): current English core documentation in one file.
+- [llm.txt](/llm.txt) and [llm-full.txt](/llm-full.txt): compatibility aliases.
 
 ## Agent Standards Ecosystem
 
-Agent products need multiple standards working together: Knowledge for source-grounded context, Runtime for execution facts, UI for interaction surfaces, and Evidence for trust, review, replay, and export.
-
-- [Agent standards ecosystem](./reference/agent-ecosystem.md)
-- [Agent Knowledge](https://limecloud.github.io/agentknowledge/)
-- [Agent UI](https://limecloud.github.io/agentui/)
-- [Agent Runtime](https://limecloud.github.io/agentruntime/)
-- [Agent Evidence](https://limecloud.github.io/agentevidence/)
+Runtime owns execution facts and controls. UI projects them, Knowledge feeds context, Evidence packages trust records, and adjacent tool/artifact/policy systems keep their own authority.

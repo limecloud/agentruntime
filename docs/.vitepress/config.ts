@@ -11,6 +11,8 @@ const enNav = [
     text: 'Version',
     items: [
       { text: 'latest', link: '/en/specification' },
+      { text: 'v0.3.4 overview', link: '/en/versions/v0.3.4/overview' },
+      { text: 'v0.3.4', link: '/en/versions/v0.3.4/specification' },
       { text: 'v0.3.3 overview', link: '/en/versions/v0.3.3/overview' },
       { text: 'v0.3.3', link: '/en/versions/v0.3.3/specification' },
       { text: 'v0.3.2 overview', link: '/en/versions/v0.3.2/overview' },
@@ -36,6 +38,8 @@ const zhNav = [
     text: '版本',
     items: [
       { text: 'latest', link: '/zh/specification' },
+      { text: 'v0.3.4 概览', link: '/zh/versions/v0.3.4/overview' },
+      { text: 'v0.3.4', link: '/zh/versions/v0.3.4/specification' },
       { text: 'v0.3.3 概览', link: '/zh/versions/v0.3.3/overview' },
       { text: 'v0.3.3', link: '/zh/versions/v0.3.3/specification' },
       { text: 'v0.3.2 概览', link: '/zh/versions/v0.3.2/overview' },
@@ -113,6 +117,12 @@ const enSidebar = [
   {
     text: 'Versions',
     items: [
+      { text: 'v0.3.4 overview', link: '/en/versions/v0.3.4/overview' },
+      { text: 'v0.3.4 specification', link: '/en/versions/v0.3.4/specification' },
+      { text: 'v0.3.4 changelog', link: '/en/versions/v0.3.4/changelog' },
+      { text: 'v0.3.3 overview', link: '/en/versions/v0.3.3/overview' },
+      { text: 'v0.3.3 specification', link: '/en/versions/v0.3.3/specification' },
+      { text: 'v0.3.3 changelog', link: '/en/versions/v0.3.3/changelog' },
       { text: 'v0.3.2 overview', link: '/en/versions/v0.3.2/overview' },
       { text: 'v0.3.2 specification', link: '/en/versions/v0.3.2/specification' },
       { text: 'v0.3.2 changelog', link: '/en/versions/v0.3.2/changelog' },
@@ -193,6 +203,12 @@ const zhSidebar = [
   {
     text: '版本',
     items: [
+      { text: 'v0.3.4 概览', link: '/zh/versions/v0.3.4/overview' },
+      { text: 'v0.3.4 规范', link: '/zh/versions/v0.3.4/specification' },
+      { text: 'v0.3.4 变更记录', link: '/zh/versions/v0.3.4/changelog' },
+      { text: 'v0.3.3 概览', link: '/zh/versions/v0.3.3/overview' },
+      { text: 'v0.3.3 规范', link: '/zh/versions/v0.3.3/specification' },
+      { text: 'v0.3.3 变更记录', link: '/zh/versions/v0.3.3/changelog' },
       { text: 'v0.3.2 概览', link: '/zh/versions/v0.3.2/overview' },
       { text: 'v0.3.2 规范', link: '/zh/versions/v0.3.2/specification' },
       { text: 'v0.3.2 变更记录', link: '/zh/versions/v0.3.2/changelog' },
@@ -219,7 +235,7 @@ export default defineConfig({
   cleanUrls: true,
   lastUpdated: true,
   themeConfig: {
-    logo: '/logo.svg',
+    logo: `${base}logo.svg`,
     nav: [
       { text: 'English', items: enNav },
       { text: '中文', items: zhNav }

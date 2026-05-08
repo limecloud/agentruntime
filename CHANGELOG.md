@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.3.4 - 2026-05-08
+
+### Fixed
+
+- Fixed Simplified Chinese homepage rendering by making localized index pages proper VitePress home pages.
+- Fixed repository-base GitHub Pages logo loading.
+
+### Changed
+
+- Refined English and Simplified Chinese home pages with concise hero actions, quick links, ecosystem links, and LLM entrypoints.
+- Updated package and version navigation to 0.3.4.
+
 ## v0.3.3 - 2026-05-08
 
 ### Added

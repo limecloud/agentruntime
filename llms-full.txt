@@ -1636,17 +1636,17 @@ These candidates should remain design notes until they can be specified without 
 
 External protocols are references, not ownership transfers. The Agent standards should preserve their native ids and semantics while defining agent-specific relationships.
 
-# Agent Runtime v0.3.3
-Source: https://limecloud.github.io/agentruntime/en/versions/v0.3.3/overview
+# Agent Runtime v0.3.4
+Source: https://limecloud.github.io/agentruntime/en/versions/v0.3.4/overview
 
-# Agent Runtime v0.3.3
+# Agent Runtime v0.3.4
 
-Agent Runtime v0.3.3 adds public ecosystem exposure for the Agent standards family. The release connects Agent Knowledge, Agent UI, Agent Runtime, and Agent Evidence from the documentation site, LLM entrypoints, and version navigation.
+Agent Runtime v0.3.4 fixes the Simplified Chinese homepage and aligns both localized index pages with the home landing layout.
 
 ## Highlights
 
-- Adds the [Agent standards ecosystem](../../reference/agent-ecosystem.md) reference page.
-- Adds mutual links to Agent Knowledge, Agent UI, Agent Runtime, and Agent Evidence.
-- Adds future standard candidates such as Agent Artifact, Agent Tool, Agent Policy, Agent Context, Agent Evaluation, Agent Workflow, and Agent Model Routing.
-- Updates `llms.txt` / `llms-full.txt` so AI clients can discover the standards family.
-- Keeps the Agent Runtime core specification compatible with v0.3.2.
+- Converts localized index pages into proper `layout: home` landing pages.
+- Adds clearer hero actions for the specification, quickstart, standards ecosystem, and LLM context.
+- Keeps the homepage concise while routing detailed concepts to dedicated documentation pages.
+- Fixes the GitHub Pages logo path so repository-base deployments load the site logo correctly.
+- Keeps the core Agent Runtime specification compatible with v0.3.3.
