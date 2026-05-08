@@ -1,0 +1,60 @@
+# Agent Runtime
+
+> Agent Runtime is a portable standard for agent execution runtimes. It defines execution facts, control-plane commands, durable snapshots, task lifecycle, tools, permissions, sandboxing, process execution, model routing, telemetry, remote channels, evidence, and recovery without binding those behaviors to one UI, provider, or tool protocol.
+
+Use this file as the concise navigation index for LLMs. Use `llms-full.txt` when a single prompt needs the current core documentation in one markdown file.
+
+## Full context
+
+- [llms-full.txt](https://limecloud.github.io/agentruntime/llms-full.txt): Concatenated current English documentation with source URLs.
+
+## Primary docs
+
+- [What is Agent Runtime?](https://limecloud.github.io/agentruntime/en/what-is-agent-runtime): Conceptual entry point and scope.
+- [Specification](https://limecloud.github.io/agentruntime/en/specification): Latest portable Agent Runtime specification.
+- [Runtime model](https://limecloud.github.io/agentruntime/en/concepts/runtime-model): Identity hierarchy and runtime model.
+- [Acceptance scenarios](https://limecloud.github.io/agentruntime/en/authoring/acceptance-scenarios): Behavior-level validation scenarios.
+
+## Contracts
+
+- [Runtime event stream](https://limecloud.github.io/agentruntime/en/contracts/runtime-event-stream): Canonical execution fact stream.
+- [Control plane](https://limecloud.github.io/agentruntime/en/contracts/control-plane): Commands and mutation boundaries.
+- [Tool and context](https://limecloud.github.io/agentruntime/en/contracts/tool-context-capabilities): Tool inventory, context, and capability resolution.
+- [State snapshots](https://limecloud.github.io/agentruntime/en/contracts/state-snapshots): Durable read models and recovery.
+- [Evidence and replay](https://limecloud.github.io/agentruntime/en/contracts/evidence-replay): Evidence export, replay, and audit boundaries.
+- [Permission and sandbox](https://limecloud.github.io/agentruntime/en/contracts/permission-and-sandbox): Permission, policy, and sandbox facts.
+- [Hooks and policy](https://limecloud.github.io/agentruntime/en/contracts/hooks-and-policy): Hook lifecycle and governance facts.
+- [Execution environment](https://limecloud.github.io/agentruntime/en/contracts/execution-environment): Processes, cwd, environment, and runner facts.
+- [Model routing and limits](https://limecloud.github.io/agentruntime/en/contracts/model-routing-limits): Model selection, fallback, cost, quota, and limits.
+- [Agent task](https://limecloud.github.io/agentruntime/en/contracts/agent-task): Task lifecycle, attempts, graphs, and peer task refs.
+- [Subagents and jobs](https://limecloud.github.io/agentruntime/en/contracts/subagents-and-jobs): Child agents and batch/background jobs.
+- [Remote channels](https://limecloud.github.io/agentruntime/en/contracts/remote-channels): Remote peer channels and A2A alignment.
+- [Telemetry and tracing](https://limecloud.github.io/agentruntime/en/contracts/telemetry-tracing): Traces, spans, and correlation ids.
+- [Session history and recovery](https://limecloud.github.io/agentruntime/en/contracts/session-history-recovery): History windows, compaction, and recovery.
+- [Output storage](https://limecloud.github.io/agentruntime/en/contracts/output-storage-large-results): Large output references and storage.
+
+## Authoring and examples
+
+- [Implementation quickstart](https://limecloud.github.io/agentruntime/en/authoring/quickstart): Implementation quickstart.
+- [Basic runtime adapter](https://limecloud.github.io/agentruntime/en/examples/basic-runtime-adapter): Reference adapter example.
+
+## Reference
+
+- [Glossary](https://limecloud.github.io/agentruntime/en/reference/glossary): Terms used by the standard.
+- [Ecosystem boundaries](https://limecloud.github.io/agentruntime/en/reference/ecosystem-boundaries): Boundaries with adjacent systems.
+- [Research sources](https://limecloud.github.io/agentruntime/en/reference/research-sources): External sources used to shape the standard.
+- [Source analysis](https://limecloud.github.io/agentruntime/en/reference/source-analysis): Implementation pressure mapped into standard surfaces.
+
+## Versions
+
+- [v0.3.2 overview](https://limecloud.github.io/agentruntime/en/versions/v0.3.2/overview): Latest released version overview.
+- [v0.3.2 specification snapshot](https://limecloud.github.io/agentruntime/en/versions/v0.3.2/specification): Latest released specification snapshot.
+
+## Schemas
+
+- [Agent Runtime event schema](https://limecloud.github.io/agentruntime/schemas/agentruntime-event.schema.json): Public runtime event schema.
+- [Agent Runtime snapshot schema](https://limecloud.github.io/agentruntime/schemas/agentruntime-snapshot.schema.json): Public snapshot schema.
+
+## Language mirrors
+
+- Chinese documentation is available under `/zh/` with matching page structure where translated pages exist.

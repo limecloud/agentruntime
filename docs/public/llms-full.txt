@@ -1,0 +1,1575 @@
+# Agent Runtime full documentation for LLMs
+
+Source root: https://limecloud.github.io/agentruntime
+
+Agent Runtime is a portable standard for agent execution runtimes. It defines execution facts, control-plane commands, durable snapshots, task lifecycle, tools, permissions, sandboxing, process execution, model routing, telemetry, remote channels, evidence, and recovery without binding those behaviors to one UI, provider, or tool protocol.
+
+This file concatenates the current English documentation most useful for model context. Each section includes its source URL. Version snapshots and translated pages are linked from `llms.txt` but are not repeated here unless they are the latest release summary.
+
+# What is Agent Runtime?
+Source: https://limecloud.github.io/agentruntime/en/what-is-agent-runtime
+
+# What is Agent Runtime?
+
+Agent Runtime defines how agent work is accepted, executed, observed, controlled, resumed, and audited. It is the layer below Agent UI and above concrete model providers, tool systems, context stores, artifact services, and host application storage.
+
+Use Agent Runtime when a product needs stable semantics for:
+
+- submitted user turns and agent tasks with attempts, progress, graph edges, and delivery state
+- model routing, fallback, limits, and token/cost accounting
+- streaming text, reasoning, and structured output
+- tool calls, tool results, large output refs, and tool errors
+- human approval, structured input, interruption, and resume
+- queues, steering, long-running turns, and subagents
+- context assembly, memory retrieval, compaction, and missing context
+- artifact refs, evidence refs, replay cases, and review exports
+
+Do not use it to define the visual interface, model provider API, connector protocol, business database schema, artifact file format, or evidence review policy. Those systems remain adjacent owners.
+
+## Layer map
+
+| Layer | Main question | Runtime facts |
+| --- | --- | --- |
+| `input` | What work was submitted and by whom? | session, thread, turn, draft, attachments, source channel, request ids. |
+| `execution` | What is running and why? | turn status, task lifecycle, task attempts, model routing, tool calls, action requests, subagents. |
+| `state` | What can be resumed or inspected later? | snapshots, thread read model, queue, pending requests, incidents, checkpoints. |
+| `coordination` | What external systems were used? | tool inventory, context refs, artifact refs, evidence refs, policy decisions. |
+| `observability` | Can the work be traced, replayed, reviewed, or audited? | trace ids, spans, timeline, evidence pack, replay case, verification summaries. |
+
+The runtime may be embedded in a desktop app, hosted behind an HTTP API, run in a worker, or coordinate local and remote agents. The standard constrains facts and control semantics, not deployment shape.
+
+# Specification
+Source: https://limecloud.github.io/agentruntime/en/specification
+
+# Specification
+
+Agent Runtime latest draft is a portable standard draft for agent execution. The core contract is the boundary between execution facts and consumers such as UI, replay, review, telemetry, workflow, and remote channels.
+
+Agent Runtime owns execution facts. It does not own the visual surface, provider API, external tool protocol, artifact bytes, evidence verdict, memory source, or host account model.
+
+## Scope
+
+Agent Runtime standardizes these implementation concerns:
+
+1. Runtime identity and correlation ids.
+2. Event classes and event envelope fields.
+3. Control plane actions and required write boundaries.
+4. Durable snapshots and read models.
+5. Tool/context/model/policy orchestration facts.
+6. Human-in-the-loop requests and queue/resume semantics.
+7. Evidence, replay, and observability export boundaries.
+8. Permission, sandbox, hooks, process execution, remote channel recovery, and peer task mapping.
+9. Model routing, candidate sets, cost, quota, rate limit, and budget facts.
+10. Agent task lifecycle, attempts, task graphs, subagent graphs, background jobs, large output storage, and session reconstruction.
+
+Agent Runtime does **not** standardize a UI component model, model provider protocol, tool registry format, workflow language, vector store, artifact format, or observability backend.
+
+
+## Pressure From Real Runtimes
+
+Agent Runtime is not a wrapper around chat streaming. Real implementations show ten facts that must be first-class:
+
+1. Tool calls have schema, progress, partial output, permission gates, hooks, result refs, and failure categories.
+2. Command execution has cwd, sandbox, network, stdin/stdout, exit code, output buffers, and long-running process state.
+3. Permission decisions come from modes, rules, hooks, classifiers, humans, and host policy. Deny/ask rules must be able to override automatic allow.
+4. Hooks are governance points and must write runtime facts, not create a side execution path.
+5. Context compaction, rollback, and reconstruction need explicit boundaries.
+6. Subagents need a parent-child graph, isolation, status, and recoverable child threads.
+7. Tasks need objective, owner, status, attempts, dependencies, progress, output refs, and delivery state; todo lists are not enough.
+8. Jobs need item status, attempts, assignment, and progress.
+9. Remote channels need identity, native peer ids, resume cursors, permission bridges, and disconnect semantics.
+10. Model routing needs task profiles, candidate sets, decisions, fallback, single-candidate, and no-candidate facts.
+11. Cost, quota, rate limits, request telemetry, and evidence must join through stable correlation ids.
+
+## Execution architecture
+
+```mermaid
+flowchart TB
+  Input[Client / channel / workflow input] --> Control[Runtime control plane]
+  Control --> Session[Session + thread state]
+  Control --> Queue[Queue / resume / interrupt]
+  Control --> Loop[Execution loop]
+
+  Loop --> Provider[Model provider adapter]
+  Loop --> Tools[Tool / connector adapter]
+  Loop --> Context[Context / memory / policy resolver]
+  Loop --> Subagents[Subagent coordinator]
+
+  Provider --> Events[Typed runtime events]
+  Tools --> Events
+  Context --> Events
+  Subagents --> Events
+  Loop --> Events
+
+  Events --> Store[Durable event log + snapshots]
+  Store --> ReadModel[Thread read model]
+  Store --> Evidence[Evidence / replay / review export]
+  Store --> UI[Agent UI projection]
+```
+
+The runtime may keep internal provider-native records, but external consumers SHOULD receive normalized runtime events and snapshots.
+
+## Required identity model
+
+| Identity | Meaning | Required relationship |
+| --- | --- | --- |
+| `runtime_id` | Runtime installation or service instance. | Stable enough for trace attribution. |
+| `session_id` | Durable user-visible work container. | Owns one or more threads. |
+| `thread_id` | Ordered execution context. | Belongs to one session. |
+| `turn_id` | One submitted input cycle. | Belongs to one thread. |
+| `task_id` | Unit of work with objective, lifecycle, attempts, relationships, and acceptance. | Belongs to a session, thread, or parent task. |
+| `run_id` / `attempt_id` | One execution attempt for a task. | Belongs to one task and may bind a thread, worker, or job item. |
+| `step_id` | Ordered runtime item, such as status, message, tool, artifact, or action. | Belongs to a turn, task, or run. |
+| `tool_call_id` | One tool invocation. | Belongs to a step and may have result refs. |
+| `action_id` | One pending human or policy decision. | Belongs to a turn, task, or tool call. |
+| `subagent_id` | Child agent execution context. | Has parent session/thread/turn links. |
+| `artifact_id` | Durable deliverable reference. | Owned by artifact service; referenced by runtime. |
+| `evidence_id` | Trace, replay, verification, or review reference. | Owned by evidence system; referenced by runtime. |
+
+A compatible implementation MUST NOT rely on a single message id to represent all runtime work.
+
+## Event envelope
+
+Every emitted event SHOULD include:
+
+| Field | Requirement |
+| --- | --- |
+| `type` | Required event class. |
+| `event_id` | Required unique event id. |
+| `timestamp` | Required producer timestamp. |
+| `sequence` | Monotonic within a stream when possible. |
+| `schema_version` | Runtime event schema version. |
+| `session_id`, `thread_id`, `turn_id` | Present whenever the event belongs to a thread or turn. |
+| `task_id`, `run_id`, `attempt_id`, `step_id`, `tool_call_id`, `action_id`, `subagent_id` | Present when applicable. |
+| `trace_id`, `span_id` | Present when telemetry is available. |
+| `payload` | Typed event payload. |
+| `refs` | Stable references to large or owned external facts. |
+
+Large tool outputs, artifacts, evidence packs, and raw provider payloads SHOULD be referenced, not copied into every event.
+
+## Standard event classes
+
+| Class | Purpose |
+| --- | --- |
+| `session.created` / `session.updated` | Session metadata changed. |
+| `thread.started` / `thread.updated` | Thread lifecycle or read-model relevant state changed. |
+| `turn.submitted` / `turn.started` / `turn.completed` / `turn.failed` | User or system turn lifecycle. |
+| `task.created` / `task.accepted` / `task.queued` / `task.started` / `task.updated` / `task.progress` / `task.waiting` / `task.blocked` / `task.paused` / `task.resumed` / `task.retrying` / `task.cancel_requested` / `task.cancelled` / `task.timed_out` / `task.failed` / `task.lost` / `task.completed` / `task.archived` | Agent task lifecycle, progress, waiting, retry, cancellation, loss, and terminal state. |
+| `run.status` | Human-readable runtime status with phase, title, detail, checkpoints, and metadata. |
+| `model.requested` / `model.delta` / `model.completed` / `model.failed` | Provider adapter lifecycle and text/structured output stream. |
+| `reasoning.delta` / `reasoning.summary` | Reasoning or planning stream outside final text. |
+| `tool.catalog.resolved` | Tool inventory or capability surface was selected for the turn. |
+| `tool.started` / `tool.args` / `tool.progress` / `tool.result` / `tool.failed` | Tool invocation lifecycle. |
+| `action.required` / `action.resolved` | Runtime paused for user, policy, or structured input decision. |
+| `queue.changed` | Queued turns changed order, state, or policy. |
+| `context.resolved` | Context, memory, knowledge, source, or policy refs selected for a turn. |
+| `context.compaction.started` / `context.compaction.completed` / `context.compaction.failed` | Context compaction boundary lifecycle. |
+| `artifact.changed` | Runtime observed or produced an artifact reference. |
+| `evidence.changed` | Runtime observed or exported evidence/replay/review reference. |
+| `subagent.spawned` / `subagent.status` / `subagent.input` / `subagent.completed` / `subagent.failed` / `subagent.closed` | Child agent coordination. |
+| `limit.changed` | Cost, quota, rate limit, budget, or policy limit changed. |
+| `snapshot.updated` | Durable snapshot or read model changed. |
+| `runtime.warning` / `runtime.error` | Non-fatal warning or fatal runtime error. |
+
+Implementations may add vendor-specific event types, but MUST keep the normalized classes available for portable consumers.
+
+### Expanded Event Families
+
+Real coding, desktop, and remote runtimes SHOULD also expose these event families:
+
+| Family | Events | Purpose |
+| --- | --- | --- |
+| Permission | `permission.evaluated` / `permission.requested` / `permission.resolved` | Record how rules, modes, hooks, classifiers, humans, or host policy decided. |
+| Sandbox | `sandbox.applied` / `sandbox.violation` | Record actual execution boundaries and violations. |
+| Hook / policy | `hook.started` / `hook.completed` / `hook.failed` / `policy.changed` | Record governance inputs, outcomes, duration, and failure behavior. |
+| Process | `process.started` / `process.output` / `process.input` / `process.completed` / `process.failed` / `process.terminated` | Record commands, PTY sessions, long-running processes, and output refs. |
+| Routing | `task.profile.resolved` / `routing.candidates.resolved` / `routing.decided` / `routing.fallback.applied` / `routing.not_possible` / `routing.single_candidate` | Explain model candidates, selection, fallback, blocking, and single-candidate paths. |
+| Task orchestration | `task.delegated` / `task.dependency.updated` / `task.attempt.started` / `task.attempt.completed` / `task.attempt.failed` | Record task graph edges, delegation, dependencies, and per-attempt execution history. |
+| Cost / limits | `cost.estimated` / `cost.recorded` / `rate_limit.hit` / `quota.low` / `quota.blocked` | Make cost, limits, and quota runtime facts. |
+| Channel | `channel.connected` / `channel.disconnected` / `channel.resumed` / `channel.message` / `channel.permission_forwarded` / `channel.permission_returned` | Record remote channels, recovery, and cross-channel approval. |
+| Jobs | `job.created` / `job.started` / `job.progress` / `job.item.started` / `job.item.completed` / `job.item.failed` / `job.completed` / `job.failed` / `job.cancelled` | Record batch and background work. |
+| Output | `output.spilled` / `output.truncated` / `output.redacted` / `output.expired` | Manage large output and auditable references. |
+| History | `history.window.loaded` / `history.reconstructed` / `history.rollback.started` / `history.rollback.completed` / `snapshot.repaired` | Recover old sessions, compaction, and rollback. |
+
+
+## Control plane
+
+A compatible runtime SHOULD expose these commands, regardless of transport:
+
+| Command | Required input | Result |
+| --- | --- | --- |
+| `submit_turn` | `session_id`, `thread_id` or create policy, input parts, options, metadata. | Accepted turn or queued turn. |
+| `interrupt_turn` | `session_id`, optional `thread_id` / `turn_id`, reason. | Interrupt accepted or no-op. |
+| `resume_thread` | `session_id`, `thread_id`, optional resume token. | Resume attempt result. |
+| `create_task` / `update_task` / `start_task` / `append_task_progress` | Task objective, scope, profile, constraints, assignee, or progress refs. | Task lifecycle and progress events. |
+| `pause_task` / `resume_task` / `cancel_task` / `retry_task` | `task_id`, reason, optional propagation policy. | Task pause, resume, cancellation, or new attempt facts. |
+| `complete_task` / `fail_task` / `list_tasks` / `get_task` | Task scope or terminal facts. | Durable task read model or terminal reconciliation events. |
+| `link_tasks` / `unlink_tasks` | Parent, child, dependency, source, artifact, evidence, or subagent edge. | Task graph update event. |
+| `respond_action` | `action_id`, decision, optional structured payload. | Action resolved event. |
+| `remove_queued_turn` / `promote_queued_turn` | `queued_turn_id`, target session/thread. | Queue changed event. |
+| `get_session` | `session_id`, history window or cursor. | Durable session snapshot. |
+| `get_thread_read` | `session_id`, `thread_id`. | Thread read model. |
+| `get_tool_inventory` | Scope, caller, policy, runtime mode. | Tool inventory snapshot. |
+| `spawn_subagent` / `send_subagent_input` / `wait_subagents` / `resume_subagent` / `close_subagent` | Parent ids and child control payload. | Subagent lifecycle facts. |
+| `export_evidence` / `export_replay` | Session/thread/turn/task scope. | Stable evidence or replay refs. |
+| `evaluate_permission` / `resolve_permission` | Tool/process/action scope and decision payload. | Permission evaluated/resolved event. |
+| `get_execution_environment` | Session/thread/turn scope. | Environment snapshot. |
+| `write_process_stdin` / `terminate_process` | `process_id`, input, or reason. | Process input / terminated event. |
+| `list_subagents` / `list_jobs` / `get_job` / `cancel_job` | Session/thread/job scope. | Subagent graph or job snapshot. |
+| `reconnect_channel` / `ack_events` | Channel id, cursor, resume token. | Channel resumed or snapshot repair. |
+| `export_review` | Session/thread/turn/task scope. | Review refs. |
+
+
+Commands that mutate state MUST write through the runtime or owning adjacent system. UI-only state cannot mutate runtime truth.
+
+## Durable snapshots and read models
+
+The event stream is necessary but not enough. A compatible runtime SHOULD maintain:
+
+- `session_snapshot`: shell, title, timestamps, threads, recent messages or steps, history cursor.
+- `thread_read_model`: current status, active turn, pending requests, last outcome, incidents, queued turns, diagnostics.
+- `tool_inventory_snapshot`: tools available for the current caller, policy, context, and mode.
+- `queue_snapshot`: queued turn ids, order, source, policy, and resume state.
+- `task_snapshot`: active, waiting, failed, lost, recent terminal tasks, task graph, current attempts, and delivery state.
+- `context_boundary_snapshot`: selected refs, compaction summaries, context warnings, missing facts.
+- `artifact_checkpoint_summary`: artifact refs, versions, previews, validation issue counts, diff refs.
+- `evidence_summary`: trace ids, verification outcomes, replay refs, review refs, audit notes.
+- `permission_sandbox_summary`: permission state, pending approvals, sandbox profile, and violation refs.
+- `execution_environment_snapshot`: cwd, workspace roots, env refs, process limits, and active processes.
+- `routing_limit_summary`: task profile, candidate count, routing decision, cost state, quota/rate-limit state.
+- `subagent_job_summary`: child graph, job progress, assigned threads, and recoverability.
+- `channel_summary`: remote peers, resume cursors, last acknowledged sequence, and permission bridge state.
+
+Read models may be compact. They must be honest: `unknown`, `unavailable`, `stale`, and `blocked` are better than inferred success.
+
+## Completion and failure semantics
+
+A runtime SHOULD distinguish:
+
+- `accepted`: runtime received the request.
+- `queued`: work is waiting behind another turn or policy gate.
+- `preparing`: context, model, tools, or policy are being resolved.
+- `running`: the execution loop is active.
+- `waiting_input`: user or external structured input is required.
+- `waiting_permission`: human, policy, or host approval is required.
+- `waiting_resource`: credential, quota, file, network, worker, or external system is unavailable.
+- `blocked`: an action, credential, policy, context, dependency, tool, or quota is missing.
+- `streaming`: model or tool output is being emitted.
+- `retrying`: retry or fallback is active.
+- `lost`: runtime cannot prove whether the worker is still alive.
+- `timed_out`: time or inactivity budget stopped the work.
+- `completed`: owner declared work complete and durable facts are reconciled.
+- `failed`: work cannot continue without a new request or repair.
+- `cancelled`: user, policy, or runtime interrupted the work.
+- `stale`: known snapshot may not reflect current execution.
+
+`success` from a provider or tool is not the same as completed agent work. Completion must be tied to runtime state and, when required, artifact or evidence facts.
+
+## Validation
+
+A validator SHOULD check behavior, not only file presence:
+
+- Events contain stable ids and can be replayed into a read model.
+- Provider streams map to normalized model/text/reasoning events.
+- Tool calls preserve input refs, result refs, errors, and policy decisions.
+- Human actions pause execution and resume only through `respond_action`.
+- Queue mutations survive restart and emit `queue.changed`.
+- Task lifecycle survives restart, keeps prior attempts, and can recover parent/child and dependency edges.
+- Old sessions hydrate through snapshots and cursor windows.
+- Evidence/replay exports derive from the same runtime facts as UI and diagnostics.
+- Missing facts are marked `unknown`, `unavailable`, `stale`, or `blocked` instead of inferred from prose.
+
+# Runtime model
+Source: https://limecloud.github.io/agentruntime/en/concepts/runtime-model
+
+# Runtime model
+
+Agent Runtime uses a small identity hierarchy so long-running work can be resumed, inspected, delegated, and audited.
+
+```text
+runtime
+  session
+    task
+      run
+    thread
+      turn
+        step
+          tool_call | action_request | artifact_ref | evidence_ref
+      subagent
+```
+
+## Identities
+
+- `session`: durable user-visible container. It may map to a conversation, workspace task, remote channel thread, or workflow job.
+- `task`: durable unit of work with objective, lifecycle, attempts, relationships, acceptance, and recovery state. It may belong to a thread, span multiple turns, or run in the background.
+- `run`: one execution attempt for a task. Retries, resumes, and alternate worker executions should create new runs instead of overwriting task history.
+- `thread`: ordered execution context inside a session. A session can contain multiple threads when work branches, delegates, or runs in parallel.
+- `turn`: one submitted input cycle. It starts when work is accepted or queued and ends when completed, failed, or cancelled.
+- `step`: ordered runtime item such as status, text, reasoning, tool call, approval request, artifact, warning, or evidence link.
+- `subagent`: child runtime context with parent ids and its own lifecycle.
+- `artifact_ref` and `evidence_ref`: stable references to owned systems, not copied content.
+
+## Ownership rule
+
+The runtime owns identity, status, sequencing, queue state, and action lifecycle. Adjacent systems own their own facts:
+
+| Fact | Owner |
+| --- | --- |
+| Model output chunks and provider errors | Provider adapter, normalized by runtime. |
+| Tool schema and external execution | Tool or connector system, orchestrated by runtime. |
+| Memory, search, and knowledge facts | Context system, selected by runtime. |
+| Artifact bytes and versions | Artifact service, referenced by runtime. |
+| Verification and review verdicts | Evidence system, exported by runtime. |
+| Visible UI state | Agent UI or host product, never runtime truth. |
+
+## Correlation
+
+A compatible runtime SHOULD carry correlation ids through every boundary:
+
+- `trace_id` and `span_id` for telemetry.
+- `request_id` for transport or API request correlation.
+- `turn_id` and `tool_call_id` for tool and provider calls.
+- `task_id` and `run_id` for task lifecycle, retries, and background work.
+- `action_id` for human decisions.
+- `artifact_id` and `evidence_id` for durable refs.
+
+If correlation is unavailable, the runtime should mark the gap. It should not invent a false join.
+
+# Runtime event stream
+Source: https://limecloud.github.io/agentruntime/en/contracts/runtime-event-stream
+
+# Runtime event stream
+
+The runtime event stream is the canonical stream of execution facts. It can be delivered through Server-Sent Events, WebSocket, JSON-RPC notifications, local process events, a message bus, or an embedded API. The transport is not the standard; the normalized event envelope is.
+
+## Envelope
+
+```json
+{
+  "type": "tool.started",
+  "eventId": "evt_01",
+  "schemaVersion": "0.1.0",
+  "timestamp": "2026-05-08T02:30:00Z",
+  "sequence": 42,
+  "sessionId": "sess_123",
+  "threadId": "thread_123",
+  "turnId": "turn_123",
+  "taskId": "task_123",
+  "runId": "run_123",
+  "stepId": "step_123",
+  "toolCallId": "tool_123",
+  "traceId": "4bf92f3577b34da6a3ce929d0e0e4736",
+  "spanId": "00f067aa0ba902b7",
+  "payload": {
+    "toolName": "read_file",
+    "safeArgs": { "path": "README.md" },
+    "policy": "allowed"
+  }
+}
+```
+
+## Ordering
+
+Events SHOULD be ordered by `sequence` within a stream. Consumers MUST tolerate reconnection, duplicate delivery, and snapshot repair. A later snapshot can correct earlier events, but it must not silently erase an unresolved action or failed tool call.
+
+## Large data
+
+The stream should carry previews and refs for large data:
+
+- tool arguments and results can use `input_ref`, `output_ref`, `preview`, and `metadata`.
+- artifacts can use `artifact_id`, `read_ref`, `version_id`, `preview_ref`, and `diff_ref`.
+- evidence can use `evidence_id`, `pack_ref`, `trace_ref`, `replay_ref`, and `review_ref`.
+
+## Item and Process Lifecycle
+
+Runtime SHOULD support both coarse lifecycle and item lifecycle:
+
+- `turn.*` describes one input cycle.
+- `task.*` describes objective lifecycle, waiting, progress, retry, cancellation, terminal state, and task graph updates.
+- `item.*` describes ordered agent message, reasoning, tool call, command, file change, web search, todo, and error items.
+- `process.*` describes commands, PTY sessions, and long-running processes.
+- `hook.*`, `permission.*`, and `sandbox.*` describe governance.
+
+SDKs can consume `item.*` while audit and GUI consumers can read deeper runtime facts.
+
+## Routing, Limits, and Remote Events
+
+Model routing and remote channels also belong to the stream:
+
+- `task.profile.resolved`, `routing.candidates.resolved`, `routing.decided`.
+- `task.attempt.started`, `task.attempt.completed`, and `task.attempt.failed` for per-run execution history.
+- `cost.estimated`, `cost.recorded`, `rate_limit.hit`, `quota.low`, `quota.blocked`.
+- `channel.connected`, `channel.resumed`, `channel.permission_forwarded`.
+
+These events may be telemetry-only or read-model-only, but they must be joinable by evidence, replay, and review.
+
+## Provider adaptation
+
+Provider-native streams differ. A runtime adapter SHOULD map them into:
+
+- `model.requested` when a provider call starts.
+- `model.delta` for text, structured output, or provider content chunks.
+- `reasoning.delta` or `reasoning.summary` when reasoning is exposed separately.
+- `tool.started` / `tool.args` when the provider asks for a tool call.
+- `model.completed` with usage and stop reason.
+- `model.failed` for provider errors.
+
+The runtime should preserve raw provider refs for debugging but expose normalized facts to portable consumers.
+
+## Recovery
+
+A client that reconnects SHOULD request a snapshot, then resume from the last seen event sequence if supported. If the runtime cannot provide replay from a sequence, it should emit `snapshot.updated` and mark the stream recovery mode.
+
+# Control plane
+Source: https://limecloud.github.io/agentruntime/en/contracts/control-plane
+
+# Control plane
+
+The control plane is the write boundary for runtime state. It may be implemented as HTTP, JSON-RPC, local commands, a worker API, or in-process calls. Names can vary, but semantics should remain stable.
+
+## Commands
+
+| Command | Semantics |
+| --- | --- |
+| `submit_turn` | Accept user or system input, create or select session/thread, and start or queue a turn. |
+| `interrupt_turn` | Request cancellation of current work and clear or preserve queued work according to policy. |
+| `resume_thread` | Continue a thread after restart, queue pause, provider continuation, or blocked state. |
+| `create_task` / `update_task` | Create or update an agent task with objective, profile, constraints, owner, acceptance, and idempotency. |
+| `start_task` / `append_task_progress` | Start a task run or append phase, counters, progress summaries, delivery state, or output refs. |
+| `pause_task` / `resume_task` / `cancel_task` / `retry_task` | Mutate task execution state while preserving attempts and graph edges. |
+| `complete_task` / `fail_task` | Reconcile terminal task state with artifacts, evidence, delivery, and errors. |
+| `list_tasks` / `get_task` / `link_tasks` / `unlink_tasks` | Read task state and update parent, dependency, source, artifact, evidence, or subagent edges. |
+| `respond_action` | Resolve a pending human or policy request. |
+| `remove_queued_turn` | Remove a queued turn by id. |
+| `promote_queued_turn` | Move a queued turn ahead according to policy. |
+| `get_session` | Return shell, recent history, thread summaries, and cursor metadata. |
+| `get_thread_read` | Return current thread status, pending requests, last outcome, incidents, diagnostics, and queue state. |
+| `get_tool_inventory` | Return tools available under current scope and policy. |
+| `spawn_subagent` | Create a child runtime context with parent links and isolation rules. |
+| `send_subagent_input` | Send structured or text input to a child context. |
+| `wait_subagents` | Wait for one or more child contexts. |
+| `close_subagent` | Ask a child context to stop and release resources. |
+| `export_evidence` | Export evidence pack from runtime facts. |
+| `export_replay` | Export replay case from the same facts. |
+| `evaluate_permission` / `resolve_permission` | Let host policy, hooks, or approval systems participate in permission decisions. |
+| `get_execution_environment` | Return cwd, workspace roots, sandbox, network, and process limits. |
+| `write_process_stdin` / `terminate_process` | Interact with a long-running process or PTY session. |
+| `list_subagents` | Return parent-child graph and child thread state. |
+| `create_job` / `get_job` / `cancel_job` | Manage durable background or batch work. |
+| `reconnect_channel` / `ack_events` | Recover remote channels and acknowledge events. |
+| `export_review` | Export review template or audit refs from the same facts. |
+
+## Idempotency
+
+Mutating commands SHOULD accept an idempotency key or caller-provided ids. Retrying `submit_turn` must not create duplicate turns when the caller provides a stable `turn_id`.
+
+## Action requests
+
+An `action.required` event pauses execution when a decision is needed. It must include:
+
+- stable `action_id`
+- `action_type`
+- scope ids
+- prompt or structured schema
+- available decisions
+- policy and timeout metadata when applicable
+
+The runtime may continue unrelated tasks, but it must not treat an unresolved action as approved.
+
+## Queue and resume
+
+Queue state is runtime-owned. A busy thread can accept new input as queued work only if policy allows it. Queue snapshots must survive restart. Resume should be explicit when the runtime cannot prove that background work is already active.
+
+## Tasks
+
+Task commands MUST write runtime facts. A task retry should create a new run or attempt instead of overwriting the previous attempt. Cancellation should record intent first, then propagate to active child tasks, jobs, processes, or subagents according to policy.
+
+
+## Process and Channel Control
+
+`write_process_stdin` and `terminate_process` MUST target a runtime-known `process_id`. If the process cannot be recovered, return `unavailable` and emit a repair or warning event.
+
+`reconnect_channel` SHOULD receive channel id, last acknowledged sequence, and resume token. The runtime should return a snapshot first, then replay events where possible.
+
+## Jobs
+
+Job control SHOULD distinguish job status from job item status. Cancelling a job does not cancel completed items; retrying an item must not create duplicate output.
+
+# Tool and context
+Source: https://limecloud.github.io/agentruntime/en/contracts/tool-context-capabilities
+
+# Tool and context
+
+Agent Runtime coordinates tools and context without owning every external capability.
+
+## Tool inventory
+
+A `tool.catalog.resolved` event or inventory response SHOULD include:
+
+| Field | Meaning |
+| --- | --- |
+| `tool_name` | Stable tool name for the turn. |
+| `description` | Safe user-facing summary. |
+| `input_schema` | JSON Schema or equivalent schema ref. |
+| `capabilities` | Read, write, network, browser, filesystem, shell, artifact, or custom flags. |
+| `policy` | Allowed, ask, denied, sandboxed, or unavailable. |
+| `runtime_owner` | Local, MCP server, hosted connector, provider-native, workflow, or subagent. |
+| `metadata_ref` | Optional ref for large or private metadata. |
+
+## Tool invocation
+
+Tool lifecycle events should preserve:
+
+- `tool_call_id`
+- safe arguments or argument ref
+- policy decision and approval links
+- progress and partial output
+- result ref, preview, images, artifacts, or evidence refs
+- error category, retryability, and recovery advice
+- concurrency safety, read-only/destructive flags, and interrupt behavior
+- pre/post hook outcomes and permission/sandbox refs
+
+Tool results should not be flattened into final assistant text.
+
+## Context assembly
+
+A runtime SHOULD emit `context.resolved` when it selects important context:
+
+- memory refs
+- knowledge/source refs
+- workspace or file refs
+- browser/session refs
+- policy facts
+- project or system instruction refs
+- context omissions or missing facts
+
+## Compaction
+
+Context compaction is a runtime boundary. It should emit start/completed/failed events with trigger, summary preview, affected turns, and downstream continuation refs. Compaction must not erase unresolved action requests, active incidents, or evidence links.
+
+## Model routing
+
+Model routing and fallback should be visible as runtime facts:
+
+- requested provider and model
+- capability requirements
+- candidate set
+- selected candidate
+- fallback chain
+- budget and rate-limit state
+- decision reason
+
+This lets UI, replay, and review explain why a runtime behaved the way it did.
+
+
+## Concurrency and Interrupt
+
+Tool inventory SHOULD mark `is_read_only`, `is_concurrency_safe`, `is_destructive`, and `interrupt_behavior`.
+
+The runtime MAY run consecutive read-only tools concurrently, but SHOULD serialize write or destructive tools. Cancelled tools should emit explicit cancelled or interrupted facts instead of silently dropping results.
+
+# State snapshots
+Source: https://limecloud.github.io/agentruntime/en/contracts/state-snapshots
+
+# State snapshots
+
+Snapshots let consumers recover without replaying every event from the beginning. They are also the bridge for old sessions, inactive tabs, remote clients, and evidence exporters.
+
+## Session snapshot
+
+A session snapshot SHOULD include:
+
+- session id, title, timestamps, workspace or account scope
+- active thread ids and pinned thread ids
+- recent history window with cursor
+- thread summaries
+- task summaries and active task graph refs
+- child subagent summaries
+- latest evidence and artifact refs
+- stale or truncated flags
+
+## Thread read model
+
+A thread read model SHOULD include:
+
+- `thread_id`
+- `status`
+- `active_turn_id`
+- pending action requests
+- last outcome
+- active incidents
+- queued turns
+- active, waiting, blocked, failed, lost, and recent terminal tasks
+- latest compaction boundary
+- diagnostics summary
+- tool/artifact/evidence summaries
+- model routing and limit state
+- permission state, sandbox profile, and pending approvals
+- active processes, output refs, and execution environment
+- task graph, subagent graph, job progress, and remote channel state
+- telemetry correlation summary
+
+This read model is the current answer to “what is happening now?” Consumers should not compute it independently from UI state.
+
+## Diagnostics
+
+Diagnostics can include warnings, failed tools, failed commands, pending requests, stalled turns, stalled tasks, lost workers, interrupt state, quota blocks, and context gaps. A missing diagnostic is not the same as a healthy state; mark unsupported facts as `unavailable`.
+
+## History windows
+
+Old sessions should load progressively:
+
+1. session shell and thread summaries
+2. recent history window
+3. active thread read model
+4. queue and pending requests
+5. tool, artifact, evidence, and older history on demand
+
+Bounded history and cursors are part of the runtime contract because they define whether clients can restore long-running work safely.
+
+
+## Snapshot Honesty
+
+Snapshots SHOULD prefer explicit status over optimistic inference:
+
+- `unknown`: runtime lacks enough facts.
+- `unavailable`: implementation or environment does not support the fact.
+- `not_applicable`: the signal does not apply to this thread.
+- `stale`: facts may not be current.
+- `blocked`: permission, credential, quota, network, context, or human action is required.
+
+Evidence, review, and UI consumers should use these statuses instead of filling in success defaults.
+
+# Evidence and replay
+Source: https://limecloud.github.io/agentruntime/en/contracts/evidence-replay
+
+# Evidence and replay
+
+Agent Runtime should make work auditable. Evidence and replay exports must be derived from the same runtime facts that drive UI and diagnostics.
+
+## Evidence pack
+
+An evidence pack SHOULD include:
+
+- runtime summary
+- event or timeline summary
+- thread read model
+- tool calls and failed calls
+- artifacts and artifact refs
+- context refs and compaction boundaries
+- provider routing, permission, sandbox, hook, process, and limit events
+- verification outcomes when available
+- review or audit notes when available
+
+Evidence systems own verdicts. Runtime owns export scope, correlation ids, and references.
+
+## Replay case
+
+A replay case SHOULD include:
+
+- input payload and selected options
+- context and tool inventory refs
+- expected state or behavior assertions
+- evidence links
+- grader or review instructions when available
+
+Replay must not depend on UI screenshots or final prose alone.
+
+## Observability
+
+A compatible runtime SHOULD map execution into trace concepts:
+
+- session/thread/turn as trace attributes
+- model call, tool call, context retrieval, artifact write, and export as spans
+- warnings and decisions as span events or logs
+- token usage, latency, retries, queue wait, and tool duration as metrics
+
+Trace ids should appear in runtime events and evidence exports when available.
+
+
+## Signal Applicability
+
+Evidence SHOULD distinguish `exported`, `not_applicable`, `unsupported`, and `missing_correlation`.
+
+`known_gaps` should only describe signals that apply to the current scope but were not exported. Do not turn every future capability into a gap for every thread.
+
+# Permission and sandbox
+Source: https://limecloud.github.io/agentruntime/en/contracts/permission-and-sandbox
+
+# Permission and sandbox
+
+Permission is not a dialog. Permission is an auditable runtime decision across tools, processes, network, filesystem, host policy, and human approval.
+
+A compatible runtime SHOULD expose three facts for every constrained action:
+
+1. `permission_state`: current mode, rules, policy sources, and whether user interaction is allowed.
+2. `permission_decision`: why this action is allowed, denied, asked, unavailable, or sandboxed.
+3. `sandbox_profile`: the actual filesystem, network, environment, process, and platform boundary used at execution time.
+
+## Permission modes
+
+The standard does not require exact names, but implementations SHOULD express these semantics: `default`, `untrusted`, `on_request`, `on_failure`, `never`, `plan`, `bypass`, and `auto`.
+
+Every mode must preserve destructive-action facts. A destructive action SHOULD carry `destructive=true`, impact scope, rollback advice, and decision source.
+
+## Permission decision
+
+A permission decision SHOULD include `decision`, `decision_source`, `decision_reason`, `rule_refs`, `updated_input_ref`, `approval_action_id`, `expires_at`, and `scope`.
+
+A hook-provided allow is a decision source, not a universal override. Explicit deny or ask rules SHOULD still apply.
+
+## Sandbox profile
+
+A sandbox profile SHOULD include `mode`, `cwd`, `read_roots`, `write_roots`, `network`, `environment_ref`, `process_limits`, and `violation_refs`.
+
+The runtime MUST NOT show a sandboxed state in a client while omitting the actual sandbox facts from tool, process, and evidence records.
+
+## Event classes
+
+| Event | When |
+| --- | --- |
+| `permission.evaluated` | Rules, mode, hooks, host policy, or classifiers produced a decision. |
+| `permission.requested` | Runtime needs a human or host decision. |
+| `permission.resolved` | The action was allowed, denied, timed out, or cancelled. |
+| `sandbox.applied` | A tool or process received its execution sandbox. |
+| `sandbox.violation` | Filesystem, network, or permission boundary was triggered. |
+
+## Anti-patterns
+
+- Inferring approval from final prose.
+- Recording only the dialog result, not the rule and sandbox facts.
+- Waiting for user input in a non-interactive mode.
+- Reporting sandbox denial as a generic tool failure.
+
+# Hooks and policy
+Source: https://limecloud.github.io/agentruntime/en/contracts/hooks-and-policy
+
+# Hooks and policy
+
+Hooks are runtime governance points. They can add context, block input, modify tool arguments, participate in permission decisions, emit audit facts, or run stop checks.
+
+Hooks must not become a second execution path. Hook outcomes must be written back as runtime facts consumed by events, snapshots, evidence, and review.
+
+## Hook points
+
+Compatible runtimes SHOULD support equivalent semantics for `session_start`, `user_prompt_submit`, `pre_tool_use`, `permission_request`, `post_tool_use`, `post_tool_failure`, `post_sampling`, and `stop`.
+
+## Hook input
+
+Hook input SHOULD contain stable scoped identifiers, cwd, workspace scope, permission mode, sandbox summary, safe tool input, transcript refs, routing refs, and policy refs. It MUST NOT include secrets, raw private files, unfiltered environment variables, or unaudited client state by default.
+
+## Hook output
+
+Hook output SHOULD normalize to `continue`, `block`, `allow`, `deny`, `ask`, `updated_input_ref`, `additional_context_refs`, `updated_tool_output_ref`, `suppress_output`, and `audit_refs`.
+
+## Events
+
+| Event | Payload |
+| --- | --- |
+| `hook.started` | Hook point, handler ref, scope ids, timeout, preview summary. |
+| `hook.completed` | Status, duration, decision, added context refs, updated refs. |
+| `hook.failed` | Error category, retryability, fail-open or fail-closed behavior. |
+| `policy.changed` | Host, workspace, or session policy changed. |
+
+High-risk hooks SHOULD fail closed. Read-only context hooks MAY fail open, but must emit a warning.
+
+# Execution environment
+Source: https://limecloud.github.io/agentruntime/en/contracts/execution-environment
+
+# Execution environment
+
+Real runtimes execute local commands, remote commands, PTY sessions, browser actions, and long-running background processes. The standard does not bind a runner, but execution environment facts must be observable, recoverable, and auditable.
+
+## Environment snapshot
+
+Each turn SHOULD form an `execution_environment` snapshot with `workspace_id`, `cwd`, `additional_roots`, `shell`, `os`, `arch`, `env_ref`, `sandbox_profile`, `network_profile`, and `resource_limits`.
+
+## Process lifecycle
+
+Commands and long-running processes SHOULD use their own lifecycle:
+
+| Event | When |
+| --- | --- |
+| `process.started` | Command, cwd, sandbox, TTY, and process id are known. |
+| `process.output` | stdout, stderr, or binary chunk emitted. |
+| `process.input` | Runtime writes to stdin. |
+| `process.completed` | Exit code, duration, status, and output refs are known. |
+| `process.failed` | Spawn, sandbox, permission, timeout, or transport failure. |
+| `process.terminated` | User, policy, parent cancellation, or shutdown ended the process. |
+
+Large output SHOULD be stored by reference.
+
+## Command policy
+
+Before execution, runtime SHOULD record safe command summary, parsed subcommands, destructive flag, permission decision, sandbox profile, cwd, path validation, network decision, and justification.
+
+## Recovery
+
+After restart, the runtime SHOULD tell which processes may still exist, which outputs are durable, which refs are unrecoverable, and which actions remain unresolved.
+
+# Model routing and limits
+Source: https://limecloud.github.io/agentruntime/en/contracts/model-routing-limits
+
+# Model routing and limits
+
+Model selection is not a client dropdown. It is an explainable runtime decision across task requirements, candidate capabilities, user locks, host policy, cost, limits, and provider state.
+
+Compatible runtimes SHOULD expose `task_profile`, `candidate_model_set`, and `routing_decision`.
+
+## Task profile
+
+A task profile SHOULD include `kind`, `source`, `required_capabilities`, `latency_target`, `budget_class`, `fallback_policy`, and `settings_source`.
+
+## Candidate model set
+
+A candidate set is not the full registry. It describes the candidates actually available for this turn, including candidate count, capability and cost metadata, excluded candidates with reasons, hard constraints, preferences, single-candidate status, credentials, quota, and network gaps.
+
+## Routing decision
+
+A routing decision SHOULD include `routing_mode`, `decision_source`, `decision_reason`, selected and requested provider/model, `candidate_count`, `fallback_chain`, `capability_gap`, `requires_user_override`, and `limit_state_snapshot`.
+
+Single candidate is a first-class path, not a failure. It means the runtime has no optimization space, but still owes capability, cost, and limit facts.
+
+## Events
+
+`task.profile.resolved`, `routing.candidates.resolved`, `routing.decided`, `routing.fallback.applied`, `routing.not_possible`, `routing.single_candidate`, `cost.estimated`, `cost.recorded`, `rate_limit.hit`, `quota.low`, and `quota.blocked` SHOULD flow into read models, evidence, and telemetry.
+
+# Agent task
+Source: https://limecloud.github.io/agentruntime/en/contracts/agent-task
+
+# Agent task
+
+An `agent task` is the runtime-owned unit of work that gives an agent objective, scope, lifecycle, progress, relationships, and delivery semantics.
+
+A task is not a checklist item, not a chat message, not a model request, and not only a background job. It is the durable execution object that can span turns, start runs, spawn subagents, wait for input, produce artifacts, and be audited after recovery.
+
+## Design pressure
+
+Real runtimes show the same task pressure in different forms:
+
+- Terminal agents keep foreground work, local shell work, remote agent work, scheduled work, and backgrounded work under one task surface.
+- Gateway and scheduler agents need durable jobs, delivery state, per-run output, checkpoint/resume, missed-run handling, and failure notification.
+- Typed coding runtimes need thread goals, todo lists, plan items, turn status, job items, approval state, and spawn edges to join through stable ids.
+- Desktop runtimes need task profiles, automation jobs, subagent turns, execution summaries, evidence export, and UI projection to read from the same fact chain.
+- Durable workflow systems show why workflow id, run id, task queue, child work, signals, cancellation, retries, and history cannot be left as prose.
+
+The portable contract therefore needs a task model above individual tool calls and below host-product workflows.
+
+## Task is not job, run, step, or todo
+
+| Object | Meaning | Runtime rule |
+| --- | --- | --- |
+| `task` | Semantic objective with lifecycle, owner, relationships, constraints, and acceptance. | Stable across retries, turns, backgrounding, and recovery. |
+| `run` | One execution attempt for a task. | New run for retry, resume-after-crash, or alternate worker execution. |
+| `step` | Ordered item inside a run or turn. | Model, reasoning, tool, process, approval, artifact, warning, or evidence item. |
+| `job` | Durable batch or scheduled dispatcher. | May create or own tasks, but should not replace task semantics. |
+| `todo` / `plan item` | Agent-visible checklist. | Useful progress hint, not authoritative lifecycle. |
+
+A compatible runtime SHOULD expose all five concepts when they exist instead of flattening them into one `message` or one `task` string.
+
+## Task record
+
+A task SHOULD include these fields:
+
+| Field | Purpose |
+| --- | --- |
+| `task_id` | Stable task id. |
+| `parent_task_id` / `root_task_id` | Task graph linkage. |
+| `session_id` / `thread_id` / `turn_id` | Conversation or execution context linkage when applicable. |
+| `title` / `objective` | Human-readable work statement. |
+| `task_kind` / `task_family` | Portable classification and coarse grouping. |
+| `visibility` | `foreground`, `background`, `internal`, or `hidden`. |
+| `status` | Normalized lifecycle status. |
+| `priority` | Scheduling hint, not a completion guarantee. |
+| `requested_by` / `owner` / `assignee` | User, agent, workflow, channel, or worker attribution. |
+| `scope` | Workspace, project, thread, account, environment, or host boundary refs. |
+| `constraints` | Permission, sandbox, network, model, tool, cost, time, and output constraints. |
+| `task_profile` | Capability, latency, budget, fallback, and continuity profile. |
+| `acceptance` | Completion criteria or refs. |
+| `progress` | Percent, phase, current step, summary, counters, or output refs. |
+| `current_run_id` | Active run, if any. |
+| `attempts` | Prior and active runs. |
+| `relationships` | Dependencies, blocks, child tasks, source tasks, spawned agents, artifacts. |
+| `artifacts` / `evidence_refs` | Produced or consumed refs. |
+| `last_error` / `status_reason` | Structured failure, block, or wait explanation. |
+| `created_at` / `updated_at` / `started_at` / `ended_at` | Lifecycle timestamps. |
+
+## Status model
+
+A portable runtime SHOULD support these normalized task statuses:
+
+| Status | Meaning |
+| --- | --- |
+| `draft` | Defined but not yet accepted by runtime. |
+| `accepted` | Runtime accepted the task and assigned identity. |
+| `queued` | Waiting for scheduler, queue, dependency, or worker capacity. |
+| `preparing` | Resolving context, tools, model, policy, or environment. |
+| `running` | Active execution is making progress. |
+| `waiting_input` | Waiting for user or external structured input. |
+| `waiting_permission` | Waiting for human, policy, or host approval. |
+| `waiting_resource` | Waiting for credential, quota, file, network, worker, or external system. |
+| `blocked` | Cannot proceed until a named blocker is resolved. |
+| `paused` | Intentionally paused and resumable. |
+| `retrying` | A retry or fallback run is being prepared or active. |
+| `cancelling` | Cancellation requested; cleanup is in progress. |
+| `cancelled` | Stopped by user, policy, or runtime. |
+| `timed_out` | Stopped because a time or inactivity limit fired. |
+| `failed` | Terminal failure with error facts. |
+| `lost` | Runtime cannot prove whether the worker is still alive. |
+| `completed` | Acceptance criteria are satisfied and facts are reconciled. |
+| `archived` | No longer active in scheduling, but retained for history. |
+| `stale` | Snapshot may not reflect current execution. |
+| `unknown` | Runtime lacks enough facts to assert a status. |
+
+Implementation-native states MAY be preserved in `native_status`, but portable consumers SHOULD receive the normalized status.
+
+## Attempts and runs
+
+A task SHOULD keep attempts rather than replacing history on retry.
+
+A `task_attempt` or `run` SHOULD include:
+
+| Field | Purpose |
+| --- | --- |
+| `run_id` / `attempt_id` | Stable execution attempt id. |
+| `status` | Run lifecycle status. |
+| `worker` | Agent, process, hosted worker, scheduler, or external runtime. |
+| `input_refs` | Prompt, files, dataset rows, schedule trigger, or event refs. |
+| `output_refs` | Result, stdout/stderr, artifact, report, or external output refs. |
+| `checkpoint_refs` | Resume, rollback, or reconstruction boundaries. |
+| `started_at` / `ended_at` | Attempt timing. |
+| `attempt_count` | Retry count or ordinal. |
+| `retry_policy` | Max attempts, backoff, non-retryable errors, timeout policy. |
+| `last_error` | Structured failure fact. |
+| `completion_summary` | Final human-readable but non-authoritative summary. |
+
+A new attempt SHOULD be created for retry after terminal error, worker loss, crash recovery, different routing decision, or user-requested rerun.
+
+## Task graph
+
+A task graph SHOULD represent relationships explicitly:
+
+| Relationship | Meaning |
+| --- | --- |
+| `parent` / `child` | Decomposition or delegation. |
+| `blocks` / `blocked_by` | Dependency ordering. |
+| `source_task` | Output or context came from another task. |
+| `source_attempt` | Output or context came from a specific run. |
+| `spawned_subagent` | Child agent context was created for the task. |
+| `assigned_thread` | Thread currently executing part of the task. |
+| `produced_artifact` | Artifact ref produced by the task. |
+| `consumed_artifact` | Artifact ref used as input. |
+| `evidence` | Evidence, replay, review, trace, or audit ref. |
+
+Edges SHOULD carry `created_at`, `updated_at`, `status`, and optional `reason`. Cancellation intent SHOULD stick to the graph so schedulers stop adding new child work while active children settle.
+
+## A2A peer tasks
+
+When a task is delegated to an Agent2Agent peer, the local runtime SHOULD create a local task wrapper or remote task ref instead of replacing its task model with the peer protocol object.
+
+An A2A mapping SHOULD preserve:
+
+| Field | Purpose |
+| --- | --- |
+| `native_protocol` | `a2a` or another peer protocol name. |
+| `remote_task_id` | A2A `taskId` or peer-native task id. |
+| `remote_context_id` | A2A `contextId` when supplied. |
+| `remote_agent_ref` / `agent_card_ref` | Agent Card, discovery record, or configured peer. |
+| `delivery_mechanism` | polling, streaming, subscription, push notification, or custom. |
+| `remote_status` / `native_status` | Peer-native state before normalization. |
+| `remote_artifact_refs` | Artifact refs received from the peer. |
+
+A2A messages SHOULD map to task input, clarification, or status events. A2A artifacts SHOULD map to durable artifact refs and task graph edges. Completion SHOULD require both peer terminal state and local reconciliation of artifacts, evidence, and delivery facts.
+
+## Progress and output
+
+A runtime SHOULD report progress as facts, not only natural language:
+
+- phase: `planning`, `working`, `verifying`, `delivering`, `waiting`, or implementation-specific values.
+- current step or checklist summary.
+- counters for items, child tasks, job items, tool calls, tests, or files.
+- new output refs and output offsets for append-only logs.
+- delivery state: pending, delivered, queued, failed, parent missing, or not applicable.
+- validation state and acceptance coverage.
+
+Large output SHOULD use refs. A progress event may carry a small summary and point to stdout, artifact, report, or evidence refs.
+
+## Events
+
+A compatible runtime SHOULD emit the normalized task family:
+
+| Event | When emitted |
+| --- | --- |
+| `task.created` | Task identity and initial objective exist. |
+| `task.accepted` | Runtime accepted ownership. |
+| `task.queued` | Task entered a queue. |
+| `task.started` | First run or active execution started. |
+| `task.updated` | Metadata, owner, constraints, or profile changed. |
+| `task.progress` | Progress, counters, phase, summary, or output refs changed. |
+| `task.waiting` | Task waits for input, permission, resource, dependency, or worker. |
+| `task.blocked` | Task cannot proceed until a blocker is resolved. |
+| `task.paused` / `task.resumed` | Task was paused or resumed. |
+| `task.retrying` | Retry or fallback attempt began. |
+| `task.cancel_requested` | Cancellation intent recorded. |
+| `task.cancelled` | Task reached cancelled terminal state. |
+| `task.timed_out` | Runtime timeout or inactivity timeout fired. |
+| `task.failed` | Task reached failed terminal state. |
+| `task.lost` | Runtime lost authoritative worker state. |
+| `task.completed` | Task reached completed terminal state. |
+| `task.archived` | Task was removed from active scheduling. |
+| `task.delegated` | Child task, subagent, job, or worker assignment was created. |
+| `task.dependency.updated` | Relationship or blocker state changed. |
+| `task.attempt.started` / `task.attempt.completed` / `task.attempt.failed` | Attempt lifecycle changed. |
+
+Task events SHOULD carry `task_id`; attempt events SHOULD also carry `run_id` or `attempt_id`.
+
+## Control plane
+
+A runtime SHOULD expose or map these operations:
+
+| Command | Required semantics |
+| --- | --- |
+| `create_task` | Create task identity with objective, scope, profile, constraints, and idempotency key. |
+| `update_task` | Update title, objective, metadata, priority, assignee, acceptance, or constraints. |
+| `start_task` | Start a run, bind worker/thread/environment, and emit attempt facts. |
+| `append_task_progress` | Append progress, output refs, counters, or delivery state. |
+| `pause_task` / `resume_task` | Pause or resume without losing graph and attempt history. |
+| `cancel_task` | Record cancellation intent and propagate to active workers or child tasks. |
+| `retry_task` | Start a new attempt with explicit retry reason and inherited constraints. |
+| `complete_task` / `fail_task` | Reconcile terminal state, artifacts, evidence, and acceptance facts. |
+| `list_tasks` / `get_task` | Return durable task read models. |
+| `link_tasks` / `unlink_tasks` | Update parent, child, block, source, artifact, or evidence edges. |
+
+Mutating commands MUST write runtime facts. UI-only task cards or local optimistic state are not authoritative.
+
+## Snapshot projection
+
+Read models SHOULD expose:
+
+- `task_summary`: active count, terminal count, failed count, lost count, waiting count, and recent terminal tasks.
+- `tasks`: compact task records with status, title, owner, scope, current run, progress, relationships, and refs.
+- `task_graph`: edges needed to recover parent/child and dependency views.
+- `attempts`: active and recent attempts with output and checkpoint refs.
+- `blocked_tasks`: blockers and required action ids.
+- `delivery_state`: whether output was delivered back to parent, channel, or UI.
+
+Snapshots SHOULD mark missing data as `unknown`, `stale`, or `not_applicable` rather than inferring success.
+
+## Anti-patterns
+
+- Treating the model's todo list as the task lifecycle authority.
+- Replacing a task record on retry and losing prior attempt failures.
+- Keeping background work only in UI memory, so restart loses the task.
+- Reporting `completed` before artifacts, evidence, or delivery facts are reconciled.
+- Creating child agents or jobs without task graph edges.
+- Emitting only final prose for a long-running task without progress, output refs, or errors.
+- Using scheduler ticks as product-level tasks.
+- Treating a lost worker as success because no error was observed.
+
+# Subagents and jobs
+Source: https://limecloud.github.io/agentruntime/en/contracts/subagents-and-jobs
+
+# Subagents and jobs
+
+A `subagent` is a child execution context with parent links. A `job` is durable batch or background work that can contain many items. Both can be assigned to an `agent task`, but neither replaces task semantics.
+
+Use the [Agent task](./agent-task.md) contract for objective, lifecycle, attempts, relationships, acceptance, and recovery. Use this contract for child agent coordination and batch/background item processing.
+
+## Subagents
+
+A subagent SHOULD include `subagent_id`, parent ids, child `thread_id`, role, nickname, isolation rules, model policy, status, and last message ref.
+
+Events include `subagent.spawned`, `subagent.input`, `subagent.status`, `subagent.output`, `subagent.completed`, `subagent.failed`, and `subagent.closed`.
+
+Parent-child edges SHOULD be durable enough to list direct children and descendants after restart.
+
+## Jobs
+
+A job SHOULD include `job_id`, optional `task_id`, status, instruction ref, input refs, optional output schema ref, max runtime, item cursor, progress counts, and assigned thread ids.
+
+Job item status SHOULD be independent: pending, running, completed, failed, reported. Failed items SHOULD keep attempt count, last error, retryability, and assigned thread.
+
+Events include `job.created`, `job.started`, `job.progress`, `job.item.started`, `job.item.completed`, `job.item.failed`, `job.completed`, `job.failed`, and `job.cancelled`.
+
+# Remote channels
+Source: https://limecloud.github.io/agentruntime/en/contracts/remote-channels
+
+# Remote channels
+
+Agent Runtime may run across local processes, remote services, browser extensions, IDEs, mobile clients, or workflow workers. The standard does not prescribe transport, but remote channels must preserve identity, permission, recovery, and event semantics.
+
+## Channel identity
+
+A channel SHOULD include:
+
+| Field | Meaning |
+| --- | --- |
+| `channel_id` | Stable channel id. |
+| `transport` | `websocket`, `sse`, `json_rpc`, `grpc`, `http_json`, `stdio`, `in_process`, or custom. |
+| `peer_role` | `client`, `host`, `worker`, `remote_runtime`, `peer_agent`, or `tool_server`. |
+| `account_ref` | Host account or tenant reference. |
+| `capabilities` | Streaming, resume, permissions, files, artifacts, task delegation, or custom flags. |
+| `last_seen_at` | Latest heartbeat or event time. |
+| `resume_token_ref` | Optional recovery token reference. |
+| `native_protocol` | Optional peer protocol, such as `a2a`, `mcp`, `json_rpc`, or custom. |
+
+## Remote session ingress
+
+Remote input SHOULD enter as a control-plane action, not write directly to transcript state:
+
+1. Authenticate or enroll the channel.
+2. Resolve session, thread, task, and workspace scope.
+3. Submit a turn, create a task, append remote input, or link a peer task.
+4. Emit channel events.
+5. Persist read models, native ids, and recovery cursors.
+
+## A2A alignment
+
+When the peer speaks Agent2Agent Protocol, the runtime SHOULD treat A2A as the peer transport and interaction contract while keeping Agent Runtime as the internal execution truth.
+
+| A2A concept | Runtime mapping |
+| --- | --- |
+| Agent Card | Peer capability snapshot, routing input, `channel.capabilities`, and optional `agent_card_ref`. |
+| `SendMessage` / `SendStreamingMessage` | `submit_turn`, `create_task`, `append_task_progress`, and channel events depending on scope. |
+| A2A `taskId` / `contextId` | `remote_task_ref` linked to local `task_id`, `parent_task_id`, `subagent_id`, or `channel_id`. |
+| A2A Task state | Normalized task status plus `native_status`; do not collapse retries or local attempts. |
+| Message | Remote input, clarification, status, or task interaction; do not treat messages as durable task outputs. |
+| Artifact / `TaskArtifactUpdateEvent` | Artifact refs, `artifact.changed`, and produced/consumed artifact task graph edges. |
+| Streaming / subscribe / push notifications | `channel.connected`, `channel.message`, `task.progress`, `task.completed`, `channel.resumed`, ack, cursor, and snapshot repair facts. |
+| In-task authorization | `action.required`, `permission.requested`, `channel.permission_forwarded`, and `channel.permission_returned`. |
+
+A runtime MAY expose an A2A adapter, but the adapter must preserve both identities: the local runtime `task_id` and the remote A2A `taskId` / `contextId`.
+
+## Remote permission bridge
+
+Remote permission decisions must record:
+
+- which peer requested permission.
+- which tool, process, action, or peer task the request applies to.
+- which side made the final decision.
+- the response, timeout, policy deny, or auth failure source.
+- whether the decision is channel-scoped.
+
+Remote approvals should not be flattened into normal user messages.
+
+## Event classes
+
+| Event | When emitted |
+| --- | --- |
+| `channel.connected` | A peer becomes reachable. |
+| `channel.disconnected` | A peer disconnects or misses heartbeat. |
+| `channel.resumed` | A peer resumes with cursor or token. |
+| `channel.message` | Non-turn channel message, protocol notice, or status. |
+| `channel.permission_forwarded` | Permission request is forwarded across a channel. |
+| `channel.permission_returned` | Remote or local permission decision returns. |
+| `channel.peer_task.linked` | A remote peer task is linked to a local task or subagent. |
+| `channel.peer_task.updated` | Remote peer task state changes. |
+
+## Recovery
+
+Reconnect SHOULD load a snapshot first, then continue from the last acknowledged sequence. If replay is unavailable, the runtime must emit snapshot repair facts and mark the gap.
+
+Remote task recovery SHOULD distinguish:
+
+- remote session still running.
+- remote session idle but not completed.
+- remote peer task waiting for input or authorization.
+- remote peer task completed but local delivery not reconciled.
+- remote session archived or missing.
+- auth or network temporarily unavailable.
+
+These states should not all appear as `failed`.
+
+## Anti-patterns
+
+- Writing remote messages directly to UI without entering the runtime event stream.
+- Treating A2A `taskId` as the local `task_id` and losing the peer boundary.
+- Using A2A messages as durable outputs instead of artifact refs.
+- Replaying from the beginning after reconnect and duplicating turns or peer tasks.
+- Approving remote permissions privately in the host or browser without evidence facts.
+- Marking a running peer task as completed because the channel disconnected.
+
+# Telemetry and tracing
+Source: https://limecloud.github.io/agentruntime/en/contracts/telemetry-tracing
+
+# Telemetry and tracing
+
+Telemetry is not a second truth source. It is an observability projection of runtime facts, joined through stable correlation ids.
+
+## Correlation
+
+Runtime events, request logs, spans, metrics, and evidence SHOULD share `runtime_id`, `session_id`, `thread_id`, `turn_id`, `task_id`, `run_id`, `attempt_id`, `tool_call_id`, `process_id`, `request_id`, `queued_turn_id`, `subagent_id`, `trace_id`, and `span_id` where applicable.
+
+When correlation is not available, record `unavailable` or `missing_correlation`; do not turn timestamp proximity into a certain join.
+
+## Spans
+
+Compatible runtimes SHOULD express interaction, task run, context resolve, model request, tool call, process exec, hook run, artifact write, and evidence export spans.
+
+## Metrics
+
+Common metrics include TTFT, model latency, task duration, retry count, token usage, tool duration, hook duration, queue wait, permission wait, process runtime, cost, rate limit, quota events, and evidence export duration.
+
+Evidence export SHOULD distinguish applicable, not applicable, unsupported, not recorded, and missing correlation.
+
+# Session history and recovery
+Source: https://limecloud.github.io/agentruntime/en/contracts/session-history-recovery
+
+# Session history and recovery
+
+Long sessions cannot depend on an in-memory message array. Compatible runtimes SHOULD maintain event logs, rollout/history records, snapshots, and read models.
+
+## Layers
+
+`event_log`, `rollout_log`, `session_snapshot`, `thread_read_model`, `context_boundary`, and `evidence_export` may share storage, but their semantics must stay distinct.
+
+## Compaction
+
+Compaction SHOULD record trigger, affected turns, summary ref, replacement history or continuation ref, token usage before/after, preserved pending actions, incidents, artifact refs, evidence refs, and errors or retries.
+
+Compaction must not silently drop unresolved actions or active incidents.
+
+## Rollback and reconstruction
+
+Rollback SHOULD record target, removed turns, surviving context baseline, affected tools/artifacts/subagents/jobs, and read-model repair.
+
+Recovery SHOULD load session shell, thread summaries, recent window, active thread read model, pending actions, queued turns, subagents, and jobs. Partial recovery must be marked degraded.
+
+# Output storage and large results
+Source: https://limecloud.github.io/agentruntime/en/contracts/output-storage-large-results
+
+# Output storage and large results
+
+Tools, commands, hooks, search, browser actions, and models can all emit large output. The event stream should carry facts and ordering, not unbounded payloads.
+
+## Output reference
+
+Large output SHOULD use `output_ref` with owner, media type, encoding, size, preview, truncation, redaction, and expiration metadata.
+
+## Spill policy
+
+Runtime SHOULD define max event payload size, max tool result tokens, stdout/stderr head-tail policy, hook output limits, binary inline policy, and evidence copy/reference behavior.
+
+## Structured results
+
+Structured tool results SHOULD separate `structured_content_ref`, `display_preview`, `raw_output_ref`, `artifact_refs`, and `error_ref`.
+
+Events include `output.spilled`, `output.truncated`, `output.redacted`, and `output.expired`.
+
+# Implementation quickstart
+Source: https://limecloud.github.io/agentruntime/en/authoring/quickstart
+
+# Implementation quickstart
+
+Start with a minimal adapter that can submit a turn, stream events, persist a snapshot, and expose a thread read model.
+
+## 1. Define identity
+
+Create stable ids for:
+
+```text
+session_id, thread_id, task_id, run_id, turn_id, step_id, tool_call_id, action_id, trace_id
+```
+
+Do this before adapting provider or tool events. Without stable ids, replay and resume will be unreliable.
+
+## 2. Normalize provider streams
+
+Map provider-native chunks into:
+
+- `model.requested`
+- `model.delta`
+- `reasoning.delta` when applicable
+- `tool.started` and `tool.args` when a tool call is requested
+- `model.completed` or `model.failed`
+
+## 3. Implement tool lifecycle
+
+Emit `tool.started`, `tool.progress`, `tool.result`, or `tool.failed`. Store large inputs and outputs behind refs.
+
+## 4. Add task lifecycle
+
+Create task records for work that has an objective, can run in the background, can be retried, spawns children, or needs acceptance. Emit `task.created`, `task.started`, `task.progress`, and terminal events before adding advanced orchestration.
+
+## 5. Add human decisions
+
+When a permission, plan, credential, or structured input is required, emit `action.required` and stop the dependent work. Resume only after `respond_action`.
+
+## 6. Persist snapshots
+
+Persist a compact session snapshot and thread read model after each major transition. Test process restart before adding advanced features.
+
+## 7. Export evidence
+
+Export evidence and replay from the same store that powers the read model. Do not create a second diagnostic truth source.
+
+# Acceptance scenarios
+Source: https://limecloud.github.io/agentruntime/en/authoring/acceptance-scenarios
+
+# Acceptance scenarios
+
+A compatible Agent Runtime should pass behavior-level checks.
+
+## Submit and first status
+
+Given a client submits a turn, the runtime emits an accepted or queued fact before any long model output. The thread read model shows `preparing`, `queued`, or `running` instead of remaining unknown.
+
+## Tool call with large result
+
+Given a tool returns a large payload, the event stream includes a safe preview and output ref. The final answer does not become the only storage location for the result.
+
+## Approval gate
+
+Given a tool needs approval, the runtime emits `action.required` with a stable action id. Execution does not continue until `respond_action` resolves the request.
+
+## Queue and resume
+
+Given a busy thread receives another turn, the runtime either rejects it with policy detail or stores it as a queued turn. After restart, the queue is still visible and can be resumed or reordered.
+
+## Context compaction
+
+Given a long thread requires compaction, the runtime emits compaction start and completed events and keeps a boundary snapshot. Unresolved requests and evidence refs survive compaction.
+
+## Subagent delegation
+
+Given a parent turn spawns a child agent, parent and child ids are linked. Waiting, sending input, failure, and close events are visible without parsing child prose.
+
+## Agent task retry and graph
+
+Given a long-running task creates child work and then fails, the runtime preserves the original `task_id`, records the failed attempt with `run_id`, keeps parent/dependency edges, and starts a new attempt on retry instead of overwriting history.
+
+## Evidence export
+
+Given a completed or failed turn, evidence export includes runtime summary, timeline, tool failures, artifact refs, and verification/review refs when available.
+
+## Old session recovery
+
+Given an old session with many messages, the runtime returns a shell and recent window first, then exposes older history through cursors and details on demand.
+
+## Permission and sandbox fact
+
+Given a shell or file tool requests a write, the runtime records `permission.evaluated` and `sandbox.applied` first. If denied or out of bounds, the thread read model explains whether a rule, mode, hook, host policy, or sandbox violation caused it.
+
+## Hook input rewrite
+
+Given a `pre_tool_use` hook rewrites tool input or blocks the tool, the stream contains `hook.started` / `hook.completed`, updated input ref, or block reason. The final tool result must not hide the hook decision.
+
+## Process stdin and output spill
+
+Given a long-running process needs stdin, `write_process_stdin` emits `process.input`. When stdout/stderr exceed budget, runtime emits `output.spilled` or `output.truncated` and preserves an output ref.
+
+## Model routing and single candidate
+
+Given only one model candidate is available, runtime emits `routing.single_candidate` and the read model shows candidate count, decision reason, capability gap, cost state, and limit state.
+
+## Quota or rate limit
+
+Given provider or host limits are hit, runtime emits `rate_limit.hit`, `quota.low`, or `quota.blocked`, and joins request logs to turn ids in evidence.
+
+## Remote channel reconnect
+
+Given a remote client reconnects, runtime returns a snapshot first and continues from the last acknowledged sequence. If replay is unavailable, it emits `snapshot.repaired` and marks stale or unavailable facts.
+
+## Job item retry
+
+Given one item in a batch job fails, the job keeps job/item status separately, allows retrying only that item, and preserves attempt count and last error.
+
+# Basic runtime adapter
+Source: https://limecloud.github.io/agentruntime/en/examples/basic-runtime-adapter
+
+# Basic runtime adapter
+
+This pseudo-code shows the shape of a minimal adapter. It is not a required SDK.
+
+```ts
+type RuntimeEvent = {
+  type: string
+  eventId: string
+  timestamp: string
+  sessionId: string
+  threadId: string
+  taskId?: string
+  runId?: string
+  turnId?: string
+  sequence?: number
+  payload?: unknown
+}
+
+async function submitTurn(input: SubmitTurn): Promise<AcceptedTurn> {
+  const ids = allocateIds(input)
+  emit({ type: 'task.created', ...ids, payload: { objective: input.objective } })
+  emit({ type: 'turn.submitted', ...ids, payload: { source: input.source } })
+  persistThreadRead(ids.threadId, { status: 'preparing', activeTurnId: ids.turnId, tasks: [{ taskId: ids.taskId, status: 'accepted' }] })
+
+  try {
+    emit({ type: 'task.started', ...ids })
+    emit({ type: 'turn.started', ...ids })
+    const context = await resolveContext(input)
+    emit({ type: 'context.resolved', ...ids, payload: context.summary })
+
+    const tools = await resolveToolInventory(input)
+    emit({ type: 'tool.catalog.resolved', ...ids, payload: tools.summary })
+
+    for await (const part of provider.stream(input, context, tools)) {
+      emit(mapProviderPart(part, ids))
+    }
+
+    emit({ type: 'task.completed', ...ids })
+    emit({ type: 'turn.completed', ...ids })
+    persistThreadRead(ids.threadId, { status: 'completed', activeTurnId: undefined, tasks: [{ taskId: ids.taskId, status: 'completed' }] })
+  } catch (error) {
+    emit({ type: 'task.failed', ...ids, payload: normalizeError(error) })
+    emit({ type: 'turn.failed', ...ids, payload: normalizeError(error) })
+    persistThreadRead(ids.threadId, { status: 'failed', lastOutcome: normalizeError(error), tasks: [{ taskId: ids.taskId, status: 'failed' }] })
+  }
+
+  return ids
+}
+```
+
+The important part is not the function names. The important part is that every externally visible change becomes a runtime fact before UI, replay, or audit consumers use it.
+
+# Ecosystem boundaries
+Source: https://limecloud.github.io/agentruntime/en/reference/ecosystem-boundaries
+
+# Ecosystem boundaries
+
+Agent Runtime coordinates many systems. It should not absorb their ownership.
+
+| System | Owns | Runtime relationship |
+| --- | --- | --- |
+| Agent UI | Surfaces, interactions, local drafts, progressive rendering. | Consumes runtime facts and sends controlled actions. |
+| Model providers | Native APIs, streaming formats, usage accounting, provider errors. | Runtime adapts provider facts into normalized lifecycle events. |
+| MCP servers and connectors | Tools, resources, prompts, connector auth, external side effects. | Runtime discovers, filters, invokes, and records tool lifecycle. |
+| A2A peers | Remote agent cards, capabilities, peer tasks, messages, artifacts, streaming, and push notifications. | Runtime maps peer work to local task/subagent edges, channel facts, and artifact refs while preserving A2A native ids. |
+| Context stores | Memory, knowledge, search, retrieval, source ranking. | Runtime records selected refs, omissions, and compaction boundaries. |
+| Policy systems | Permission rules, risk, sandbox profiles, org policy. | Runtime enforces or asks, then records decisions. |
+| Artifact services | Content, versions, diff, export bytes. | Runtime emits artifact refs and lifecycle facts. |
+| Evidence systems | Traces, verification, replay, review, audit verdicts. | Runtime exports and links evidence facts. |
+| Host application | Workspace, account, local storage, deployment, navigation. | Runtime uses host scope and returns portable state models. |
+
+A clean runtime boundary makes it possible to replace the UI, model provider, connector system, or evidence backend without rewriting the execution contract.
+
+## A2A boundary
+
+A2A is the right protocol reference when one agent delegates work to another independent agent. Agent Runtime should cite and interoperate with it, but not absorb it:
+
+| A2A concept | Runtime mapping |
+| --- | --- |
+| Agent Card | Peer capability snapshot, channel capabilities, routing input, and optional `agent_card_ref`. |
+| Task / `taskId` / `contextId` | Remote task ref linked to a local `task_id`, parent task, subagent, or channel. |
+| Message | Channel input, task interaction, status message, or clarification; not a durable output by itself. |
+| Artifact / artifact update | Artifact refs and `produced_artifact` / `consumed_artifact` task graph edges. |
+| Streaming / push notification | `channel.*`, `task.progress`, `task.completed`, `artifact.changed`, cursor, ack, and snapshot repair facts. |
+| In-task authorization | `action.required`, permission bridge events, and policy decision facts. |
+
+The runtime boundary remains internal execution truth: attempts, tool calls, process execution, sandbox, hooks, local permission decisions, evidence, and replay are runtime facts even when the remote peer speaks A2A.
+
+# Research sources
+Source: https://limecloud.github.io/agentruntime/en/reference/research-sources
+
+# Research sources
+
+Agent Runtime v0.1 was informed by current standards and implementation patterns. These sources are references, not dependencies.
+
+## Standards and protocols
+
+- [Model Context Protocol specification](https://modelcontextprotocol.io/specification/2025-06-18): tools, resources, prompts, sampling, roots, JSON-RPC message shape, and capability negotiation.
+- [Agent2Agent Protocol specification](https://a2a-protocol.org/latest/specification/): agent cards, peer tasks, messages, artifacts, streaming, push notifications, security, and protocol bindings for agent-to-agent interoperability.
+- [Google Developers Blog: Announcing the Agent2Agent Protocol](https://developers.googleblog.com/en/a2a-a-new-era-of-agent-interoperability/): original A2A positioning around capability discovery, task management, artifacts, collaboration, existing web standards, and MCP complementarity.
+- [Linux Foundation A2A project announcement](https://www.linuxfoundation.org/press/linux-foundation-launches-the-agent2agent-protocol-project-to-enable-secure-intelligent-communication-between-ai-agents): project governance and vendor-neutral direction for A2A as an open agent-to-agent communication protocol.
+- [A2A GitHub project](https://github.com/a2aproject/A2A): released specification, protocol assets, SDKs, samples, and issue history.
+- [CloudEvents specification](https://github.com/cloudevents/spec): portable event envelope concepts such as event type, source, id, time, subject, content type, and extension attributes.
+- [JSON-RPC 2.0 specification](https://www.jsonrpc.org/specification): request, response, notification, method, params, result, and error semantics for transport-neutral control planes.
+- [OpenTelemetry concepts](https://opentelemetry.io/docs/concepts/): traces, spans, logs, metrics, context propagation, baggage, and service/resource attribution.
+- [W3C Trace Context](https://www.w3.org/TR/trace-context/): `traceparent` and `tracestate` propagation across services.
+- [AsyncAPI specification](https://www.asyncapi.com/docs/reference/specification/latest): event-driven API description patterns.
+
+## Provider and framework references
+
+- [OpenAI API streaming reference](https://platform.openai.com/docs/api-reference/streaming): provider stream events such as response lifecycle, text deltas, and output item updates.
+- [Anthropic Messages streaming](https://docs.anthropic.com/en/docs/build-with-claude/streaming): message start, content block start/delta/stop, message delta, and message stop event structure.
+- [Anthropic tool use](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/implement-tool-use): tool use and tool result blocks as explicit content, not prose-only execution.
+- [Vercel AI SDK](https://ai-sdk.dev/docs): `streamText`, `generateObject`, tool calls, tool results, steps, stop conditions, and typed UI messages.
+- [LangGraph durable execution](https://docs.langchain.com/oss/python/langgraph/durable-execution): persistence, checkpoints, threads, human-in-the-loop, and time-travel patterns for long-running agents.
+- [LangGraph interrupts and streaming](https://docs.langchain.com/oss/python/langgraph/interrupts): checkpointer-backed interrupts, resume commands, thread ids, and task-mode streaming.
+- [OpenAI Agents SDK](https://openai.github.io/openai-agents-python/): agents, handoffs, sessions, guardrails, tracing spans, and streaming events for multi-agent workflows.
+- [Temporal workflows](https://docs.temporal.io/workflows): workflow ids, run ids, task queues, activities, child workflows, signals, cancellation, retry policies, history, and durable execution.
+
+## Design conclusions
+
+- Runtime events should use a stable envelope, but not require one transport.
+- Provider streams should be adapted instead of exposed directly as the portable contract.
+- Tool calls and human approvals need explicit ids and lifecycle records.
+- Durable snapshots are required because event streams alone do not solve old sessions or process restart.
+- Observability correlation belongs in the runtime contract, not only in logs.
+- Agent-to-agent work should be modeled as local tasks, subagents, jobs, or remote task refs with parent links; A2A is the peer interoperability reference, not a replacement for runtime facts.
+- Task lifecycle must be separate from todo/checklist state and preserve attempts, dependencies, waiting reasons, and delivery state.
+- A2A messages and artifacts support the same separation used by Agent Runtime: communication belongs in messages or channel events, while durable outputs belong in artifact refs linked to tasks.
+
+# Source analysis summary
+Source: https://limecloud.github.io/agentruntime/en/reference/source-analysis
+
+# Source analysis summary
+
+This page summarizes runtime pressure from implementation families. It is not a port of any single project; it extracts portable semantics for the Agent Runtime contract.
+
+## Terminal coding runtime pressure
+
+A terminal runtime shows that tool calls are not simple request/response records. The standard needs tool schema, safe args, progress, partial and final results, concurrent read-only batches, serialized writes, hooks, permission modes, rule sources, classifiers, sandbox profiles, output spill, telemetry-safe errors, local and remote subagents, and compaction boundaries.
+
+It also shows that task state cannot be only a model-facing checklist. Foreground tasks, local shell tasks, remote agent tasks, in-process teammate tasks, scheduled tasks, backgrounded work, and generated output files all need task ids, output offsets, terminal-state eviction, stop controls, and notifications.
+
+## Scheduler and gateway runtime pressure
+
+Gateway and scheduler runtimes show that background work needs durable storage, secure output refs, origin/delivery context, per-job model/tool overrides, pre-run scripts, prompt-injection gates, inactivity timeouts, delivery failure state, run outputs, and checkpoint/resume scanning. A missed scheduled task or failed delivery is a task fact, not just a log line.
+
+## Typed systems runtime pressure
+
+A typed systems runtime shows that SDKs need stable item lifecycle: thread started, turn started, item started/updated/completed, turn completed, turn failed. Command execution, file changes, tool calls, web search, image generation, todo lists, reasoning, approval policy, sandbox policy, hook schemas, process lifecycle, durable state, goals, jobs, remote control, and rollout reconstruction all need explicit facts.
+
+It also shows why task and run must be separate. Thread goals, plan items, todo lists, job tables, job item assignments, spawn edges, turn status, approval wait guards, and thread read models each cover part of the work. The standard needs task ids, run ids, attempt history, dependency edges, worker assignment, and lost-state handling to join them.
+
+## Desktop agent runtime pressure
+
+A desktop runtime shows that product execution is not a single model request. Submit, queue, resume, interrupt, compact, read models, tool inventory, evidence, replay, review export, turn input snapshots, request telemetry correlation, task profile, candidate sets, routing decisions, cost state, limit state, and quota/rate-limit events need one fact chain.
+
+It also shows that foreground turns, subagent turns, automation jobs, execution summaries, task files, artifacts, and timeline UI projections should converge on the same runtime facts. Scheduler ticks and UI cards should not become separate task authorities.
+
+## Gap matrix
+
+| Gap | Standard surface |
+| --- | --- |
+| Approval exists only as a client dialog | `permission.*` events and action boundary. |
+| Sandbox exists only as config | `sandbox_profile` and `sandbox.*` events. |
+| Hooks are not portable | `hook.*` events and hook input/output contracts. |
+| Commands are just tool text | `process.*` lifecycle and output refs. |
+| Model choice is not explainable | `task_profile`, `candidate_model_set`, `routing_decision`. |
+| Cost and limits live only in logs | `cost.*`, `rate_limit.*`, `quota.*`, read models. |
+| Tasks are only todos or UI cards | `task.*` lifecycle, attempts, graph edges, progress, delivery state. |
+| Subagents are just messages | Durable parent-child graph and job/item model. |
+| Remote execution cannot recover | Channel identity, resume cursor, permission bridge. |
+| Compaction breaks audit | Context boundaries, rollback, reconstruction. |
+| Large output pollutes streams | Output refs, spill, truncation, redaction. |
+
+# Glossary
+Source: https://limecloud.github.io/agentruntime/en/reference/glossary
+
+# Glossary
+
+- `runtime`: Execution authority that owns agent facts and control semantics.
+- `session`: Durable user-visible work container.
+- `thread`: Ordered execution context inside a session.
+- `turn`: One submitted input cycle.
+- `task`: Durable objective with lifecycle, attempts, relationships, progress, acceptance, and recovery state.
+- `run` / `attempt`: One execution attempt for a task.
+- `step`: Ordered runtime item in a turn, task, or run.
+- `tool_call`: One invocation of a tool or connector.
+- `action_request`: Pending human or policy decision.
+- `subagent`: Child runtime context delegated by a parent runtime.
+- `read model`: Compact view derived from runtime facts for inspection.
+- `snapshot`: Durable state used for recovery and hydration.
+- `evidence pack`: Exported facts for review, replay, verification, or audit.
+- `provider adapter`: Layer that maps provider-native streams to runtime events.
+- `capability surface`: Tools and actions available under current policy and context.
+- `compaction boundary`: Runtime checkpoint where context was summarized or rewritten.

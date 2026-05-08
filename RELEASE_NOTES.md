@@ -1,3 +1,26 @@
+# Agent Runtime v0.3.2
+
+Agent Runtime v0.3.2 adds LLM-friendly documentation entrypoints. It publishes concise and full-context markdown files at the repository root and the documentation site root so AI clients can discover the runtime standard directly.
+
+## Highlights
+
+- Adds `llms.txt` as the concise LLM navigation index.
+- Adds `llms-full.txt` as a concatenated English core documentation file with source URLs.
+- Adds compatible `llm.txt` and `llm-full.txt` aliases.
+- Publishes the same files through `docs/public/` so GitHub Pages serves them from the site root.
+- Includes the LLM entrypoint files in the package manifest.
+
+## Validation
+
+- `npm run build`
+- `VITEPRESS_BASE="/agentruntime/" npm run build`
+- `npm audit --omit=dev`
+- `npm pack --dry-run`
+- Root/public LLM file consistency checks
+- Forbidden coupling scan outside generated output
+
+---
+
 # Agent Runtime v0.3.1
 
 Agent Runtime v0.3.1 strengthens A2A alignment without turning Agent Runtime into an A2A implementation. A2A is now documented as the peer-agent interoperability reference for remote delegation, while Agent Runtime remains the owner of local execution facts, attempts, permissions, evidence, and recovery.
