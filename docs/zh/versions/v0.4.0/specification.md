@@ -1,6 +1,6 @@
 ---
-title: 规范
-description: Agent Runtime 最新草案规范。
+title: v0.4.0 规范
+description: Agent Runtime v0.4.0 规范快照。
 ---
 
 # 规范

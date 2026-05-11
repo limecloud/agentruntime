@@ -1,0 +1,284 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://limecloud.github.io/agentruntime/schemas/agentruntime-lime-profile-event.schema.json",
+  "title": "Lime AgentRuntime profile event",
+  "description": "Stricter Agent Runtime event profile used by Lime current runtime.",
+  "allOf": [
+    {
+      "$ref": "./agentruntime-event.schema.json"
+    },
+    {
+      "type": "object",
+      "required": [
+        "type",
+        "eventId",
+        "timestamp",
+        "schemaVersion",
+        "runtimeId",
+        "sessionId",
+        "sequence",
+        "payload"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "session.created",
+            "session.updated",
+            "thread.started",
+            "thread.updated",
+            "turn.submitted",
+            "turn.started",
+            "turn.completed",
+            "turn.failed",
+            "task.created",
+            "task.accepted",
+            "task.queued",
+            "task.started",
+            "task.updated",
+            "task.progress",
+            "task.waiting",
+            "task.blocked",
+            "task.paused",
+            "task.resumed",
+            "task.retrying",
+            "task.cancel_requested",
+            "task.cancelled",
+            "task.timed_out",
+            "task.failed",
+            "task.lost",
+            "task.completed",
+            "task.archived",
+            "run.status",
+            "model.requested",
+            "model.delta",
+            "model.completed",
+            "model.failed",
+            "reasoning.delta",
+            "reasoning.summary",
+            "tool.catalog.resolved",
+            "tool.started",
+            "tool.args",
+            "tool.progress",
+            "tool.result",
+            "tool.failed",
+            "action.required",
+            "action.resolved",
+            "queue.changed",
+            "context.resolved",
+            "context.compaction.started",
+            "context.compaction.completed",
+            "context.compaction.failed",
+            "artifact.changed",
+            "evidence.changed",
+            "subagent.spawned",
+            "subagent.status",
+            "subagent.input",
+            "subagent.completed",
+            "subagent.failed",
+            "subagent.closed",
+            "limit.changed",
+            "snapshot.updated",
+            "runtime.warning",
+            "runtime.error",
+            "permission.evaluated",
+            "permission.requested",
+            "permission.resolved",
+            "sandbox.applied",
+            "sandbox.violation",
+            "hook.started",
+            "hook.completed",
+            "hook.failed",
+            "policy.changed",
+            "process.started",
+            "process.output",
+            "process.input",
+            "process.completed",
+            "process.failed",
+            "process.terminated",
+            "task.profile.resolved",
+            "routing.candidates.resolved",
+            "routing.decided",
+            "routing.fallback.applied",
+            "routing.not_possible",
+            "routing.single_candidate",
+            "task.delegated",
+            "task.dependency.updated",
+            "task.attempt.started",
+            "task.attempt.completed",
+            "task.attempt.failed",
+            "cost.estimated",
+            "cost.recorded",
+            "rate_limit.hit",
+            "quota.low",
+            "quota.blocked",
+            "channel.connected",
+            "channel.disconnected",
+            "channel.resumed",
+            "channel.message",
+            "channel.permission_forwarded",
+            "channel.permission_returned",
+            "job.created",
+            "job.started",
+            "job.progress",
+            "job.item.started",
+            "job.item.completed",
+            "job.item.failed",
+            "job.completed",
+            "job.failed",
+            "job.cancelled",
+            "output.spilled",
+            "output.truncated",
+            "output.redacted",
+            "output.expired",
+            "history.window.loaded",
+            "history.reconstructed",
+            "history.rollback.started",
+            "history.rollback.completed",
+            "snapshot.repaired"
+          ]
+        },
+        "schemaVersion": {
+          "const": "lime-profile-0.4.0"
+        },
+        "runtimeId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sessionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "eventId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "payload": {
+          "type": "object"
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "pattern": "^thread\\."
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "threadId"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "pattern": "^(turn|model|reasoning|tool|action|permission|sandbox|hook|context|routing|cost|rate_limit|quota)\\."
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "threadId",
+          "turnId"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "pattern": "^tool\\."
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "stepId",
+          "toolCallId"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "pattern": "^action\\."
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "actionId"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "pattern": "^task\\."
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "taskId"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "pattern": "^task\\.attempt\\."
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "runId"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "pattern": "^subagent\\."
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "subagentId"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "evidence.changed"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "evidenceId"
+        ]
+      }
+    }
+  ]
+}

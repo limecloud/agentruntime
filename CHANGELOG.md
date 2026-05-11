@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.4.0 - 2026-05-11
+
+### Added
+
+- Added the Lime AgentRuntime Profile as the strict product profile for Lime current runtime.
+- Added strict Lime profile event and snapshot schemas plus minimum conformance fixtures.
+
+### Changed
+
+- Clarified public core, recommended extensions, and product profile conformance layers.
+- Updated package metadata, navigation, release notes, version snapshots, README, and LLM entrypoints to v0.4.0.
+
 ## v0.3.9 - 2026-05-08
 
 - Adds Agent Context to the current standards ecosystem map.

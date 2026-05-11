@@ -1,0 +1,18 @@
+{
+  "type": "routing.single_candidate",
+  "eventId": "evt_routing_single_001",
+  "timestamp": "2026-05-11T10:00:01Z",
+  "schemaVersion": "lime-profile-0.4.0",
+  "runtimeId": "lime_runtime_local",
+  "sessionId": "sess_lime_001",
+  "threadId": "thread_lime_001",
+  "turnId": "turn_lime_001",
+  "sequence": 3,
+  "payload": {
+    "taskKind": "coding",
+    "candidateCount": 1,
+    "selectedModel": "gpt-5.4",
+    "decisionSource": "explicit_default",
+    "capabilityGap": "none"
+  }
+}

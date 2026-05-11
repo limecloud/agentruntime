@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "lime-profile-0.4.0",
+  "runtimeId": "lime_runtime_local",
+  "sessionId": "sess_lime_001",
+  "workspaceId": "workspace_lime_001",
+  "updatedAt": "2026-05-11T10:05:01Z",
+  "threads": [
+    {
+      "threadId": "thread_lime_001",
+      "status": "completed",
+      "activeTurnId": "turn_lime_001",
+      "turns": [
+        {
+          "turnId": "turn_lime_001",
+          "status": "completed",
+          "taskId": "task_lime_001",
+          "runId": "run_lime_002"
+        }
+      ],
+      "pendingRequests": [],
+      "queuedTurns": [],
+      "incidents": [],
+      "evidenceSummary": {
+        "evidenceRefs": [
+          "evidence_lime_001"
+        ],
+        "verificationOutcomes": [
+          {
+            "name": "profile_fixture_validation",
+            "status": "passed"
+          }
+        ]
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "taskId": "task_lime_001",
+      "sessionId": "sess_lime_001",
+      "threadId": "thread_lime_001",
+      "turnId": "turn_lime_001",
+      "objective": "Implement Lime AgentRuntime profile fixture validation.",
+      "status": "completed",
+      "currentRunId": "run_lime_002",
+      "attempts": [
+        {
+          "runId": "run_lime_001",
+          "attemptId": "attempt_lime_001",
+          "status": "failed"
+        },
+        {
+          "runId": "run_lime_002",
+          "attemptId": "attempt_lime_002",
+          "status": "completed"
+        }
+      ],
+      "evidenceRefs": [
+        "evidence_lime_001"
+      ]
+    }
+  ],
+  "taskSummary": {
+    "active": 0,
+    "completed": 1,
+    "failed": 0
+  },
+  "routingLimitSummary": {
+    "candidateCount": 1,
+    "singleCandidate": true,
+    "selectedModel": "gpt-5.4"
+  },
+  "telemetrySummary": {
+    "traceIds": [
+      "trace_lime_001"
+    ],
+    "joinStatus": "joined"
+  },
+  "evidenceRefs": [
+    "evidence_lime_001"
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "name": "agentruntime-standard",
-  "version": "0.3.9",
+  "version": "0.4.0",
   "type": "module",
   "description": "Draft documentation for the Agent Runtime standard.",
   "homepage": "https://limecloud.github.io/agentruntime/",
@@ -28,6 +28,7 @@
     "docs/public/llms.txt",
     "docs/public/llms-full.txt",
     "docs/public/schemas/",
+    "docs/public/fixtures/",
     "docs/en/",
     "docs/zh/",
     "README.md",

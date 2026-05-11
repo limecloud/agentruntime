@@ -1,6 +1,6 @@
 ---
-title: Specification
-description: Agent Runtime latest draft specification.
+title: v0.4.0 specification
+description: Agent Runtime v0.4.0 specification snapshot.
 ---
 
 # Specification

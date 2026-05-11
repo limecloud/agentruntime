@@ -1,6 +1,6 @@
 # Agent Runtime
 
-> Agent Runtime is a portable standard for agent execution runtimes. It defines execution facts, control-plane commands, durable snapshots, task lifecycle, tools, permissions, sandboxing, process execution, model routing, telemetry, remote channels, evidence, and recovery without binding those behaviors to one UI, provider, or tool protocol.
+> Agent Runtime is a portable standard for agent execution runtimes. It defines execution facts, control-plane commands, durable snapshots, task lifecycle, tools, permissions, sandboxing, process execution, model routing, telemetry, remote channels, evidence, recovery, and product profiles without binding those behaviors to one UI, provider, or tool protocol.
 
 Use this file as the concise navigation index for LLMs. Use `llms-full.txt` when a single prompt needs the current core documentation in one markdown file.
 
@@ -13,6 +13,7 @@ Use this file as the concise navigation index for LLMs. Use `llms-full.txt` when
 - [What is Agent Runtime?](https://limecloud.github.io/agentruntime/en/what-is-agent-runtime): Conceptual entry point and scope.
 - [Specification](https://limecloud.github.io/agentruntime/en/specification): Latest portable Agent Runtime specification.
 - [Runtime model](https://limecloud.github.io/agentruntime/en/concepts/runtime-model): Identity hierarchy and runtime model.
+- [Lime AgentRuntime Profile](https://limecloud.github.io/agentruntime/en/profiles/lime): Strict product profile for Lime current runtime.
 - [Acceptance scenarios](https://limecloud.github.io/agentruntime/en/authoring/acceptance-scenarios): Behavior-level validation scenarios.
 
 ## Contracts
@@ -55,27 +56,21 @@ Use this file as the concise navigation index for LLMs. Use `llms-full.txt` when
 
 ## Versions
 
-- [v0.3.9 overview](https://limecloud.github.io/agentruntime/en/versions/v0.3.9/overview): Latest released version overview.
-- [v0.3.9 specification snapshot](https://limecloud.github.io/agentruntime/en/versions/v0.3.9/specification): Latest released specification snapshot.
-- [v0.3.8 overview](https://limecloud.github.io/agentruntime/en/versions/v0.3.8/overview): Latest released version overview.
-- [v0.3.8 specification snapshot](https://limecloud.github.io/agentruntime/en/versions/v0.3.8/specification): Latest released specification snapshot.
-- [v0.3.7 overview](https://limecloud.github.io/agentruntime/en/versions/v0.3.7/overview): Previous released version overview.
-- [v0.3.7 specification snapshot](https://limecloud.github.io/agentruntime/en/versions/v0.3.7/specification): Previous released specification snapshot.
-- [v0.3.6 overview](https://limecloud.github.io/agentruntime/en/versions/v0.3.6/overview): Previous released version overview.
-- [v0.3.6 specification snapshot](https://limecloud.github.io/agentruntime/en/versions/v0.3.6/specification): Previous released specification snapshot.
-- [v0.3.5 overview](https://limecloud.github.io/agentruntime/en/versions/v0.3.5/overview): Previous released version overview.
-- [v0.3.5 specification snapshot](https://limecloud.github.io/agentruntime/en/versions/v0.3.5/specification): Previous released specification snapshot.
-- [v0.3.4 overview](https://limecloud.github.io/agentruntime/en/versions/v0.3.4/overview): Previous released version overview.
-- [v0.3.4 specification snapshot](https://limecloud.github.io/agentruntime/en/versions/v0.3.4/specification): Previous released specification snapshot.
-- [v0.3.3 overview](https://limecloud.github.io/agentruntime/en/versions/v0.3.3/overview): Previous released version overview.
-- [v0.3.3 specification snapshot](https://limecloud.github.io/agentruntime/en/versions/v0.3.3/specification): Previous released specification snapshot.
-- [v0.3.2 overview](https://limecloud.github.io/agentruntime/en/versions/v0.3.2/overview): Previous released version overview.
-- [v0.3.2 specification snapshot](https://limecloud.github.io/agentruntime/en/versions/v0.3.2/specification): Previous released specification snapshot.
+- [v0.4.0 overview](https://limecloud.github.io/agentruntime/en/versions/v0.4.0/overview): Latest released version overview.
+- [v0.4.0 specification snapshot](https://limecloud.github.io/agentruntime/en/versions/v0.4.0/specification): Latest released specification snapshot.
+- [v0.4.0 changelog](https://limecloud.github.io/agentruntime/en/versions/v0.4.0/changelog): Latest released changelog.
+- [v0.3.9 overview](https://limecloud.github.io/agentruntime/en/versions/v0.3.9/overview): Previous released version overview.
+- [v0.3.9 specification snapshot](https://limecloud.github.io/agentruntime/en/versions/v0.3.9/specification): Previous released specification snapshot.
+- [v0.3.8 overview](https://limecloud.github.io/agentruntime/en/versions/v0.3.8/overview): Previous released version overview.
+- [v0.3.8 specification snapshot](https://limecloud.github.io/agentruntime/en/versions/v0.3.8/specification): Previous released specification snapshot.
 
-## Schemas
+## Schemas and fixtures
 
 - [Agent Runtime event schema](https://limecloud.github.io/agentruntime/schemas/agentruntime-event.schema.json): Public runtime event schema.
 - [Agent Runtime snapshot schema](https://limecloud.github.io/agentruntime/schemas/agentruntime-snapshot.schema.json): Public snapshot schema.
+- [Lime profile event schema](https://limecloud.github.io/agentruntime/schemas/agentruntime-lime-profile-event.schema.json): Strict Lime profile event schema.
+- [Lime profile snapshot schema](https://limecloud.github.io/agentruntime/schemas/agentruntime-lime-profile-snapshot.schema.json): Strict Lime profile snapshot schema.
+- [Lime profile fixtures](https://limecloud.github.io/agentruntime/fixtures/lime-profile/submit-turn-event.json): Minimum conformance fixture set starts here.
 
 ## Language mirrors
 

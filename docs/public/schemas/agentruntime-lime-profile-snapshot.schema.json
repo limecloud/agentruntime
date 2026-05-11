@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://limecloud.github.io/agentruntime/schemas/agentruntime-lime-profile-snapshot.schema.json",
+  "title": "Lime AgentRuntime profile snapshot",
+  "description": "Stricter Agent Runtime session snapshot profile used by Lime current runtime.",
+  "allOf": [
+    {
+      "$ref": "./agentruntime-snapshot.schema.json"
+    },
+    {
+      "type": "object",
+      "required": [
+        "schemaVersion",
+        "runtimeId",
+        "sessionId",
+        "updatedAt",
+        "threads",
+        "tasks",
+        "taskSummary",
+        "routingLimitSummary",
+        "telemetrySummary",
+        "evidenceRefs"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": "lime-profile-0.4.0"
+        },
+        "runtimeId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sessionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "threads": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "threadId",
+              "status",
+              "turns",
+              "pendingRequests",
+              "queuedTurns",
+              "incidents",
+              "evidenceSummary"
+            ],
+            "properties": {
+              "threadId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "status": {
+                "enum": [
+                  "idle",
+                  "queued",
+                  "running",
+                  "blocked",
+                  "completed",
+                  "failed",
+                  "cancelled",
+                  "stale",
+                  "unknown"
+                ]
+              },
+              "turns": {
+                "type": "array"
+              },
+              "pendingRequests": {
+                "type": "array"
+              },
+              "queuedTurns": {
+                "type": "array"
+              },
+              "incidents": {
+                "type": "array"
+              },
+              "evidenceSummary": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "tasks": {
+          "type": "array"
+        },
+        "taskSummary": {
+          "type": "object"
+        },
+        "routingLimitSummary": {
+          "type": "object"
+        },
+        "telemetrySummary": {
+          "type": "object"
+        },
+        "evidenceRefs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  ]
+}

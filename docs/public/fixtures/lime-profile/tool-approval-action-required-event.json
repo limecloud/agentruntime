@@ -1,0 +1,21 @@
+{
+  "type": "action.required",
+  "eventId": "evt_action_required_001",
+  "timestamp": "2026-05-11T10:00:03Z",
+  "schemaVersion": "lime-profile-0.4.0",
+  "runtimeId": "lime_runtime_local",
+  "sessionId": "sess_lime_001",
+  "threadId": "thread_lime_001",
+  "turnId": "turn_lime_001",
+  "actionId": "action_write_001",
+  "sequence": 7,
+  "payload": {
+    "actionType": "tool_permission",
+    "toolName": "write_file",
+    "decisionKind": "allow_or_deny",
+    "prompt": "Allow write_file to update README.md?",
+    "scope": {
+      "path": "README.md"
+    }
+  }
+}

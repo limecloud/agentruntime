@@ -5,9 +5,17 @@ description: Behavior-level acceptance scenarios for Agent Runtime.
 
 # Acceptance scenarios
 
+Compatible Agent Runtime implementations should pass behavior-level checks. Product profiles may add stricter fixtures. The Lime profile conformance pack is the reference strict profile for current Lime runtime.
+
+
 A compatible Agent Runtime should pass behavior-level checks.
 
 ## Submit and first status
+
+## Lime profile fixture validation
+
+A Lime-profile runtime publishes at least one valid fixture for submit turn, action required, failed task attempt, routing single candidate, evidence export, and thread read snapshot. Each fixture carries `schemaVersion: "lime-profile-0.4.0"`, stable correlation ids, and typed payloads.
+
 
 Given a client submits a turn, the runtime emits an accepted or queued fact before any long model output. The thread read model shows `preparing`, `queued`, or `running` instead of remaining unknown.
 

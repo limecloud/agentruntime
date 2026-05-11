@@ -16,6 +16,10 @@ Agent Runtime sits below Agent UI. The runtime owns execution facts. Agent UI ow
 | Artifacts and evidence | Files, versions, exports, traces, replay cases, verification and review facts. | Stable refs, lifecycle events, ownership links, evidence export requests and correlation ids. |
 | Host application | Workspaces, accounts, storage, product navigation, deployment policy. | Runtime control plane, durable snapshots, queue/resume/interrupt semantics, read models. |
 
+## Product profiles and conformance
+
+Agent Runtime now separates the portable public standard from stricter product profiles. Public core keeps the shared execution model stable. Product profiles make a selected implementation testable by requiring specific ids, event families, payloads, read models, fixtures, and validation. The [Lime AgentRuntime Profile](docs/en/profiles/lime.md) is the reference profile for Lime current runtime.
+
 ## What the current draft defines
 
 - Runtime identity model: `session`, `thread`, `task`, `run`, `turn`, `step`, `tool_call`, `action_request`, `subagent`, `artifact_ref`, and `evidence_ref`.
@@ -53,6 +57,7 @@ Compatible implementations should:
 Key pages:
 
 - [Specification](docs/en/specification.md)
+- [Lime AgentRuntime Profile](docs/en/profiles/lime.md)
 - [Runtime model](docs/en/concepts/runtime-model.md)
 - [Runtime event stream](docs/en/contracts/runtime-event-stream.md)
 - [Control plane](docs/en/contracts/control-plane.md)
@@ -70,6 +75,7 @@ Key pages:
 - [Source analysis](docs/en/reference/source-analysis.md)
 - [Research sources](docs/en/reference/research-sources.md)
 - [中文规范](docs/zh/specification.md)
+- [Lime Profile 中文文档](docs/zh/profiles/lime.md)
 
 
 ## Related Agent standards

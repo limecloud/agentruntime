@@ -55,3 +55,9 @@ A compatible runtime SHOULD carry correlation ids through every boundary:
 - `artifact_id` and `evidence_id` for durable refs.
 
 If correlation is unavailable, the runtime should mark the gap. It should not invent a false join.
+
+## Public model and product profiles
+
+The public runtime model defines ownership and portable ids. A product profile may make this stricter for one implementation. For example, the Lime profile requires every current runtime event to carry `runtimeId`, `sessionId`, `eventId`, `timestamp`, `schemaVersion`, `sequence`, and a typed `payload`, and then adds scope-specific ids for turns, tools, actions, tasks, subagents, and evidence.
+
+Profiles are conformance layers, not separate standards. They must preserve the same owner map so UI, evidence, context, policy, tool, and artifact systems do not become competing runtime truth sources.

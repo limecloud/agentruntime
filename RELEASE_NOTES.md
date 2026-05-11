@@ -1,17 +1,17 @@
-# Agent Runtime v0.3.9
+# Agent Runtime v0.4.0
 
-Agent Runtime v0.3.9 is a patch release that refreshes the Agent standards ecosystem after Agent Context became a current published standard.
+Agent Runtime v0.4.0 is a profile release. It introduces a two-layer publication model: the public Agent Runtime standard remains portable, while the Lime AgentRuntime Profile defines the strict runtime spine Lime must implement and test.
 
 ## Highlights
 
-- Adds Agent Context to the current standards table and boundary map.
-- Removes Agent Context from the future-candidate list.
-- Adds Agent Context to README related-standard links.
-- Updates `llms.txt`, `llms-full.txt`, and public LLM copies so AI clients can discover Agent Context.
-- Adds version snapshot pages for v0.3.9.
+- Adds the Lime AgentRuntime Profile in English and Simplified Chinese.
+- Adds stricter Lime profile event and snapshot schemas.
+- Adds profile fixtures for submit turn, tool approval, task retry, model routing single-candidate, evidence export, and thread read snapshot scenarios.
+- Clarifies public core, recommended extensions, and product profile conformance layers.
+- Updates package metadata, navigation, version snapshots, README, and LLM entrypoints to v0.4.0.
 
 ## Links
 
 - Documentation: https://limecloud.github.io/agentruntime/
-- Agent Context: https://limecloud.github.io/agentcontext/
+- Lime profile: https://limecloud.github.io/agentruntime/en/profiles/lime
 - LLM context: https://limecloud.github.io/agentruntime/llms-full.txt

@@ -5,42 +5,52 @@ const base = process.env.VITEPRESS_BASE || '/'
 const enNav = [
   { text: 'Guide', link: '/en/what-is-agent-runtime' },
   { text: 'Specification', link: '/en/specification' },
+  { text: 'Lime profile', link: '/en/profiles/lime' },
   { text: 'Examples', link: '/en/examples/basic-runtime-adapter' },
   { text: 'Ecosystem', link: '/en/reference/agent-ecosystem' },
   {
     text: 'Version',
     items: [
       { text: 'latest', link: '/en/specification' },
+      { text: 'v0.4.0 overview', link: '/en/versions/v0.4.0/overview' },
+      { text: 'v0.4.0 specification', link: '/en/versions/v0.4.0/specification' },
+      { text: 'v0.4.0 changelog', link: '/en/versions/v0.4.0/changelog' },
       { text: 'v0.3.9 overview', link: '/en/versions/v0.3.9/overview' },
       { text: 'v0.3.9 specification', link: '/en/versions/v0.3.9/specification' },
       { text: 'v0.3.9 changelog', link: '/en/versions/v0.3.9/changelog' },
       { text: 'v0.3.8 overview', link: '/en/versions/v0.3.8/overview' },
-      { text: 'v0.3.8', link: '/en/versions/v0.3.8/specification' },
-      { text: 'v0.3.8 overview', link: '/en/versions/v0.3.8/overview' },
-    { text: 'v0.3.8 specification', link: '/en/versions/v0.3.8/specification' },
-    { text: 'v0.3.8 changelog', link: '/en/versions/v0.3.8/changelog' },
-    { text: 'v0.3.7 overview', link: '/en/versions/v0.3.7/overview' },
+      { text: 'v0.3.8 specification', link: '/en/versions/v0.3.8/specification' },
+      { text: 'v0.3.8 changelog', link: '/en/versions/v0.3.8/changelog' },
+      { text: 'v0.3.7 overview', link: '/en/versions/v0.3.7/overview' },
       { text: 'v0.3.7 specification', link: '/en/versions/v0.3.7/specification' },
       { text: 'v0.3.7 changelog', link: '/en/versions/v0.3.7/changelog' },
       { text: 'v0.3.6 overview', link: '/en/versions/v0.3.6/overview' },
       { text: 'v0.3.6 specification', link: '/en/versions/v0.3.6/specification' },
       { text: 'v0.3.6 changelog', link: '/en/versions/v0.3.6/changelog' },
       { text: 'v0.3.5 overview', link: '/en/versions/v0.3.5/overview' },
-      { text: 'v0.3.5', link: '/en/versions/v0.3.5/specification' },
+      { text: 'v0.3.5 specification', link: '/en/versions/v0.3.5/specification' },
+      { text: 'v0.3.5 changelog', link: '/en/versions/v0.3.5/changelog' },
       { text: 'v0.3.4 overview', link: '/en/versions/v0.3.4/overview' },
-      { text: 'v0.3.4', link: '/en/versions/v0.3.4/specification' },
+      { text: 'v0.3.4 specification', link: '/en/versions/v0.3.4/specification' },
+      { text: 'v0.3.4 changelog', link: '/en/versions/v0.3.4/changelog' },
       { text: 'v0.3.3 overview', link: '/en/versions/v0.3.3/overview' },
-      { text: 'v0.3.3', link: '/en/versions/v0.3.3/specification' },
+      { text: 'v0.3.3 specification', link: '/en/versions/v0.3.3/specification' },
+      { text: 'v0.3.3 changelog', link: '/en/versions/v0.3.3/changelog' },
       { text: 'v0.3.2 overview', link: '/en/versions/v0.3.2/overview' },
-      { text: 'v0.3.2', link: '/en/versions/v0.3.2/specification' },
+      { text: 'v0.3.2 specification', link: '/en/versions/v0.3.2/specification' },
+      { text: 'v0.3.2 changelog', link: '/en/versions/v0.3.2/changelog' },
       { text: 'v0.3.1 overview', link: '/en/versions/v0.3.1/overview' },
-      { text: 'v0.3.1', link: '/en/versions/v0.3.1/specification' },
+      { text: 'v0.3.1 specification', link: '/en/versions/v0.3.1/specification' },
+      { text: 'v0.3.1 changelog', link: '/en/versions/v0.3.1/changelog' },
       { text: 'v0.3.0 overview', link: '/en/versions/v0.3.0/overview' },
-      { text: 'v0.3.0', link: '/en/versions/v0.3.0/specification' },
+      { text: 'v0.3.0 specification', link: '/en/versions/v0.3.0/specification' },
+      { text: 'v0.3.0 changelog', link: '/en/versions/v0.3.0/changelog' },
       { text: 'v0.2.0 overview', link: '/en/versions/v0.2.0/overview' },
-      { text: 'v0.2.0', link: '/en/versions/v0.2.0/specification' },
+      { text: 'v0.2.0 specification', link: '/en/versions/v0.2.0/specification' },
+      { text: 'v0.2.0 changelog', link: '/en/versions/v0.2.0/changelog' },
       { text: 'v0.1.0 overview', link: '/en/versions/v0.1.0/overview' },
-      { text: 'v0.1.0', link: '/en/versions/v0.1.0/specification' }
+      { text: 'v0.1.0 specification', link: '/en/versions/v0.1.0/specification' },
+      { text: 'v0.1.0 changelog', link: '/en/versions/v0.1.0/changelog' }
     ]
   }
 ]
@@ -48,42 +58,52 @@ const enNav = [
 const zhNav = [
   { text: '指南', link: '/zh/what-is-agent-runtime' },
   { text: '规范', link: '/zh/specification' },
+  { text: 'Lime Profile', link: '/zh/profiles/lime' },
   { text: '示例', link: '/zh/examples/basic-runtime-adapter' },
   { text: '生态', link: '/zh/reference/agent-ecosystem' },
   {
     text: '版本',
     items: [
       { text: 'latest', link: '/zh/specification' },
+      { text: 'v0.4.0 概览', link: '/zh/versions/v0.4.0/overview' },
+      { text: 'v0.4.0 规范', link: '/zh/versions/v0.4.0/specification' },
+      { text: 'v0.4.0 变更记录', link: '/zh/versions/v0.4.0/changelog' },
       { text: 'v0.3.9 概览', link: '/zh/versions/v0.3.9/overview' },
       { text: 'v0.3.9 规范', link: '/zh/versions/v0.3.9/specification' },
       { text: 'v0.3.9 变更记录', link: '/zh/versions/v0.3.9/changelog' },
       { text: 'v0.3.8 概览', link: '/zh/versions/v0.3.8/overview' },
-      { text: 'v0.3.8', link: '/zh/versions/v0.3.8/specification' },
-      { text: 'v0.3.8 概览', link: '/zh/versions/v0.3.8/overview' },
-    { text: 'v0.3.8 规范', link: '/zh/versions/v0.3.8/specification' },
-    { text: 'v0.3.8 变更记录', link: '/zh/versions/v0.3.8/changelog' },
-    { text: 'v0.3.7 概览', link: '/zh/versions/v0.3.7/overview' },
+      { text: 'v0.3.8 规范', link: '/zh/versions/v0.3.8/specification' },
+      { text: 'v0.3.8 变更记录', link: '/zh/versions/v0.3.8/changelog' },
+      { text: 'v0.3.7 概览', link: '/zh/versions/v0.3.7/overview' },
       { text: 'v0.3.7 规范', link: '/zh/versions/v0.3.7/specification' },
       { text: 'v0.3.7 变更记录', link: '/zh/versions/v0.3.7/changelog' },
       { text: 'v0.3.6 概览', link: '/zh/versions/v0.3.6/overview' },
       { text: 'v0.3.6 规范', link: '/zh/versions/v0.3.6/specification' },
       { text: 'v0.3.6 变更记录', link: '/zh/versions/v0.3.6/changelog' },
       { text: 'v0.3.5 概览', link: '/zh/versions/v0.3.5/overview' },
-      { text: 'v0.3.5', link: '/zh/versions/v0.3.5/specification' },
+      { text: 'v0.3.5 规范', link: '/zh/versions/v0.3.5/specification' },
+      { text: 'v0.3.5 变更记录', link: '/zh/versions/v0.3.5/changelog' },
       { text: 'v0.3.4 概览', link: '/zh/versions/v0.3.4/overview' },
-      { text: 'v0.3.4', link: '/zh/versions/v0.3.4/specification' },
+      { text: 'v0.3.4 规范', link: '/zh/versions/v0.3.4/specification' },
+      { text: 'v0.3.4 变更记录', link: '/zh/versions/v0.3.4/changelog' },
       { text: 'v0.3.3 概览', link: '/zh/versions/v0.3.3/overview' },
-      { text: 'v0.3.3', link: '/zh/versions/v0.3.3/specification' },
+      { text: 'v0.3.3 规范', link: '/zh/versions/v0.3.3/specification' },
+      { text: 'v0.3.3 变更记录', link: '/zh/versions/v0.3.3/changelog' },
       { text: 'v0.3.2 概览', link: '/zh/versions/v0.3.2/overview' },
-      { text: 'v0.3.2', link: '/zh/versions/v0.3.2/specification' },
+      { text: 'v0.3.2 规范', link: '/zh/versions/v0.3.2/specification' },
+      { text: 'v0.3.2 变更记录', link: '/zh/versions/v0.3.2/changelog' },
       { text: 'v0.3.1 概览', link: '/zh/versions/v0.3.1/overview' },
-      { text: 'v0.3.1', link: '/zh/versions/v0.3.1/specification' },
+      { text: 'v0.3.1 规范', link: '/zh/versions/v0.3.1/specification' },
+      { text: 'v0.3.1 变更记录', link: '/zh/versions/v0.3.1/changelog' },
       { text: 'v0.3.0 概览', link: '/zh/versions/v0.3.0/overview' },
-      { text: 'v0.3.0', link: '/zh/versions/v0.3.0/specification' },
+      { text: 'v0.3.0 规范', link: '/zh/versions/v0.3.0/specification' },
+      { text: 'v0.3.0 变更记录', link: '/zh/versions/v0.3.0/changelog' },
       { text: 'v0.2.0 概览', link: '/zh/versions/v0.2.0/overview' },
-      { text: 'v0.2.0', link: '/zh/versions/v0.2.0/specification' },
+      { text: 'v0.2.0 规范', link: '/zh/versions/v0.2.0/specification' },
+      { text: 'v0.2.0 变更记录', link: '/zh/versions/v0.2.0/changelog' },
       { text: 'v0.1.0 概览', link: '/zh/versions/v0.1.0/overview' },
-      { text: 'v0.1.0', link: '/zh/versions/v0.1.0/specification' }
+      { text: 'v0.1.0 规范', link: '/zh/versions/v0.1.0/specification' },
+      { text: 'v0.1.0 变更记录', link: '/zh/versions/v0.1.0/changelog' }
     ]
   }
 ]
@@ -101,6 +121,12 @@ const enSidebar = [
     text: 'Concepts',
     items: [
       { text: 'Runtime model', link: '/en/concepts/runtime-model' }
+    ]
+  },
+  {
+    text: 'Profiles',
+    items: [
+      { text: 'Lime AgentRuntime Profile', link: '/en/profiles/lime' }
     ]
   },
   {
@@ -134,7 +160,7 @@ const enSidebar = [
     text: 'Reference',
     items: [
       { text: 'Glossary', link: '/en/reference/glossary' },
-    { text: 'Agent standards ecosystem', link: '/en/reference/agent-ecosystem' },
+      { text: 'Agent standards ecosystem', link: '/en/reference/agent-ecosystem' },
       { text: 'Ecosystem boundaries', link: '/en/reference/ecosystem-boundaries' },
       { text: 'Research sources', link: '/en/reference/research-sources' },
       { text: 'Source analysis', link: '/en/reference/source-analysis' }
@@ -149,10 +175,16 @@ const enSidebar = [
   {
     text: 'Versions',
     items: [
+      { text: 'v0.4.0 overview', link: '/en/versions/v0.4.0/overview' },
+      { text: 'v0.4.0 specification', link: '/en/versions/v0.4.0/specification' },
+      { text: 'v0.4.0 changelog', link: '/en/versions/v0.4.0/changelog' },
+      { text: 'v0.3.9 overview', link: '/en/versions/v0.3.9/overview' },
+      { text: 'v0.3.9 specification', link: '/en/versions/v0.3.9/specification' },
+      { text: 'v0.3.9 changelog', link: '/en/versions/v0.3.9/changelog' },
       { text: 'v0.3.8 overview', link: '/en/versions/v0.3.8/overview' },
-    { text: 'v0.3.8 specification', link: '/en/versions/v0.3.8/specification' },
-    { text: 'v0.3.8 changelog', link: '/en/versions/v0.3.8/changelog' },
-    { text: 'v0.3.7 overview', link: '/en/versions/v0.3.7/overview' },
+      { text: 'v0.3.8 specification', link: '/en/versions/v0.3.8/specification' },
+      { text: 'v0.3.8 changelog', link: '/en/versions/v0.3.8/changelog' },
+      { text: 'v0.3.7 overview', link: '/en/versions/v0.3.7/overview' },
       { text: 'v0.3.7 specification', link: '/en/versions/v0.3.7/specification' },
       { text: 'v0.3.7 changelog', link: '/en/versions/v0.3.7/changelog' },
       { text: 'v0.3.6 overview', link: '/en/versions/v0.3.6/overview' },
@@ -202,6 +234,12 @@ const zhSidebar = [
     ]
   },
   {
+    text: 'Profiles',
+    items: [
+      { text: 'Lime AgentRuntime Profile', link: '/zh/profiles/lime' }
+    ]
+  },
+  {
     text: '契约',
     items: [
       { text: 'Runtime event stream', link: '/zh/contracts/runtime-event-stream' },
@@ -232,7 +270,7 @@ const zhSidebar = [
     text: '参考',
     items: [
       { text: '术语表', link: '/zh/reference/glossary' },
-    { text: 'Agent 标准生态', link: '/zh/reference/agent-ecosystem' },
+      { text: 'Agent 标准生态', link: '/zh/reference/agent-ecosystem' },
       { text: '生态边界', link: '/zh/reference/ecosystem-boundaries' },
       { text: '调研来源', link: '/zh/reference/research-sources' },
       { text: '实现分析摘要', link: '/zh/reference/source-analysis' }
@@ -247,10 +285,16 @@ const zhSidebar = [
   {
     text: '版本',
     items: [
+      { text: 'v0.4.0 概览', link: '/zh/versions/v0.4.0/overview' },
+      { text: 'v0.4.0 规范', link: '/zh/versions/v0.4.0/specification' },
+      { text: 'v0.4.0 变更记录', link: '/zh/versions/v0.4.0/changelog' },
+      { text: 'v0.3.9 概览', link: '/zh/versions/v0.3.9/overview' },
+      { text: 'v0.3.9 规范', link: '/zh/versions/v0.3.9/specification' },
+      { text: 'v0.3.9 变更记录', link: '/zh/versions/v0.3.9/changelog' },
       { text: 'v0.3.8 概览', link: '/zh/versions/v0.3.8/overview' },
-    { text: 'v0.3.8 规范', link: '/zh/versions/v0.3.8/specification' },
-    { text: 'v0.3.8 变更记录', link: '/zh/versions/v0.3.8/changelog' },
-    { text: 'v0.3.7 概览', link: '/zh/versions/v0.3.7/overview' },
+      { text: 'v0.3.8 规范', link: '/zh/versions/v0.3.8/specification' },
+      { text: 'v0.3.8 变更记录', link: '/zh/versions/v0.3.8/changelog' },
+      { text: 'v0.3.7 概览', link: '/zh/versions/v0.3.7/overview' },
       { text: 'v0.3.7 规范', link: '/zh/versions/v0.3.7/specification' },
       { text: 'v0.3.7 变更记录', link: '/zh/versions/v0.3.7/changelog' },
       { text: 'v0.3.6 概览', link: '/zh/versions/v0.3.6/overview' },

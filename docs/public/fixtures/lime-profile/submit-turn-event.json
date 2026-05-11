@@ -1,0 +1,17 @@
+{
+  "type": "turn.submitted",
+  "eventId": "evt_submit_turn_001",
+  "timestamp": "2026-05-11T10:00:00Z",
+  "schemaVersion": "lime-profile-0.4.0",
+  "runtimeId": "lime_runtime_local",
+  "sessionId": "sess_lime_001",
+  "threadId": "thread_lime_001",
+  "turnId": "turn_lime_001",
+  "sequence": 1,
+  "traceId": "trace_lime_001",
+  "payload": {
+    "inputRef": "input://turn_lime_001/user",
+    "source": "workspace",
+    "status": "accepted"
+  }
+}

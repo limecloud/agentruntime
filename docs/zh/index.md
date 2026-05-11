@@ -15,6 +15,9 @@ hero:
       text: 实现快速开始
       link: /zh/authoring/quickstart
     - theme: alt
+      text: Lime Profile
+      link: /zh/profiles/lime
+    - theme: alt
       text: 标准生态
       link: /zh/reference/agent-ecosystem
     - theme: alt
@@ -51,6 +54,7 @@ features:
 
 - [什么是 Agent Runtime？](./what-is-agent-runtime.md)
 - [最新规范](./specification.md)
+- [Lime AgentRuntime Profile](./profiles/lime.md)
 - [运行时模型](./concepts/runtime-model.md)
 - [Agent task](./contracts/agent-task.md)
 - [Control plane](./contracts/control-plane.md)

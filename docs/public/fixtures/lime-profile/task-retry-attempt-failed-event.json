@@ -1,0 +1,20 @@
+{
+  "type": "task.attempt.failed",
+  "eventId": "evt_task_attempt_failed_001",
+  "timestamp": "2026-05-11T10:02:00Z",
+  "schemaVersion": "lime-profile-0.4.0",
+  "runtimeId": "lime_runtime_local",
+  "sessionId": "sess_lime_001",
+  "threadId": "thread_lime_001",
+  "turnId": "turn_lime_001",
+  "taskId": "task_lime_001",
+  "runId": "run_lime_001",
+  "attemptId": "attempt_lime_001",
+  "sequence": 32,
+  "payload": {
+    "status": "failed",
+    "retryable": true,
+    "failureCategory": "tool_failed",
+    "nextAttemptPolicy": "manual_or_policy_retry"
+  }
+}

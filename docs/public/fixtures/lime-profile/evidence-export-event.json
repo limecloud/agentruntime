@@ -1,0 +1,24 @@
+{
+  "type": "evidence.changed",
+  "eventId": "evt_evidence_changed_001",
+  "timestamp": "2026-05-11T10:05:00Z",
+  "schemaVersion": "lime-profile-0.4.0",
+  "runtimeId": "lime_runtime_local",
+  "sessionId": "sess_lime_001",
+  "threadId": "thread_lime_001",
+  "turnId": "turn_lime_001",
+  "taskId": "task_lime_001",
+  "runId": "run_lime_002",
+  "evidenceId": "evidence_lime_001",
+  "sequence": 58,
+  "payload": {
+    "packRef": "evidence://sess_lime_001/thread_lime_001/turn_lime_001",
+    "replayRef": "replay://sess_lime_001/turn_lime_001",
+    "verificationOutcomes": [
+      {
+        "name": "profile_fixture_validation",
+        "status": "passed"
+      }
+    ]
+  }
+}

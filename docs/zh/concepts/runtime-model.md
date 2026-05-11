@@ -55,3 +55,9 @@ Runtime 拥有 identity、status、sequencing、queue state 和 action lifecycle
 - `artifact_id` 和 `evidence_id` 用于 durable refs。
 
 如果无法关联，runtime 应标记 gap，而不是伪造 join。
+
+## Public model 与 product profiles
+
+公开 runtime model 定义 ownership 与可移植 ids。Product profile 可以为某个实现收紧要求。例如 Lime Profile 要求每个 current runtime event 携带 `runtimeId`、`sessionId`、`eventId`、`timestamp`、`schemaVersion`、`sequence` 与 typed `payload`，再按 scope 增加 turn、tool、action、task、subagent 与 evidence ids。
+
+Profile 是 conformance layer，不是另一套标准。它必须保留同一张 owner map，避免 UI、evidence、context、policy、tool 与 artifact 系统变成互相竞争的 runtime truth source。

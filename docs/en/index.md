@@ -15,6 +15,9 @@ hero:
       text: Implementation quickstart
       link: /en/authoring/quickstart
     - theme: alt
+      text: Lime profile
+      link: /en/profiles/lime
+    - theme: alt
       text: Standards ecosystem
       link: /en/reference/agent-ecosystem
     - theme: alt
@@ -51,6 +54,7 @@ features:
 
 - [What is Agent Runtime?](./what-is-agent-runtime.md)
 - [Latest specification](./specification.md)
+- [Lime AgentRuntime Profile](./profiles/lime.md)
 - [Runtime model](./concepts/runtime-model.md)
 - [Agent task](./contracts/agent-task.md)
 - [Control plane](./contracts/control-plane.md)

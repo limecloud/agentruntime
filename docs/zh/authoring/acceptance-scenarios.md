@@ -5,9 +5,17 @@ description: Agent Runtime 的行为级验收场景。
 
 # 验收场景
 
+兼容 Agent Runtime 应通过行为级检查。Product profile 可以增加更严格 fixtures。Lime Profile conformance pack 是当前 Lime runtime 的参考严格 profile。
+
+
 兼容 Agent Runtime 应通过行为级检查。
 
 ## Submit 与 first status
+
+## Lime profile fixture validation
+
+Lime-profile runtime 至少发布 submit turn、action required、failed task attempt、routing single candidate、evidence export 与 thread read snapshot fixtures。每个 fixture 都携带 `schemaVersion: "lime-profile-0.4.0"`、稳定 correlation ids 与 typed payloads。
+
 
 当客户端提交 turn，runtime 在长模型输出前先发出 accepted 或 queued fact。Thread read model 显示 `preparing`、`queued` 或 `running`，而不是保持 unknown。
 
