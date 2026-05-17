@@ -125,7 +125,7 @@ Lime Profile 规定 evidence 是 runtime facts 的消费者，不是另一套 re
 
 Replay、review、analysis handoff、benchmark comparison 与 UI diagnostics 必须消费同一组 runtime facts。它们可以摘要，但不能从 thread prose 重建 observability state。
 
-对于 benchmark trials，evidence export 还必须包含 dataset id/version、task id、configuration id、trial id、trajectory ref、reward ref、reward details ref，以及用于检测 P0 gate regression 的 Agent QC report ref。
+对于 benchmark trials，evidence export 还必须包含 dataset id/version、Harbor job/trial ref、task id、configuration id、trial id、trajectory ref、reward ref、reward details ref、artifact manifest ref，以及用于检测 P0 gate regression 的 Agent QC report ref。
 
 ## Profile schemas and fixtures
 

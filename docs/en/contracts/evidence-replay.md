@@ -41,6 +41,7 @@ Replay must not depend on UI screenshots or final prose alone.
 When evidence is exported for Agent QC benchmark or hill climbing, the pack SHOULD also include:
 
 - dataset id, dataset version, task id, trial id, and configuration id;
+- Harbor job/trial ref, task.toml ref, and artifact manifest ref;
 - baseline/candidate role and the single changed variable when known;
 - trajectory ref, runtime transcript ref, reward ref, and reward details ref;
 - aggregate comparison refs when the export belongs to a candidate decision;

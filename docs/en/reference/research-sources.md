@@ -30,7 +30,7 @@ Agent Runtime v0.1 was informed by current standards and implementation patterns
 - [LangGraph interrupts and streaming](https://docs.langchain.com/oss/python/langgraph/interrupts): checkpointer-backed interrupts, resume commands, thread ids, and task-mode streaming.
 - [OpenAI Agents SDK](https://openai.github.io/openai-agents-python/): agents, handoffs, sessions, guardrails, tracing spans, and streaming events for multi-agent workflows.
 - [Temporal workflows](https://docs.temporal.io/workflows): workflow ids, run ids, task queues, activities, child workflows, signals, cancellation, retry policies, history, and durable execution.
-- [Harbor framework documentation](https://www.harborframework.com/docs): benchmark datasets, tasks, trials, artifacts, trajectories, reward files, and verifier lifecycle for agent evaluations.
+- [Harbor framework documentation](https://www.harborframework.com/docs): task directories, `task.toml`, separate-verifier artifacts, job/trial layout, ATIF trajectories, RewardKit, reward files, and custom metrics for agent evaluations.
 - [Cline practical guide to hill climbing](https://cline.bot/blog/a-practical-guide-to-hill-climbing): baseline/candidate iteration, failure analysis, single-variable changes, repeated trials, and pass@k for agent runtime improvement.
 - [Agent Runtime battlefield analysis](https://yage.ai/share/agent-runtime-battlefield-20260516.html): runtime/harness can materially affect same-model benchmark outcomes and should be evaluated on project-local tasks.
 

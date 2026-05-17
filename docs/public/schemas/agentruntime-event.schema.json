@@ -372,6 +372,117 @@
     },
     "statusReason": {
       "type": "string"
+    },
+    "benchmark": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "datasetId": {
+          "type": "string"
+        },
+        "datasetVersion": {
+          "type": "string"
+        },
+        "datasetRef": {
+          "type": "string"
+        },
+        "taskId": {
+          "type": "string"
+        },
+        "trialId": {
+          "type": "string"
+        },
+        "configurationId": {
+          "type": "string"
+        },
+        "role": {
+          "enum": [
+            "baseline",
+            "candidate",
+            "control"
+          ]
+        },
+        "harborJobRef": {
+          "type": "string"
+        },
+        "harborTrialRef": {
+          "type": "string"
+        },
+        "singleChangedVariable": {
+          "type": "string"
+        }
+      }
+    },
+    "trajectory": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "schema": {
+          "type": "string"
+        },
+        "ref": {
+          "type": "string"
+        },
+        "exportStatus": {
+          "enum": [
+            "pending",
+            "exported",
+            "failed",
+            "redacted",
+            "not-supported"
+          ]
+        },
+        "requiredFieldStatus": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "reward": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "value": {
+          "type": "number"
+        },
+        "ref": {
+          "type": "string"
+        },
+        "detailsRef": {
+          "type": "string"
+        },
+        "criteria": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "failureCategory": {
+          "type": "string"
+        }
+      }
+    },
+    "comparison": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "meanRewardDelta": {
+          "type": "number"
+        },
+        "timeoutRateDelta": {
+          "type": "number"
+        },
+        "evidenceCompletenessRate": {
+          "type": "number"
+        },
+        "p0QcGateRegressionCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "decision": {
+          "type": "string"
+        }
+      }
     }
   }
 }

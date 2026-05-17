@@ -38,10 +38,10 @@ The control plane is the write boundary for runtime state. It may be implemented
 | `create_job` / `get_job` / `cancel_job` | Manage durable background or batch work. |
 | `reconnect_channel` / `ack_events` | Recover remote channels and acknowledge events. |
 | `export_review` | Export review template or audit refs from the same facts. |
-| `start_benchmark_trial` | Bind dataset, task, configuration, sandbox, and timeout to a runtime run. |
-| `record_benchmark_reward` | Attach reward, reward details, verifier status, and failure category to a trial. |
-| `export_benchmark_trial` | Export trajectory, runtime transcript, artifacts, reward refs, and Agent QC refs. |
-| `compare_benchmark_runs` | Record baseline/candidate deltas and promotion or revert decision. |
+| `start_benchmark_trial` | Bind dataset, task, configuration, Harbor job/trial, sandbox, and timeout to a runtime run. |
+| `record_benchmark_reward` | Attach reward, reward details, verifier status, failure category, and criterion summary to a trial. |
+| `export_benchmark_trial` | Export trajectory, runtime transcript, artifacts, reward refs, artifact manifest, and Agent QC refs. |
+| `compare_benchmark_runs` | Record baseline/candidate deltas, cost, evidence completeness, and promotion or revert decision. |
 
 ## Idempotency
 

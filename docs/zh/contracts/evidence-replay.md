@@ -41,6 +41,7 @@ Replay 不能只依赖 UI 截图或最终正文。
 当 evidence 用于 Agent QC benchmark 或 hill climbing 时，pack 还 SHOULD 包含：
 
 - dataset id、dataset version、task id、trial id 和 configuration id；
+- Harbor job/trial ref、task.toml ref，以及 artifact manifest ref；
 - baseline/candidate role，以及已知时的 single changed variable；
 - trajectory ref、runtime transcript ref、reward ref 和 reward details ref；
 - 属于 candidate decision 时的 aggregate comparison refs；

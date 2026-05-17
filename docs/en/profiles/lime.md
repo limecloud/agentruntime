@@ -123,6 +123,8 @@ The Lime profile makes evidence a consumer of runtime facts, not a separate repo
 
 Replay, review, analysis handoff, and UI diagnostics MUST consume the same runtime facts. They may summarize but MUST NOT recreate observability state from thread prose.
 
+For benchmark trials, evidence export MUST also include dataset id/version, Harbor job/trial ref, task id, configuration id, trial id, trajectory ref, reward ref, reward details ref, artifact manifest ref, and the Agent QC report ref used to detect P0 gate regressions.
+
 ## Profile schemas and fixtures
 
 The portable schemas remain available for public compatibility:
