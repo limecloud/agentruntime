@@ -30,6 +30,7 @@ Use this file as the concise navigation index for LLMs. Use `llms-full.txt` when
 - [Agent task](https://limecloud.github.io/agentruntime/en/contracts/agent-task): Task lifecycle, attempts, graphs, and peer task refs.
 - [Subagents and jobs](https://limecloud.github.io/agentruntime/en/contracts/subagents-and-jobs): Child agents and batch/background jobs.
 - [Remote channels](https://limecloud.github.io/agentruntime/en/contracts/remote-channels): Remote peer channels and A2A alignment.
+- [Benchmark instrumentation](https://limecloud.github.io/agentruntime/en/contracts/benchmark-instrumentation): Dataset/config/task correlation, trial trajectories, reward refs, and benchmark comparison decisions.
 - [Telemetry and tracing](https://limecloud.github.io/agentruntime/en/contracts/telemetry-tracing): Traces, spans, and correlation ids.
 - [Session history and recovery](https://limecloud.github.io/agentruntime/en/contracts/session-history-recovery): History windows, compaction, and recovery.
 - [Output storage](https://limecloud.github.io/agentruntime/en/contracts/output-storage-large-results): Large output references and storage.
@@ -71,6 +72,7 @@ Use this file as the concise navigation index for LLMs. Use `llms-full.txt` when
 - [Lime profile event schema](https://limecloud.github.io/agentruntime/schemas/agentruntime-lime-profile-event.schema.json): Strict Lime profile event schema.
 - [Lime profile snapshot schema](https://limecloud.github.io/agentruntime/schemas/agentruntime-lime-profile-snapshot.schema.json): Strict Lime profile snapshot schema.
 - [Lime profile fixtures](https://limecloud.github.io/agentruntime/fixtures/lime-profile/submit-turn-event.json): Minimum conformance fixture set starts here.
+- [Benchmark trial pack fixture](https://limecloud.github.io/agentruntime/fixtures/lime-profile/benchmark-trial-pack.json): Lime benchmark trial evidence pack example.
 
 ## Language mirrors
 

@@ -28,6 +28,7 @@ Agent Runtime now separates the portable public standard from stricter product p
 - Durable read models for session snapshots, thread status, task state, pending requests, incidents, queue state, tool inventory, and evidence summaries.
 - Permission, sandbox, hook, process, remote channel, model routing, cost/limit, job, recovery, and large-output contracts drawn from real runtimes.
 - A2A peer-task alignment for Agent Cards, task/context ids, messages, artifacts, streaming, push notifications, and in-task authorization.
+- Benchmark instrumentation for Agent QC hill climbing: dataset/config/task correlation, trajectories, reward refs, and comparison decisions.
 - Compatibility guidance for MCP, A2A, OpenTelemetry, CloudEvents, JSON-RPC, provider streaming APIs, and Agent UI projection.
 
 ## Runtime architecture
@@ -70,6 +71,7 @@ Key pages:
 - [Agent task](docs/en/contracts/agent-task.md)
 - [Subagents and jobs](docs/en/contracts/subagents-and-jobs.md)
 - [Remote channels](docs/en/contracts/remote-channels.md)
+- [Benchmark instrumentation](docs/en/contracts/benchmark-instrumentation.md)
 - [Session history and recovery](docs/en/contracts/session-history-recovery.md)
 - [Output storage and large results](docs/en/contracts/output-storage-large-results.md)
 - [Source analysis](docs/en/reference/source-analysis.md)

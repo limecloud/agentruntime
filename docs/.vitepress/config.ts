@@ -6,6 +6,7 @@ const enNav = [
   { text: 'Guide', link: '/en/what-is-agent-runtime' },
   { text: 'Specification', link: '/en/specification' },
   { text: 'Lime profile', link: '/en/profiles/lime' },
+  { text: 'Benchmark', link: '/en/contracts/benchmark-instrumentation' },
   { text: 'Examples', link: '/en/examples/basic-runtime-adapter' },
   { text: 'Ecosystem', link: '/en/reference/agent-ecosystem' },
   {
@@ -59,6 +60,7 @@ const zhNav = [
   { text: '指南', link: '/zh/what-is-agent-runtime' },
   { text: '规范', link: '/zh/specification' },
   { text: 'Lime Profile', link: '/zh/profiles/lime' },
+  { text: 'Benchmark', link: '/zh/contracts/benchmark-instrumentation' },
   { text: '示例', link: '/zh/examples/basic-runtime-adapter' },
   { text: '生态', link: '/zh/reference/agent-ecosystem' },
   {
@@ -144,6 +146,7 @@ const enSidebar = [
       { text: 'Agent task', link: '/en/contracts/agent-task' },
       { text: 'Subagents and jobs', link: '/en/contracts/subagents-and-jobs' },
       { text: 'Remote channels', link: '/en/contracts/remote-channels' },
+      { text: 'Benchmark instrumentation', link: '/en/contracts/benchmark-instrumentation' },
       { text: 'Telemetry and tracing', link: '/en/contracts/telemetry-tracing' },
       { text: 'Session history and recovery', link: '/en/contracts/session-history-recovery' },
       { text: 'Output storage', link: '/en/contracts/output-storage-large-results' }
@@ -254,6 +257,7 @@ const zhSidebar = [
       { text: 'Agent task', link: '/zh/contracts/agent-task' },
       { text: 'Subagents 与 jobs', link: '/zh/contracts/subagents-and-jobs' },
       { text: 'Remote channels', link: '/zh/contracts/remote-channels' },
+      { text: 'Benchmark instrumentation', link: '/zh/contracts/benchmark-instrumentation' },
       { text: 'Telemetry 与 tracing', link: '/zh/contracts/telemetry-tracing' },
       { text: 'Session history 与 recovery', link: '/zh/contracts/session-history-recovery' },
       { text: 'Output storage', link: '/zh/contracts/output-storage-large-results' }

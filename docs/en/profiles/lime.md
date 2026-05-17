@@ -99,6 +99,7 @@ Lime commands can keep product-specific names, but they MUST map to these profil
 | `create_task` / `update_task` / `retry_task` / `complete_task` | Mutate task facts with attempts and graph edges, not UI-only cards. |
 | `get_session` / `get_thread_read` | Read durable snapshots and read models, not reconstructed UI summaries. |
 | `export_evidence` / `export_replay` / `export_review` | Export from runtime facts shared with UI and diagnostics. |
+| `start_benchmark_trial` / `record_benchmark_reward` / `export_benchmark_trial` / `compare_benchmark_runs` | Preserve Agent QC benchmark task, trajectory, reward, and comparison facts. |
 
 Any current Tauri command, frontend gateway, mock, or catalog entry that writes runtime truth should be traceable to one of these semantics.
 
@@ -139,5 +140,6 @@ The Lime profile adds stricter schemas and example fixtures:
 - `/fixtures/lime-profile/routing-single-candidate-event.json`
 - `/fixtures/lime-profile/evidence-export-event.json`
 - `/fixtures/lime-profile/thread-read-snapshot.json`
+- `/fixtures/lime-profile/benchmark-trial-pack.json`
 
 These fixtures are the minimum conformance pack for Lime profile core.

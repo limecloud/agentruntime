@@ -36,6 +36,7 @@ Agent Runtime standardizes these implementation concerns:
 8. Permission, sandbox, hooks, process execution, remote channel recovery, and peer task mapping.
 9. Model routing, candidate sets, cost, quota, rate limit, and budget facts.
 10. Agent task lifecycle, attempts, task graphs, subagent graphs, background jobs, large output storage, and session reconstruction.
+11. Benchmark trial instrumentation for dataset/config/task correlation, trajectories, rewards, and comparison decisions.
 
 Agent Runtime does **not** standardize a UI component model, model provider protocol, tool registry format, workflow language, vector store, artifact format, or observability backend.
 
@@ -165,6 +166,7 @@ Real coding, desktop, and remote runtimes SHOULD also expose these event familie
 | Jobs | `job.created` / `job.started` / `job.progress` / `job.item.started` / `job.item.completed` / `job.item.failed` / `job.completed` / `job.failed` / `job.cancelled` | Record batch and background work. |
 | Output | `output.spilled` / `output.truncated` / `output.redacted` / `output.expired` | Manage large output and auditable references. |
 | History | `history.window.loaded` / `history.reconstructed` / `history.rollback.started` / `history.rollback.completed` / `snapshot.repaired` | Recover old sessions, compaction, and rollback. |
+| Benchmark | `benchmark.dataset.resolved` / `benchmark.configuration.resolved` / `benchmark.trial.started` / `benchmark.trial.completed` / `benchmark.trial.failed` / `benchmark.reward.recorded` / `benchmark.comparison.completed` | Record hill-climbing trials, trajectories, rewards, and baseline/candidate decisions. |
 
 
 ## Control plane
@@ -193,6 +195,7 @@ A compatible runtime SHOULD expose these commands, regardless of transport:
 | `list_subagents` / `list_jobs` / `get_job` / `cancel_job` | Session/thread/job scope. | Subagent graph or job snapshot. |
 | `reconnect_channel` / `ack_events` | Channel id, cursor, resume token. | Channel resumed or snapshot repair. |
 | `export_review` | Session/thread/turn/task scope. | Review refs. |
+| `start_benchmark_trial` / `record_benchmark_reward` / `export_benchmark_trial` / `compare_benchmark_runs` | Dataset, task, config, trial, reward, and comparison scope. | Benchmark trial events, reward refs, trajectories, and promotion/revert decisions. |
 
 
 Commands that mutate state MUST write through the runtime or owning adjacent system. UI-only state cannot mutate runtime truth.
@@ -213,6 +216,7 @@ The event stream is necessary but not enough. A compatible runtime SHOULD mainta
 - `execution_environment_snapshot`: cwd, workspace roots, env refs, process limits, and active processes.
 - `routing_limit_summary`: task profile, candidate count, routing decision, cost state, quota/rate-limit state.
 - `subagent_job_summary`: child graph, job progress, assigned threads, and recoverability.
+- `benchmark_summary`: dataset/task/config ids, trial status, reward refs, trajectory refs, aggregate delta, and promotion/revert decision.
 - `channel_summary`: remote peers, resume cursors, last acknowledged sequence, and permission bridge state.
 
 Read models may be compact. They must be honest: `unknown`, `unavailable`, `stale`, and `blocked` are better than inferred success.

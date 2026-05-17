@@ -44,6 +44,7 @@ Stream 应为大数据携带 preview 和 refs：
 - tool arguments/results 使用 `input_ref`、`output_ref`、`preview`、`metadata`。
 - artifacts 使用 `artifact_id`、`read_ref`、`version_id`、`preview_ref`、`diff_ref`。
 - evidence 使用 `evidence_id`、`pack_ref`、`trace_ref`、`replay_ref`、`review_ref`。
+- benchmark trials 使用 `trajectory_ref`、`reward_ref`、`reward_details_ref`、`dataset_id`、`configuration_id`、`comparison_ref`。
 
 ## Item 与 process lifecycle
 
@@ -65,8 +66,9 @@ Model routing 与远程通道也属于 event stream：
 - `task.attempt.started`、`task.attempt.completed` 和 `task.attempt.failed` 表达 per-run execution history。
 - `cost.estimated`、`cost.recorded`、`rate_limit.hit`、`quota.low`、`quota.blocked`。
 - `channel.connected`、`channel.resumed`、`channel.permission_forwarded`。
+- `benchmark.dataset.resolved`、`benchmark.trial.started`、`benchmark.reward.recorded`、`benchmark.comparison.completed`。
 
-这些事件可以是 telemetry-only 或 read-model-only，但必须能被 evidence/replay/review 关联。
+这些事件可以是 telemetry-only 或 read-model-only，但必须能被 evidence/replay/review/benchmark export 关联。
 
 ## Provider adaptation
 

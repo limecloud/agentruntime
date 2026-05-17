@@ -125,7 +125,14 @@
         "history.reconstructed",
         "history.rollback.started",
         "history.rollback.completed",
-        "snapshot.repaired"
+        "snapshot.repaired",
+        "benchmark.dataset.resolved",
+        "benchmark.configuration.resolved",
+        "benchmark.trial.started",
+        "benchmark.trial.completed",
+        "benchmark.trial.failed",
+        "benchmark.reward.recorded",
+        "benchmark.comparison.completed"
       ]
     },
     "eventId": {

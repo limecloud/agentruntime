@@ -135,7 +135,14 @@
             "history.reconstructed",
             "history.rollback.started",
             "history.rollback.completed",
-            "snapshot.repaired"
+            "snapshot.repaired",
+            "benchmark.dataset.resolved",
+            "benchmark.configuration.resolved",
+            "benchmark.trial.started",
+            "benchmark.trial.completed",
+            "benchmark.trial.failed",
+            "benchmark.reward.recorded",
+            "benchmark.comparison.completed"
           ]
         },
         "schemaVersion": {
@@ -277,6 +284,21 @@
       "then": {
         "required": [
           "evidenceId"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "pattern": "^benchmark\\.(trial|reward)\\."
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "taskId",
+          "runId"
         ]
       }
     }

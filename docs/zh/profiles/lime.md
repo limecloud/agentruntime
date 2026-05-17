@@ -67,6 +67,7 @@ Lime profile core 要求这些事件族：
 - `context.*`、`history.*`：context assembly、compaction、rollback 与 reconstruction boundary。
 - `task.profile.resolved`、`routing.*`、`cost.*`、`rate_limit.hit`、`quota.*`、`limit.changed`：模型路由与经济状态。
 - `subagent.*`、`job.*`、`channel.*`：委派、远程或后台工作。
+- `benchmark.*`：用于 Agent QC hill climbing 的 dataset/config/trial/reward/comparison facts。
 - `artifact.changed`、`evidence.changed`、`snapshot.updated`、`runtime.warning`、`runtime.error`：持久输出、审计、修复与失败。
 
 公开 schema 可以允许更多事件。Lime profile validation 应在 current Lime runtime 路径输出无 scope 或不可 join 的事件时失败。
@@ -83,6 +84,7 @@ Lime runtime 必须从同一组 event facts 维护这些 read models：
 | `PermissionSandboxSummary` | Effective permission mode、pending approvals、evaluated decisions、sandbox profile 与 violations。 |
 | `RoutingLimitSummary` | Task profile、candidate count、selected model、fallback/no-candidate/single-candidate facts、cost、quota 与 rate-limit state。 |
 | `EvidenceSummary` | Evidence pack refs、replay refs、review refs、verification outcomes 与真正适用的 known gaps。 |
+| `BenchmarkSummary` | Dataset/task/config ids、trial status、trajectory refs、reward refs、aggregate delta、promotion/revert decision 与 QC regression count。 |
 
 如果信号不适用，应省略或标记 `not_applicable`。不能为每个 session 输出通用 gap。
 
@@ -99,6 +101,7 @@ Lime 命令可以保留产品命名，但必须映射到这些 profile 语义：
 | `create_task` / `update_task` / `retry_task` / `complete_task` | 写入带 attempts 和 graph edges 的 task facts，而不是 UI-only cards。 |
 | `get_session` / `get_thread_read` | 读取 durable snapshots 和 read models，而不是 UI 摘要。 |
 | `export_evidence` / `export_replay` / `export_review` | 从与 UI、diagnostics 共享的 runtime facts 导出。 |
+| `start_benchmark_trial` / `record_benchmark_reward` / `export_benchmark_trial` / `compare_benchmark_runs` | 保留 Agent QC benchmark task、trajectory、reward 和 comparison facts。 |
 
 任何写 runtime truth 的 current Tauri command、frontend gateway、mock 或 catalog entry，都应能追踪到这些语义之一。
 
@@ -120,7 +123,9 @@ Lime Profile 规定 evidence 是 runtime facts 的消费者，不是另一套 re
 }
 ```
 
-Replay、review、analysis handoff 与 UI diagnostics 必须消费同一组 runtime facts。它们可以摘要，但不能从 thread prose 重建 observability state。
+Replay、review、analysis handoff、benchmark comparison 与 UI diagnostics 必须消费同一组 runtime facts。它们可以摘要，但不能从 thread prose 重建 observability state。
+
+对于 benchmark trials，evidence export 还必须包含 dataset id/version、task id、configuration id、trial id、trajectory ref、reward ref、reward details ref，以及用于检测 P0 gate regression 的 Agent QC report ref。
 
 ## Profile schemas and fixtures
 
@@ -139,5 +144,6 @@ Lime Profile 新增严格 schema 和示例 fixtures：
 - `/fixtures/lime-profile/routing-single-candidate-event.json`
 - `/fixtures/lime-profile/evidence-export-event.json`
 - `/fixtures/lime-profile/thread-read-snapshot.json`
+- `/fixtures/lime-profile/benchmark-trial-pack.json`
 
 这些 fixtures 是 Lime profile core 的最小 conformance pack。

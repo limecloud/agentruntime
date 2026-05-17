@@ -78,3 +78,7 @@ Lime-profile runtime 至少发布 submit turn、action required、failed task at
 ## Job item retry
 
 当 batch job 的一个 item 失败，job 保持 running 或 failed item 状态，允许只 retry 该 item，并保留 attempt count 与 last error。
+
+## Benchmark trial export
+
+当 Lime 运行 benchmark task 时，runtime 发出 benchmark dataset/config/trial facts，保留 execution trajectory，记录 reward refs，并导出带 runtime correlation 的 trial pack。Candidate comparison 必须包含 baseline/candidate configs、aggregate deltas、evidence completeness 和 P0 Agent QC regression count。

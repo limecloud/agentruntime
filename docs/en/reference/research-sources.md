@@ -30,6 +30,9 @@ Agent Runtime v0.1 was informed by current standards and implementation patterns
 - [LangGraph interrupts and streaming](https://docs.langchain.com/oss/python/langgraph/interrupts): checkpointer-backed interrupts, resume commands, thread ids, and task-mode streaming.
 - [OpenAI Agents SDK](https://openai.github.io/openai-agents-python/): agents, handoffs, sessions, guardrails, tracing spans, and streaming events for multi-agent workflows.
 - [Temporal workflows](https://docs.temporal.io/workflows): workflow ids, run ids, task queues, activities, child workflows, signals, cancellation, retry policies, history, and durable execution.
+- [Harbor framework documentation](https://www.harborframework.com/docs): benchmark datasets, tasks, trials, artifacts, trajectories, reward files, and verifier lifecycle for agent evaluations.
+- [Cline practical guide to hill climbing](https://cline.bot/blog/a-practical-guide-to-hill-climbing): baseline/candidate iteration, failure analysis, single-variable changes, repeated trials, and pass@k for agent runtime improvement.
+- [Agent Runtime battlefield analysis](https://yage.ai/share/agent-runtime-battlefield-20260516.html): runtime/harness can materially affect same-model benchmark outcomes and should be evaluated on project-local tasks.
 
 ## Design conclusions
 
@@ -40,4 +43,5 @@ Agent Runtime v0.1 was informed by current standards and implementation patterns
 - Observability correlation belongs in the runtime contract, not only in logs.
 - Agent-to-agent work should be modeled as local tasks, subagents, jobs, or remote task refs with parent links; A2A is the peer interoperability reference, not a replacement for runtime facts.
 - Task lifecycle must be separate from todo/checklist state and preserve attempts, dependencies, waiting reasons, and delivery state.
+- Benchmark trials need first-class runtime correlation so reward changes can be attributed to model, prompt, tool, context, routing, UI projection, environment, or verifier behavior.
 - A2A messages and artifacts support the same separation used by Agent Runtime: communication belongs in messages or channel events, while durable outputs belong in artifact refs linked to tasks.

@@ -74,3 +74,7 @@ Task commands MUST 写入 runtime facts。Task retry 应创建新的 run 或 att
 ## Jobs
 
 Job control SHOULD 区分 job status 与 job item status。取消 job 不等于取消已经完成的 items；retry item 不应创建重复 output。
+
+## Benchmark control
+
+Benchmark commands 不替代 `export_evidence`。它们为 hill-climbing runs 提供稳定 ids，并保证 baseline/candidate comparison 可审计。如果实现不暴露这些显式命令，必须通过 `export_evidence` 或 `export_replay` 导出等价数据。

@@ -38,6 +38,10 @@ The control plane is the write boundary for runtime state. It may be implemented
 | `create_job` / `get_job` / `cancel_job` | Manage durable background or batch work. |
 | `reconnect_channel` / `ack_events` | Recover remote channels and acknowledge events. |
 | `export_review` | Export review template or audit refs from the same facts. |
+| `start_benchmark_trial` | Bind dataset, task, configuration, sandbox, and timeout to a runtime run. |
+| `record_benchmark_reward` | Attach reward, reward details, verifier status, and failure category to a trial. |
+| `export_benchmark_trial` | Export trajectory, runtime transcript, artifacts, reward refs, and Agent QC refs. |
+| `compare_benchmark_runs` | Record baseline/candidate deltas and promotion or revert decision. |
 
 ## Idempotency
 
@@ -74,3 +78,7 @@ Task commands MUST write runtime facts. A task retry should create a new run or 
 ## Jobs
 
 Job control SHOULD distinguish job status from job item status. Cancelling a job does not cancel completed items; retrying an item must not create duplicate output.
+
+## Benchmark control
+
+Benchmark commands do not replace `export_evidence`. They give hill-climbing runs stable ids and keep baseline/candidate comparisons honest. If an implementation omits these explicit commands, equivalent data must be exported through `export_evidence` or `export_replay`.

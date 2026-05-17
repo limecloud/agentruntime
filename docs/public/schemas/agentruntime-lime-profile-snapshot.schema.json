@@ -99,6 +99,9 @@
         "telemetrySummary": {
           "type": "object"
         },
+        "benchmarkSummary": {
+          "type": "object"
+        },
         "evidenceRefs": {
           "type": "array",
           "items": {

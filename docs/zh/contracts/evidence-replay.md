@@ -35,6 +35,20 @@ Replay case SHOULD 包含：
 
 Replay 不能只依赖 UI 截图或最终正文。
 
+
+## Benchmark export
+
+当 evidence 用于 Agent QC benchmark 或 hill climbing 时，pack 还 SHOULD 包含：
+
+- dataset id、dataset version、task id、trial id 和 configuration id；
+- baseline/candidate role，以及已知时的 single changed variable；
+- trajectory ref、runtime transcript ref、reward ref 和 reward details ref；
+- 属于 candidate decision 时的 aggregate comparison refs；
+- 用于检测 regression 的 P0 Agent QC report ref；
+- 可用时的 timeout、cost、token、cache 和 cleanup metrics。
+
+Benchmark export 不是 verdict。promotion、revert、blocked 或 needs-review decision 由 Agent QC 拥有。
+
 ## Observability
 
 兼容 runtime SHOULD 将执行映射到 trace concepts：

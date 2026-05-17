@@ -2,11 +2,11 @@
 
 Source root: https://limecloud.github.io/agentruntime
 
-Agent Runtime is a portable standard for agent execution runtimes. It defines execution facts, control-plane commands, durable snapshots, task lifecycle, tools, permissions, sandboxing, process execution, model routing, telemetry, remote channels, evidence, and recovery without binding those behaviors to one UI, provider, or tool protocol.
+Agent Runtime is a portable standard for agent execution runtimes. It defines execution facts, control-plane commands, durable snapshots, task lifecycle, tools, permissions, sandboxing, process execution, model routing, telemetry, remote channels, evidence, recovery, benchmark instrumentation, and product profiles.
 
-This file concatenates the current English documentation most useful for model context. Each section includes its source URL. Version snapshots and translated pages are linked from `llms.txt` but are not repeated here unless they are the latest release summary.
 
 # What is Agent Runtime?
+
 Source: https://limecloud.github.io/agentruntime/en/what-is-agent-runtime
 
 # What is Agent Runtime?
@@ -38,7 +38,9 @@ Do not use it to define the visual interface, model provider API, connector prot
 
 The runtime may be embedded in a desktop app, hosted behind an HTTP API, run in a worker, or coordinate local and remote agents. The standard constrains facts and control semantics, not deployment shape.
 
+
 # Specification
+
 Source: https://limecloud.github.io/agentruntime/en/specification
 
 # Specification
@@ -46,6 +48,19 @@ Source: https://limecloud.github.io/agentruntime/en/specification
 Agent Runtime latest draft is a portable standard draft for agent execution. The core contract is the boundary between execution facts and consumers such as UI, replay, review, telemetry, workflow, and remote channels.
 
 Agent Runtime owns execution facts. It does not own the visual surface, provider API, external tool protocol, artifact bytes, evidence verdict, memory source, or host account model.
+
+## Profiles and conformance
+
+Agent Runtime is specified in layers:
+
+| Layer | Stability | Meaning |
+| --- | --- | --- |
+| Public core | Portable | Required identities, event envelope, control-plane semantics, snapshots, and ownership rules that can apply across products. |
+| Recommended extensions | Portable but optional | Permission, sandbox, hooks, process, routing, task graph, subagent, job, channel, history, and evidence families used by rich agent runtimes. |
+| Product profile | Implementation-specific | A stricter subset and payload shape selected by a product or host. Profiles may require ids, fields, fixtures, and validation beyond the public core. |
+
+A profile MUST NOT redefine ownership. It may only make the public model stricter, add typed payload fields, or require specific event families. The [Lime AgentRuntime Profile](/en/profiles/lime) is the reference product profile for Lime current runtime.
+
 
 ## Scope
 
@@ -61,6 +76,7 @@ Agent Runtime standardizes these implementation concerns:
 8. Permission, sandbox, hooks, process execution, remote channel recovery, and peer task mapping.
 9. Model routing, candidate sets, cost, quota, rate limit, and budget facts.
 10. Agent task lifecycle, attempts, task graphs, subagent graphs, background jobs, large output storage, and session reconstruction.
+11. Benchmark trial instrumentation for dataset/config/task correlation, trajectories, rewards, and comparison decisions.
 
 Agent Runtime does **not** standardize a UI component model, model provider protocol, tool registry format, workflow language, vector store, artifact format, or observability backend.
 
@@ -190,6 +206,7 @@ Real coding, desktop, and remote runtimes SHOULD also expose these event familie
 | Jobs | `job.created` / `job.started` / `job.progress` / `job.item.started` / `job.item.completed` / `job.item.failed` / `job.completed` / `job.failed` / `job.cancelled` | Record batch and background work. |
 | Output | `output.spilled` / `output.truncated` / `output.redacted` / `output.expired` | Manage large output and auditable references. |
 | History | `history.window.loaded` / `history.reconstructed` / `history.rollback.started` / `history.rollback.completed` / `snapshot.repaired` | Recover old sessions, compaction, and rollback. |
+| Benchmark | `benchmark.dataset.resolved` / `benchmark.configuration.resolved` / `benchmark.trial.started` / `benchmark.trial.completed` / `benchmark.trial.failed` / `benchmark.reward.recorded` / `benchmark.comparison.completed` | Record hill-climbing trials, trajectories, rewards, and baseline/candidate decisions. |
 
 
 ## Control plane
@@ -218,6 +235,7 @@ A compatible runtime SHOULD expose these commands, regardless of transport:
 | `list_subagents` / `list_jobs` / `get_job` / `cancel_job` | Session/thread/job scope. | Subagent graph or job snapshot. |
 | `reconnect_channel` / `ack_events` | Channel id, cursor, resume token. | Channel resumed or snapshot repair. |
 | `export_review` | Session/thread/turn/task scope. | Review refs. |
+| `start_benchmark_trial` / `record_benchmark_reward` / `export_benchmark_trial` / `compare_benchmark_runs` | Dataset, task, config, trial, reward, and comparison scope. | Benchmark trial events, reward refs, trajectories, and promotion/revert decisions. |
 
 
 Commands that mutate state MUST write through the runtime or owning adjacent system. UI-only state cannot mutate runtime truth.
@@ -238,6 +256,7 @@ The event stream is necessary but not enough. A compatible runtime SHOULD mainta
 - `execution_environment_snapshot`: cwd, workspace roots, env refs, process limits, and active processes.
 - `routing_limit_summary`: task profile, candidate count, routing decision, cost state, quota/rate-limit state.
 - `subagent_job_summary`: child graph, job progress, assigned threads, and recoverability.
+- `benchmark_summary`: dataset/task/config ids, trial status, reward refs, trajectory refs, aggregate delta, and promotion/revert decision.
 - `channel_summary`: remote peers, resume cursors, last acknowledged sequence, and permission bridge state.
 
 Read models may be compact. They must be honest: `unknown`, `unavailable`, `stale`, and `blocked` are better than inferred success.
@@ -279,7 +298,9 @@ A validator SHOULD check behavior, not only file presence:
 - Evidence/replay exports derive from the same runtime facts as UI and diagnostics.
 - Missing facts are marked `unknown`, `unavailable`, `stale`, or `blocked` instead of inferred from prose.
 
+
 # Runtime model
+
 Source: https://limecloud.github.io/agentruntime/en/concepts/runtime-model
 
 # Runtime model
@@ -335,7 +356,15 @@ A compatible runtime SHOULD carry correlation ids through every boundary:
 
 If correlation is unavailable, the runtime should mark the gap. It should not invent a false join.
 
+## Public model and product profiles
+
+The public runtime model defines ownership and portable ids. A product profile may make this stricter for one implementation. For example, the Lime profile requires every current runtime event to carry `runtimeId`, `sessionId`, `eventId`, `timestamp`, `schemaVersion`, `sequence`, and a typed `payload`, and then adds scope-specific ids for turns, tools, actions, tasks, subagents, and evidence.
+
+Profiles are conformance layers, not separate standards. They must preserve the same owner map so UI, evidence, context, policy, tool, and artifact systems do not become competing runtime truth sources.
+
+
 # Runtime event stream
+
 Source: https://limecloud.github.io/agentruntime/en/contracts/runtime-event-stream
 
 # Runtime event stream
@@ -379,6 +408,7 @@ The stream should carry previews and refs for large data:
 - tool arguments and results can use `input_ref`, `output_ref`, `preview`, and `metadata`.
 - artifacts can use `artifact_id`, `read_ref`, `version_id`, `preview_ref`, and `diff_ref`.
 - evidence can use `evidence_id`, `pack_ref`, `trace_ref`, `replay_ref`, and `review_ref`.
+- benchmark trials can use `trajectory_ref`, `reward_ref`, `reward_details_ref`, `dataset_id`, `configuration_id`, and `comparison_ref`.
 
 ## Item and Process Lifecycle
 
@@ -400,8 +430,9 @@ Model routing and remote channels also belong to the stream:
 - `task.attempt.started`, `task.attempt.completed`, and `task.attempt.failed` for per-run execution history.
 - `cost.estimated`, `cost.recorded`, `rate_limit.hit`, `quota.low`, `quota.blocked`.
 - `channel.connected`, `channel.resumed`, `channel.permission_forwarded`.
+- `benchmark.dataset.resolved`, `benchmark.trial.started`, `benchmark.reward.recorded`, and `benchmark.comparison.completed`.
 
-These events may be telemetry-only or read-model-only, but they must be joinable by evidence, replay, and review.
+These events may be telemetry-only or read-model-only, but they must be joinable by evidence, replay, review, and benchmark exports.
 
 ## Provider adaptation
 
@@ -420,7 +451,9 @@ The runtime should preserve raw provider refs for debugging but expose normalize
 
 A client that reconnects SHOULD request a snapshot, then resume from the last seen event sequence if supported. If the runtime cannot provide replay from a sequence, it should emit `snapshot.updated` and mark the stream recovery mode.
 
+
 # Control plane
+
 Source: https://limecloud.github.io/agentruntime/en/contracts/control-plane
 
 # Control plane
@@ -458,6 +491,10 @@ The control plane is the write boundary for runtime state. It may be implemented
 | `create_job` / `get_job` / `cancel_job` | Manage durable background or batch work. |
 | `reconnect_channel` / `ack_events` | Recover remote channels and acknowledge events. |
 | `export_review` | Export review template or audit refs from the same facts. |
+| `start_benchmark_trial` | Bind dataset, task, configuration, sandbox, and timeout to a runtime run. |
+| `record_benchmark_reward` | Attach reward, reward details, verifier status, and failure category to a trial. |
+| `export_benchmark_trial` | Export trajectory, runtime transcript, artifacts, reward refs, and Agent QC refs. |
+| `compare_benchmark_runs` | Record baseline/candidate deltas and promotion or revert decision. |
 
 ## Idempotency
 
@@ -495,7 +532,13 @@ Task commands MUST write runtime facts. A task retry should create a new run or 
 
 Job control SHOULD distinguish job status from job item status. Cancelling a job does not cancel completed items; retrying an item must not create duplicate output.
 
+## Benchmark control
+
+Benchmark commands do not replace `export_evidence`. They give hill-climbing runs stable ids and keep baseline/candidate comparisons honest. If an implementation omits these explicit commands, equivalent data must be exported through `export_evidence` or `export_replay`.
+
+
 # Tool and context
+
 Source: https://limecloud.github.io/agentruntime/en/contracts/tool-context-capabilities
 
 # Tool and context
@@ -568,7 +611,9 @@ Tool inventory SHOULD mark `is_read_only`, `is_concurrency_safe`, `is_destructiv
 
 The runtime MAY run consecutive read-only tools concurrently, but SHOULD serialize write or destructive tools. Cancelled tools should emit explicit cancelled or interrupted facts instead of silently dropping results.
 
+
 # State snapshots
+
 Source: https://limecloud.github.io/agentruntime/en/contracts/state-snapshots
 
 # State snapshots
@@ -640,7 +685,9 @@ Snapshots SHOULD prefer explicit status over optimistic inference:
 
 Evidence, review, and UI consumers should use these statuses instead of filling in success defaults.
 
+
 # Evidence and replay
+
 Source: https://limecloud.github.io/agentruntime/en/contracts/evidence-replay
 
 # Evidence and replay
@@ -675,6 +722,20 @@ A replay case SHOULD include:
 
 Replay must not depend on UI screenshots or final prose alone.
 
+
+## Benchmark export
+
+When evidence is exported for Agent QC benchmark or hill climbing, the pack SHOULD also include:
+
+- dataset id, dataset version, task id, trial id, and configuration id;
+- baseline/candidate role and the single changed variable when known;
+- trajectory ref, runtime transcript ref, reward ref, and reward details ref;
+- aggregate comparison refs when the export belongs to a candidate decision;
+- P0 Agent QC report ref used to detect regressions;
+- timeout, cost, token, cache, and cleanup metrics when available.
+
+Benchmark export is not a verdict. Agent QC owns promotion, revert, blocked, or needs-review decisions.
+
 ## Observability
 
 A compatible runtime SHOULD map execution into trace concepts:
@@ -693,7 +754,9 @@ Evidence SHOULD distinguish `exported`, `not_applicable`, `unsupported`, and `mi
 
 `known_gaps` should only describe signals that apply to the current scope but were not exported. Do not turn every future capability into a gap for every thread.
 
+
 # Permission and sandbox
+
 Source: https://limecloud.github.io/agentruntime/en/contracts/permission-and-sandbox
 
 # Permission and sandbox
@@ -741,7 +804,9 @@ The runtime MUST NOT show a sandboxed state in a client while omitting the actua
 - Waiting for user input in a non-interactive mode.
 - Reporting sandbox denial as a generic tool failure.
 
+
 # Hooks and policy
+
 Source: https://limecloud.github.io/agentruntime/en/contracts/hooks-and-policy
 
 # Hooks and policy
@@ -773,7 +838,9 @@ Hook output SHOULD normalize to `continue`, `block`, `allow`, `deny`, `ask`, `up
 
 High-risk hooks SHOULD fail closed. Read-only context hooks MAY fail open, but must emit a warning.
 
+
 # Execution environment
+
 Source: https://limecloud.github.io/agentruntime/en/contracts/execution-environment
 
 # Execution environment
@@ -807,7 +874,9 @@ Before execution, runtime SHOULD record safe command summary, parsed subcommands
 
 After restart, the runtime SHOULD tell which processes may still exist, which outputs are durable, which refs are unrecoverable, and which actions remain unresolved.
 
+
 # Model routing and limits
+
 Source: https://limecloud.github.io/agentruntime/en/contracts/model-routing-limits
 
 # Model routing and limits
@@ -834,7 +903,9 @@ Single candidate is a first-class path, not a failure. It means the runtime has 
 
 `task.profile.resolved`, `routing.candidates.resolved`, `routing.decided`, `routing.fallback.applied`, `routing.not_possible`, `routing.single_candidate`, `cost.estimated`, `cost.recorded`, `rate_limit.hit`, `quota.low`, and `quota.blocked` SHOULD flow into read models, evidence, and telemetry.
 
+
 # Agent task
+
 Source: https://limecloud.github.io/agentruntime/en/contracts/agent-task
 
 # Agent task
@@ -1066,7 +1137,9 @@ Snapshots SHOULD mark missing data as `unknown`, `stale`, or `not_applicable` ra
 - Using scheduler ticks as product-level tasks.
 - Treating a lost worker as success because no error was observed.
 
+
 # Subagents and jobs
+
 Source: https://limecloud.github.io/agentruntime/en/contracts/subagents-and-jobs
 
 # Subagents and jobs
@@ -1091,7 +1164,9 @@ Job item status SHOULD be independent: pending, running, completed, failed, repo
 
 Events include `job.created`, `job.started`, `job.progress`, `job.item.started`, `job.item.completed`, `job.item.failed`, `job.completed`, `job.failed`, and `job.cancelled`.
 
+
 # Remote channels
+
 Source: https://limecloud.github.io/agentruntime/en/contracts/remote-channels
 
 # Remote channels
@@ -1189,7 +1264,165 @@ These states should not all appear as `failed`.
 - Approving remote permissions privately in the host or browser without evidence facts.
 - Marking a running peer task as completed because the channel disconnected.
 
+
+# Benchmark instrumentation
+
+Source: https://limecloud.github.io/agentruntime/en/contracts/benchmark-instrumentation
+
+# Benchmark instrumentation
+
+Agent Runtime does not own product scoring, but it must make benchmarks reproducible, attributable, and auditable. Lime's goal is to improve through testing, so the runtime should treat every benchmark trial as a first-class execution fact instead of scattering results across GUI smoke logs, console output, and manual summaries.
+
+## Goals
+
+Benchmark instrumentation answers five questions:
+
+1. Which dataset, task, and baseline/candidate configuration did this trial use?
+2. Which tool, action, model, context, and routing decisions happened during execution?
+3. How did the verifier or reward produce the score?
+4. Was the failure caused by runtime, model, tool, GUI projection, environment, or verifier behavior?
+5. How should the finding feed back into Agent QC gates, replay fixtures, or release blockers?
+
+## Event families
+
+Compatible runtimes SHOULD support these benchmark events:
+
+| Event | Purpose |
+| --- | --- |
+| `benchmark.dataset.resolved` | Record dataset id, version, selection policy, and frozen timestamp. |
+| `benchmark.configuration.resolved` | Record baseline/candidate runtime, model, prompt, tool, context, and routing profiles. |
+| `benchmark.trial.started` | Record task, config, attempt, sandbox/env, timeout, and budget. |
+| `benchmark.trial.completed` | Record successful trial, duration, artifact refs, and cleanup. |
+| `benchmark.trial.failed` | Record failure, timeout, blocked path, verifier error, or environment issue. |
+| `benchmark.reward.recorded` | Record reward, reward details, criterion summary, and verifier refs. |
+| `benchmark.comparison.completed` | Record baseline/candidate aggregate delta, promotion/revert decision, and remaining risk. |
+
+These events can be written by a benchmark runner, runtime adapter, or evidence exporter, but they must use the same runtime correlation spine.
+
+## Trial correlation spine
+
+Every trial evidence pack SHOULD contain:
+
+```json
+{
+  "benchmark": {
+    "datasetId": "lime-internal-agent-runtime-tasks",
+    "datasetVersion": "2026-05-frozen",
+    "taskId": "tool-approval-sandbox-boundary",
+    "trialId": "trial-tool-approval-candidate-1",
+    "configurationId": "candidate-feedback-v2",
+    "role": "candidate"
+  },
+  "runtimeCorrelation": {
+    "runtimeId": "lime_runtime_local",
+    "sessionId": "sess_123",
+    "threadId": "thread_123",
+    "turnId": "turn_123",
+    "taskId": "task_123",
+    "runId": "run_123",
+    "traceId": "trace_123"
+  },
+  "refs": {
+    "trajectoryRef": "/logs/agent/trajectory.json",
+    "runtimeTranscriptRef": "/logs/artifacts/runtime-transcript.json",
+    "rewardRef": "/logs/verifier/reward.json",
+    "rewardDetailsRef": "/logs/verifier/reward-details.json",
+    "agentQcReportRef": ".lime/qc/current-agent-qc-report.json"
+  }
+}
+```
+
+Without `runtimeCorrelation`, a benchmark may have a score, but it cannot explain whether Lime Runtime improved.
+
+## Trajectory requirements
+
+Trajectories SHOULD preserve these events or equivalent summaries:
+
+| Area | Required facts |
+| --- | --- |
+| Input | instruction, attachments, options, source channel. |
+| Model | selected model, provider, request ids, token/cost, fallback. |
+| Context | selected refs, compaction, missing facts, context warnings. |
+| Tools | tool inventory, tool args, progress, result/error, result refs. |
+| Permission | `action.required`, decision id, approve/deny/edit, side-effect check. |
+| Process/browser | command, cwd, exit code, console/network, cleanup. |
+| Artifacts | produced refs, export status, validation issues. |
+| Outcome | final status, failure category, known gaps, evidence ids. |
+
+Trajectories may be redacted and summarized, but they must not remove ids needed for failure attribution.
+
+## Control plane support
+
+The runtime or host SHOULD support these command semantics:
+
+| Command | Purpose |
+| --- | --- |
+| `start_benchmark_trial` | Bind dataset/task/config and create trial scope. |
+| `record_benchmark_reward` | Write reward, reward details, and verifier status. |
+| `export_benchmark_trial` | Export trajectory, runtime transcript, artifacts, reward, and Agent QC refs. |
+| `compare_benchmark_runs` | Record baseline/candidate delta and decision. |
+
+If the product does not expose these commands directly, `export_evidence` / `export_replay` should output an equivalent structure.
+
+## Lime testing examples
+
+### 1. Check that a trial pack is joinable
+
+```bash
+jq -e '
+  .benchmark.datasetId
+  and .benchmark.taskId
+  and .benchmark.trialId
+  and .runtimeCorrelation.sessionId
+  and .runtimeCorrelation.threadId
+  and .runtimeCorrelation.turnId
+  and .runtimeCorrelation.runId
+  and .refs.trajectoryRef
+  and .refs.rewardDetailsRef
+' .lime/qc/benchmark/trial-tool-approval-candidate-1.json
+```
+
+Failure handling:
+
+- missing benchmark fields: benchmark runner blocks;
+- missing runtime correlation: Agent Runtime profile blocks;
+- missing reward details: `benchmark-eval` blocks;
+- missing trajectory: smoke only, not hill climbing.
+
+### 2. Check reward improvement without P0 QC regression
+
+```bash
+jq -e '
+  .comparison.meanRewardDelta >= 0
+  and .comparison.p0QcGateRegressionCount == 0
+  and .comparison.evidenceCompletenessRate >= .comparison.baselineEvidenceCompletenessRate
+' .lime/qc/benchmark/feedback-v2-comparison.json
+```
+
+Run this before candidate promotion. It keeps the policy simple: three hard metrics block the most dangerous case, where the score rises but product quality regresses.
+
+### 3. Feed failures back into QC
+
+When `benchmark.trial.failed` has a `failureCategory` such as `tool-result-missing`, `stream-stuck`, `permission-bypass`, or `stale-success`, Lime should write the failure back to:
+
+- Agent QC scenario `failureModes`;
+- runtime replay fixtures;
+- verifier criteria for the matching gate;
+- release blocker or waiver if the failure affects release.
+
+## Anti-patterns
+
+| Anti-pattern | Risk |
+| --- | --- |
+| Saving only the final benchmark score | No attribution, no repair path. |
+| Trajectory without tool/action ids | Cannot tell model, tool, or permission failures apart. |
+| Candidate uses a different dataset or verifier | A/B comparison is invalid. |
+| Runtime omits cost and timeout facts | High score may be operationally unusable. |
+| GUI benchmark is not linked to runtime facts | It proves rendering, not execution truth. |
+
+
 # Telemetry and tracing
+
 Source: https://limecloud.github.io/agentruntime/en/contracts/telemetry-tracing
 
 # Telemetry and tracing
@@ -1212,7 +1445,9 @@ Common metrics include TTFT, model latency, task duration, retry count, token us
 
 Evidence export SHOULD distinguish applicable, not applicable, unsupported, not recorded, and missing correlation.
 
+
 # Session history and recovery
+
 Source: https://limecloud.github.io/agentruntime/en/contracts/session-history-recovery
 
 # Session history and recovery
@@ -1235,7 +1470,9 @@ Rollback SHOULD record target, removed turns, surviving context baseline, affect
 
 Recovery SHOULD load session shell, thread summaries, recent window, active thread read model, pending actions, queued turns, subagents, and jobs. Partial recovery must be marked degraded.
 
+
 # Output storage and large results
+
 Source: https://limecloud.github.io/agentruntime/en/contracts/output-storage-large-results
 
 # Output storage and large results
@@ -1256,7 +1493,9 @@ Structured tool results SHOULD separate `structured_content_ref`, `display_previ
 
 Events include `output.spilled`, `output.truncated`, `output.redacted`, and `output.expired`.
 
+
 # Implementation quickstart
+
 Source: https://limecloud.github.io/agentruntime/en/authoring/quickstart
 
 # Implementation quickstart
@@ -1303,14 +1542,24 @@ Persist a compact session snapshot and thread read model after each major transi
 
 Export evidence and replay from the same store that powers the read model. Do not create a second diagnostic truth source.
 
+
 # Acceptance scenarios
+
 Source: https://limecloud.github.io/agentruntime/en/authoring/acceptance-scenarios
 
 # Acceptance scenarios
 
+Compatible Agent Runtime implementations should pass behavior-level checks. Product profiles may add stricter fixtures. The Lime profile conformance pack is the reference strict profile for current Lime runtime.
+
+
 A compatible Agent Runtime should pass behavior-level checks.
 
 ## Submit and first status
+
+## Lime profile fixture validation
+
+A Lime-profile runtime publishes at least one valid fixture for submit turn, action required, failed task attempt, routing single candidate, evidence export, and thread read snapshot. Each fixture carries `schemaVersion: "lime-profile-0.4.0"`, stable correlation ids, and typed payloads.
+
 
 Given a client submits a turn, the runtime emits an accepted or queued fact before any long model output. The thread read model shows `preparing`, `queued`, or `running` instead of remaining unknown.
 
@@ -1374,7 +1623,13 @@ Given a remote client reconnects, runtime returns a snapshot first and continues
 
 Given one item in a batch job fails, the job keeps job/item status separately, allows retrying only that item, and preserves attempt count and last error.
 
+## Benchmark trial export
+
+Given Lime runs a benchmark task, the runtime emits benchmark dataset/config/trial facts, preserves the execution trajectory, records reward refs, and exports a trial pack with runtime correlation. A candidate comparison must include baseline/candidate configs, aggregate deltas, evidence completeness, and P0 Agent QC regression count.
+
+
 # Basic runtime adapter
+
 Source: https://limecloud.github.io/agentruntime/en/examples/basic-runtime-adapter
 
 # Basic runtime adapter
@@ -1429,247 +1684,9 @@ async function submitTurn(input: SubmitTurn): Promise<AcceptedTurn> {
 
 The important part is not the function names. The important part is that every externally visible change becomes a runtime fact before UI, replay, or audit consumers use it.
 
-# Ecosystem boundaries
-Source: https://limecloud.github.io/agentruntime/en/reference/ecosystem-boundaries
-
-# Ecosystem boundaries
-
-Agent Runtime coordinates many systems. It should not absorb their ownership.
-
-| System | Owns | Runtime relationship |
-| --- | --- | --- |
-| Agent UI | Surfaces, interactions, local drafts, progressive rendering. | Consumes runtime facts and sends controlled actions. |
-| Model providers | Native APIs, streaming formats, usage accounting, provider errors. | Runtime adapts provider facts into normalized lifecycle events. |
-| MCP servers and connectors | Tools, resources, prompts, connector auth, external side effects. | Runtime discovers, filters, invokes, and records tool lifecycle. |
-| A2A peers | Remote agent cards, capabilities, peer tasks, messages, artifacts, streaming, and push notifications. | Runtime maps peer work to local task/subagent edges, channel facts, and artifact refs while preserving A2A native ids. |
-| Context stores | Memory, knowledge, search, retrieval, source ranking. | Runtime records selected refs, omissions, and compaction boundaries. |
-| Policy systems | Permission rules, risk, sandbox profiles, org policy. | Runtime enforces or asks, then records decisions. |
-| Artifact services | Content, versions, diff, export bytes. | Runtime emits artifact refs and lifecycle facts. |
-| Evidence systems | Traces, verification, replay, review, audit verdicts. | Runtime exports and links evidence facts. |
-| Host application | Workspace, account, local storage, deployment, navigation. | Runtime uses host scope and returns portable state models. |
-
-A clean runtime boundary makes it possible to replace the UI, model provider, connector system, or evidence backend without rewriting the execution contract.
-
-## A2A boundary
-
-A2A is the right protocol reference when one agent delegates work to another independent agent. Agent Runtime should cite and interoperate with it, but not absorb it:
-
-| A2A concept | Runtime mapping |
-| --- | --- |
-| Agent Card | Peer capability snapshot, channel capabilities, routing input, and optional `agent_card_ref`. |
-| Task / `taskId` / `contextId` | Remote task ref linked to a local `task_id`, parent task, subagent, or channel. |
-| Message | Channel input, task interaction, status message, or clarification; not a durable output by itself. |
-| Artifact / artifact update | Artifact refs and `produced_artifact` / `consumed_artifact` task graph edges. |
-| Streaming / push notification | `channel.*`, `task.progress`, `task.completed`, `artifact.changed`, cursor, ack, and snapshot repair facts. |
-| In-task authorization | `action.required`, permission bridge events, and policy decision facts. |
-
-The runtime boundary remains internal execution truth: attempts, tool calls, process execution, sandbox, hooks, local permission decisions, evidence, and replay are runtime facts even when the remote peer speaks A2A.
-
-# Research sources
-Source: https://limecloud.github.io/agentruntime/en/reference/research-sources
-
-# Research sources
-
-Agent Runtime v0.1 was informed by current standards and implementation patterns. These sources are references, not dependencies.
-
-## Standards and protocols
-
-- [Model Context Protocol specification](https://modelcontextprotocol.io/specification/2025-06-18): tools, resources, prompts, sampling, roots, JSON-RPC message shape, and capability negotiation.
-- [Agent2Agent Protocol specification](https://a2a-protocol.org/latest/specification/): agent cards, peer tasks, messages, artifacts, streaming, push notifications, security, and protocol bindings for agent-to-agent interoperability.
-- [Google Developers Blog: Announcing the Agent2Agent Protocol](https://developers.googleblog.com/en/a2a-a-new-era-of-agent-interoperability/): original A2A positioning around capability discovery, task management, artifacts, collaboration, existing web standards, and MCP complementarity.
-- [Linux Foundation A2A project announcement](https://www.linuxfoundation.org/press/linux-foundation-launches-the-agent2agent-protocol-project-to-enable-secure-intelligent-communication-between-ai-agents): project governance and vendor-neutral direction for A2A as an open agent-to-agent communication protocol.
-- [A2A GitHub project](https://github.com/a2aproject/A2A): released specification, protocol assets, SDKs, samples, and issue history.
-- [CloudEvents specification](https://github.com/cloudevents/spec): portable event envelope concepts such as event type, source, id, time, subject, content type, and extension attributes.
-- [JSON-RPC 2.0 specification](https://www.jsonrpc.org/specification): request, response, notification, method, params, result, and error semantics for transport-neutral control planes.
-- [OpenTelemetry concepts](https://opentelemetry.io/docs/concepts/): traces, spans, logs, metrics, context propagation, baggage, and service/resource attribution.
-- [W3C Trace Context](https://www.w3.org/TR/trace-context/): `traceparent` and `tracestate` propagation across services.
-- [AsyncAPI specification](https://www.asyncapi.com/docs/reference/specification/latest): event-driven API description patterns.
-
-## Provider and framework references
-
-- [OpenAI API streaming reference](https://platform.openai.com/docs/api-reference/streaming): provider stream events such as response lifecycle, text deltas, and output item updates.
-- [Anthropic Messages streaming](https://docs.anthropic.com/en/docs/build-with-claude/streaming): message start, content block start/delta/stop, message delta, and message stop event structure.
-- [Anthropic tool use](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/implement-tool-use): tool use and tool result blocks as explicit content, not prose-only execution.
-- [Vercel AI SDK](https://ai-sdk.dev/docs): `streamText`, `generateObject`, tool calls, tool results, steps, stop conditions, and typed UI messages.
-- [LangGraph durable execution](https://docs.langchain.com/oss/python/langgraph/durable-execution): persistence, checkpoints, threads, human-in-the-loop, and time-travel patterns for long-running agents.
-- [LangGraph interrupts and streaming](https://docs.langchain.com/oss/python/langgraph/interrupts): checkpointer-backed interrupts, resume commands, thread ids, and task-mode streaming.
-- [OpenAI Agents SDK](https://openai.github.io/openai-agents-python/): agents, handoffs, sessions, guardrails, tracing spans, and streaming events for multi-agent workflows.
-- [Temporal workflows](https://docs.temporal.io/workflows): workflow ids, run ids, task queues, activities, child workflows, signals, cancellation, retry policies, history, and durable execution.
-
-## Design conclusions
-
-- Runtime events should use a stable envelope, but not require one transport.
-- Provider streams should be adapted instead of exposed directly as the portable contract.
-- Tool calls and human approvals need explicit ids and lifecycle records.
-- Durable snapshots are required because event streams alone do not solve old sessions or process restart.
-- Observability correlation belongs in the runtime contract, not only in logs.
-- Agent-to-agent work should be modeled as local tasks, subagents, jobs, or remote task refs with parent links; A2A is the peer interoperability reference, not a replacement for runtime facts.
-- Task lifecycle must be separate from todo/checklist state and preserve attempts, dependencies, waiting reasons, and delivery state.
-- A2A messages and artifacts support the same separation used by Agent Runtime: communication belongs in messages or channel events, while durable outputs belong in artifact refs linked to tasks.
-
-# Source analysis summary
-Source: https://limecloud.github.io/agentruntime/en/reference/source-analysis
-
-# Source analysis summary
-
-This page summarizes runtime pressure from implementation families. It is not a port of any single project; it extracts portable semantics for the Agent Runtime contract.
-
-## Terminal coding runtime pressure
-
-A terminal runtime shows that tool calls are not simple request/response records. The standard needs tool schema, safe args, progress, partial and final results, concurrent read-only batches, serialized writes, hooks, permission modes, rule sources, classifiers, sandbox profiles, output spill, telemetry-safe errors, local and remote subagents, and compaction boundaries.
-
-It also shows that task state cannot be only a model-facing checklist. Foreground tasks, local shell tasks, remote agent tasks, in-process teammate tasks, scheduled tasks, backgrounded work, and generated output files all need task ids, output offsets, terminal-state eviction, stop controls, and notifications.
-
-## Scheduler and gateway runtime pressure
-
-Gateway and scheduler runtimes show that background work needs durable storage, secure output refs, origin/delivery context, per-job model/tool overrides, pre-run scripts, prompt-injection gates, inactivity timeouts, delivery failure state, run outputs, and checkpoint/resume scanning. A missed scheduled task or failed delivery is a task fact, not just a log line.
-
-## Typed systems runtime pressure
-
-A typed systems runtime shows that SDKs need stable item lifecycle: thread started, turn started, item started/updated/completed, turn completed, turn failed. Command execution, file changes, tool calls, web search, image generation, todo lists, reasoning, approval policy, sandbox policy, hook schemas, process lifecycle, durable state, goals, jobs, remote control, and rollout reconstruction all need explicit facts.
-
-It also shows why task and run must be separate. Thread goals, plan items, todo lists, job tables, job item assignments, spawn edges, turn status, approval wait guards, and thread read models each cover part of the work. The standard needs task ids, run ids, attempt history, dependency edges, worker assignment, and lost-state handling to join them.
-
-## Desktop agent runtime pressure
-
-A desktop runtime shows that product execution is not a single model request. Submit, queue, resume, interrupt, compact, read models, tool inventory, evidence, replay, review export, turn input snapshots, request telemetry correlation, task profile, candidate sets, routing decisions, cost state, limit state, and quota/rate-limit events need one fact chain.
-
-It also shows that foreground turns, subagent turns, automation jobs, execution summaries, task files, artifacts, and timeline UI projections should converge on the same runtime facts. Scheduler ticks and UI cards should not become separate task authorities.
-
-## Gap matrix
-
-| Gap | Standard surface |
-| --- | --- |
-| Approval exists only as a client dialog | `permission.*` events and action boundary. |
-| Sandbox exists only as config | `sandbox_profile` and `sandbox.*` events. |
-| Hooks are not portable | `hook.*` events and hook input/output contracts. |
-| Commands are just tool text | `process.*` lifecycle and output refs. |
-| Model choice is not explainable | `task_profile`, `candidate_model_set`, `routing_decision`. |
-| Cost and limits live only in logs | `cost.*`, `rate_limit.*`, `quota.*`, read models. |
-| Tasks are only todos or UI cards | `task.*` lifecycle, attempts, graph edges, progress, delivery state. |
-| Subagents are just messages | Durable parent-child graph and job/item model. |
-| Remote execution cannot recover | Channel identity, resume cursor, permission bridge. |
-| Compaction breaks audit | Context boundaries, rollback, reconstruction. |
-| Large output pollutes streams | Output refs, spill, truncation, redaction. |
-
-# Glossary
-Source: https://limecloud.github.io/agentruntime/en/reference/glossary
-
-# Glossary
-
-- `runtime`: Execution authority that owns agent facts and control semantics.
-- `session`: Durable user-visible work container.
-- `thread`: Ordered execution context inside a session.
-- `turn`: One submitted input cycle.
-- `task`: Durable objective with lifecycle, attempts, relationships, progress, acceptance, and recovery state.
-- `run` / `attempt`: One execution attempt for a task.
-- `step`: Ordered runtime item in a turn, task, or run.
-- `tool_call`: One invocation of a tool or connector.
-- `action_request`: Pending human or policy decision.
-- `subagent`: Child runtime context delegated by a parent runtime.
-- `read model`: Compact view derived from runtime facts for inspection.
-- `snapshot`: Durable state used for recovery and hydration.
-- `evidence pack`: Exported facts for review, replay, verification, or audit.
-- `provider adapter`: Layer that maps provider-native streams to runtime events.
-- `capability surface`: Tools and actions available under current policy and context.
-- `compaction boundary`: Runtime checkpoint where context was summarized or rewritten.
-
-# Agent Standards Ecosystem
-Source: https://limecloud.github.io/agentruntime/en/reference/agent-ecosystem
-
-# Agent Standards Ecosystem
-
-The Agent standards ecosystem splits agent products into portable contracts. Each standard owns one layer of meaning and links to the others through stable refs instead of swallowing their responsibilities.
-
-This page is the public friend-link map for the current standards. Use it to discover the adjacent protocols and to decide which standard should own a new concept.
-
-## Where Agent Runtime fits
-
-Agent Runtime owns execution facts and controls: sessions, threads, turns, tasks, runs, tools, permissions, model routing, snapshots, remote channels, and recovery.
-
-Runtime accepts, executes, observes, controls, resumes, and audits agent work.
-
-## Current standards
-
-| Standard | Role | Site | LLM context | Repository |
-| --- | --- | --- | --- | --- |
-| Agent Knowledge | Source-grounded knowledge packs for agents. | [site](https://limecloud.github.io/agentknowledge/) | [llms-full](https://limecloud.github.io/agentknowledge/llms-full.txt) | [repo](https://github.com/limecloud/agentknowledge) |
-| Agent UI | Interaction surfaces for agent products. | [site](https://limecloud.github.io/agentui/) | [llms-full](https://limecloud.github.io/agentui/llms-full.txt) | [repo](https://github.com/limecloud/agentui) |
-| Agent Runtime | Execution facts, controls, tasks, tools, and recovery. | [site](https://limecloud.github.io/agentruntime/) | [llms-full](https://limecloud.github.io/agentruntime/llms-full.txt) | [repo](https://github.com/limecloud/agentruntime) |
-| Agent Evidence | Evidence, provenance, verification, review, replay, and export. | [site](https://limecloud.github.io/agentevidence/) | [llms-full](https://limecloud.github.io/agentevidence/llms-full.txt) | [repo](https://github.com/limecloud/agentevidence) |
-| Agent Policy | Risk, permission, approval, retention, waiver, access, and policy decision facts. | [site](https://limecloud.github.io/agentpolicy/) | [llms-full](https://limecloud.github.io/agentpolicy/llms-full.txt) | [repo](https://github.com/limecloud/agentpolicy) |
-| Agent Artifact | Durable deliverables, versions, parts, previews, exports, source links, and handoff packages. | [site](https://limecloud.github.io/agentartifact/) | [llms-full](https://limecloud.github.io/agentartifact/llms-full.txt) | [repo](https://github.com/limecloud/agentartifact) |
-| Agent Tool | Tool declarations, surfaces, invocations, progress, results, permissions, and audit refs. | [site](https://limecloud.github.io/agenttool/) | [llms-full](https://limecloud.github.io/agenttool/llms-full.txt) | [repo](https://github.com/limecloud/agenttool) |
-| Agent Context | Context surfaces, items, source refs, selection, budgets, assembly, injection, compaction, and missing-context facts. | [site](https://limecloud.github.io/agentcontext/) | [llms-full](https://limecloud.github.io/agentcontext/llms-full.txt) | [repo](https://github.com/limecloud/agentcontext) |
-
-## Boundary rule
-
-```text
-Agent Knowledge -> what durable source-grounded context an agent can use
-Agent Runtime   -> how agent work is accepted, executed, controlled, and resumed
-Agent UI        -> how agent work is projected into user-visible surfaces
-Agent Evidence  -> why an agent outcome can be trusted, reviewed, replayed, and exported
-Agent Policy    -> whether an agent action may proceed and under which constraints
-Agent Artifact  -> what durable deliverable the agent produced and how it changes
-Agent Tool      -> what capability was exposed, invoked, progressed, and returned
-Agent Context   -> what context was available, selected, assembled, compacted, missing, and injected
-```
-
-No standard should become the whole stack. A compatible implementation should preserve native ids and link across standards with refs.
-
-## Future standard candidates
-
-| Candidate | Why it may become a standard |
-| --- | --- |
-| Agent Evaluation | Acceptance scenarios, rubrics, eval runs, quality gates, and evidence-backed benchmark records. |
-| Agent Workflow | Portable multi-step work plans, scene launches, background jobs, and handoff states. |
-| Agent Model Routing | Task profiles, model candidates, routing decisions, fallback, quota, and cost records. |
-
-These candidates should remain design notes until they can be specified without relying on one product implementation.
-
-## External alignment
-
-| Reference | Used for |
-| --- | --- |
-| [Agent Skills](https://agentskills.io/) | Skill package format, authoring style, and AI-friendly docs reference. |
-| [Model Context Protocol](https://modelcontextprotocol.io/specification) | Tool, resource, prompt, and JSON-RPC capability reference. |
-| [Agent2Agent Protocol](https://github.com/a2aproject/A2A) | Peer agent tasks, messages, artifacts, and native id reference. |
-| [OpenTelemetry GenAI](https://opentelemetry.io/docs/specs/semconv/gen-ai/) | Trace, span, GenAI operation, and telemetry correlation reference. |
-| [CloudEvents](https://github.com/cloudevents/spec/blob/main/cloudevents/spec.md) | Portable event envelope reference. |
-| [W3C PROV](https://www.w3.org/TR/prov-dm/Overview.html) | Entity, activity, agent, derivation, and attribution reference. |
-
-External protocols are references, not ownership transfers. The Agent standards should preserve their native ids and semantics while defining agent-specific relationships.
-
-# Agent Runtime v0.3.5
-Source: https://limecloud.github.io/agentruntime/en/versions/v0.3.5/overview
-
-# Agent Runtime v0.3.5
-
-Agent Runtime v0.3.5 fixes repository-base homepage asset links. The localized home pages now keep their home layout while LLM entrypoint links resolve under the project site path and the navigation logo loads from the correct public asset path.
-
-## Highlights
-
-- Fixes LLM entrypoint links on localized home pages for repository-base deployments.
-- Fixes documentation logo asset paths for repository-base deployments.
-- Keeps the localized home page structure introduced in v0.3.4.
-- Keeps the core Agent Runtime specification compatible with v0.3.4.
-
-# v0.3.8 overview
-Source: https://limecloud.github.io/agentruntime/en/versions/v0.3.8/overview
-
-# v0.3.8 Overview
-
-Agent Runtime v0.3.8 is a patch release that refreshes the Agent standards ecosystem after Agent Tool became a current published standard.
-
-## Included
-
-- Agent Tool link in current standards tables.
-- Updated boundary map with the portable tool layer.
-- LLM entrypoint refresh for AI clients.
-- No breaking protocol changes to Agent Runtime.
-
 
 # Lime AgentRuntime Profile
+
 Source: https://limecloud.github.io/agentruntime/en/profiles/lime
 
 # Lime AgentRuntime Profile
@@ -1768,6 +1785,7 @@ Lime commands can keep product-specific names, but they MUST map to these profil
 | `create_task` / `update_task` / `retry_task` / `complete_task` | Mutate task facts with attempts and graph edges, not UI-only cards. |
 | `get_session` / `get_thread_read` | Read durable snapshots and read models, not reconstructed UI summaries. |
 | `export_evidence` / `export_replay` / `export_review` | Export from runtime facts shared with UI and diagnostics. |
+| `start_benchmark_trial` / `record_benchmark_reward` / `export_benchmark_trial` / `compare_benchmark_runs` | Preserve Agent QC benchmark task, trajectory, reward, and comparison facts. |
 
 Any current Tauri command, frontend gateway, mock, or catalog entry that writes runtime truth should be traceable to one of these semantics.
 
@@ -1808,20 +1826,231 @@ The Lime profile adds stricter schemas and example fixtures:
 - `/fixtures/lime-profile/routing-single-candidate-event.json`
 - `/fixtures/lime-profile/evidence-export-event.json`
 - `/fixtures/lime-profile/thread-read-snapshot.json`
+- `/fixtures/lime-profile/benchmark-trial-pack.json`
 
 These fixtures are the minimum conformance pack for Lime profile core.
 
-# Agent Runtime v0.4.0
-Source: https://limecloud.github.io/agentruntime/en/versions/v0.4.0/overview
 
-# Agent Runtime v0.4.0
+# Ecosystem boundaries
 
-Agent Runtime v0.4.0 introduces the public-standard plus product-profile model. It keeps the portable Agent Runtime core broad enough for other runtimes while adding the Lime AgentRuntime Profile as the strict conformance layer for Lime current runtime.
+Source: https://limecloud.github.io/agentruntime/en/reference/ecosystem-boundaries
 
-## Highlights
+# Ecosystem boundaries
 
-- Adds the Lime AgentRuntime Profile in English and Simplified Chinese.
-- Adds stricter Lime profile event and snapshot schemas.
-- Adds profile fixtures for submit turn, tool approval, task retry, routing single candidate, evidence export, and thread read snapshot.
-- Clarifies public core, recommended extensions, and product profile conformance layers.
-- Refreshes README, navigation, release notes, package metadata, and LLM entrypoints for v0.4.0.
+Agent Runtime coordinates many systems. It should not absorb their ownership.
+
+| System | Owns | Runtime relationship |
+| --- | --- | --- |
+| Agent UI | Surfaces, interactions, local drafts, progressive rendering. | Consumes runtime facts and sends controlled actions. |
+| Model providers | Native APIs, streaming formats, usage accounting, provider errors. | Runtime adapts provider facts into normalized lifecycle events. |
+| MCP servers and connectors | Tools, resources, prompts, connector auth, external side effects. | Runtime discovers, filters, invokes, and records tool lifecycle. |
+| A2A peers | Remote agent cards, capabilities, peer tasks, messages, artifacts, streaming, and push notifications. | Runtime maps peer work to local task/subagent edges, channel facts, and artifact refs while preserving A2A native ids. |
+| Context stores | Memory, knowledge, search, retrieval, source ranking. | Runtime records selected refs, omissions, and compaction boundaries. |
+| Policy systems | Permission rules, risk, sandbox profiles, org policy. | Runtime enforces or asks, then records decisions. |
+| Artifact services | Content, versions, diff, export bytes. | Runtime emits artifact refs and lifecycle facts. |
+| Evidence systems | Traces, verification, replay, review, audit verdicts. | Runtime exports and links evidence facts. |
+| Host application | Workspace, account, local storage, deployment, navigation. | Runtime uses host scope and returns portable state models. |
+
+A clean runtime boundary makes it possible to replace the UI, model provider, connector system, or evidence backend without rewriting the execution contract.
+
+## A2A boundary
+
+A2A is the right protocol reference when one agent delegates work to another independent agent. Agent Runtime should cite and interoperate with it, but not absorb it:
+
+| A2A concept | Runtime mapping |
+| --- | --- |
+| Agent Card | Peer capability snapshot, channel capabilities, routing input, and optional `agent_card_ref`. |
+| Task / `taskId` / `contextId` | Remote task ref linked to a local `task_id`, parent task, subagent, or channel. |
+| Message | Channel input, task interaction, status message, or clarification; not a durable output by itself. |
+| Artifact / artifact update | Artifact refs and `produced_artifact` / `consumed_artifact` task graph edges. |
+| Streaming / push notification | `channel.*`, `task.progress`, `task.completed`, `artifact.changed`, cursor, ack, and snapshot repair facts. |
+| In-task authorization | `action.required`, permission bridge events, and policy decision facts. |
+
+The runtime boundary remains internal execution truth: attempts, tool calls, process execution, sandbox, hooks, local permission decisions, evidence, and replay are runtime facts even when the remote peer speaks A2A.
+
+
+# Research sources
+
+Source: https://limecloud.github.io/agentruntime/en/reference/research-sources
+
+# Research sources
+
+Agent Runtime v0.1 was informed by current standards and implementation patterns. These sources are references, not dependencies.
+
+## Standards and protocols
+
+- [Model Context Protocol specification](https://modelcontextprotocol.io/specification/2025-06-18): tools, resources, prompts, sampling, roots, JSON-RPC message shape, and capability negotiation.
+- [Agent2Agent Protocol specification](https://a2a-protocol.org/latest/specification/): agent cards, peer tasks, messages, artifacts, streaming, push notifications, security, and protocol bindings for agent-to-agent interoperability.
+- [Google Developers Blog: Announcing the Agent2Agent Protocol](https://developers.googleblog.com/en/a2a-a-new-era-of-agent-interoperability/): original A2A positioning around capability discovery, task management, artifacts, collaboration, existing web standards, and MCP complementarity.
+- [Linux Foundation A2A project announcement](https://www.linuxfoundation.org/press/linux-foundation-launches-the-agent2agent-protocol-project-to-enable-secure-intelligent-communication-between-ai-agents): project governance and vendor-neutral direction for A2A as an open agent-to-agent communication protocol.
+- [A2A GitHub project](https://github.com/a2aproject/A2A): released specification, protocol assets, SDKs, samples, and issue history.
+- [CloudEvents specification](https://github.com/cloudevents/spec): portable event envelope concepts such as event type, source, id, time, subject, content type, and extension attributes.
+- [JSON-RPC 2.0 specification](https://www.jsonrpc.org/specification): request, response, notification, method, params, result, and error semantics for transport-neutral control planes.
+- [OpenTelemetry concepts](https://opentelemetry.io/docs/concepts/): traces, spans, logs, metrics, context propagation, baggage, and service/resource attribution.
+- [W3C Trace Context](https://www.w3.org/TR/trace-context/): `traceparent` and `tracestate` propagation across services.
+- [AsyncAPI specification](https://www.asyncapi.com/docs/reference/specification/latest): event-driven API description patterns.
+
+## Provider and framework references
+
+- [OpenAI API streaming reference](https://platform.openai.com/docs/api-reference/streaming): provider stream events such as response lifecycle, text deltas, and output item updates.
+- [Anthropic Messages streaming](https://docs.anthropic.com/en/docs/build-with-claude/streaming): message start, content block start/delta/stop, message delta, and message stop event structure.
+- [Anthropic tool use](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/implement-tool-use): tool use and tool result blocks as explicit content, not prose-only execution.
+- [Vercel AI SDK](https://ai-sdk.dev/docs): `streamText`, `generateObject`, tool calls, tool results, steps, stop conditions, and typed UI messages.
+- [LangGraph durable execution](https://docs.langchain.com/oss/python/langgraph/durable-execution): persistence, checkpoints, threads, human-in-the-loop, and time-travel patterns for long-running agents.
+- [LangGraph interrupts and streaming](https://docs.langchain.com/oss/python/langgraph/interrupts): checkpointer-backed interrupts, resume commands, thread ids, and task-mode streaming.
+- [OpenAI Agents SDK](https://openai.github.io/openai-agents-python/): agents, handoffs, sessions, guardrails, tracing spans, and streaming events for multi-agent workflows.
+- [Temporal workflows](https://docs.temporal.io/workflows): workflow ids, run ids, task queues, activities, child workflows, signals, cancellation, retry policies, history, and durable execution.
+- [Harbor framework documentation](https://www.harborframework.com/docs): benchmark datasets, tasks, trials, artifacts, trajectories, reward files, and verifier lifecycle for agent evaluations.
+- [Cline practical guide to hill climbing](https://cline.bot/blog/a-practical-guide-to-hill-climbing): baseline/candidate iteration, failure analysis, single-variable changes, repeated trials, and pass@k for agent runtime improvement.
+- [Agent Runtime battlefield analysis](https://yage.ai/share/agent-runtime-battlefield-20260516.html): runtime/harness can materially affect same-model benchmark outcomes and should be evaluated on project-local tasks.
+
+## Design conclusions
+
+- Runtime events should use a stable envelope, but not require one transport.
+- Provider streams should be adapted instead of exposed directly as the portable contract.
+- Tool calls and human approvals need explicit ids and lifecycle records.
+- Durable snapshots are required because event streams alone do not solve old sessions or process restart.
+- Observability correlation belongs in the runtime contract, not only in logs.
+- Agent-to-agent work should be modeled as local tasks, subagents, jobs, or remote task refs with parent links; A2A is the peer interoperability reference, not a replacement for runtime facts.
+- Task lifecycle must be separate from todo/checklist state and preserve attempts, dependencies, waiting reasons, and delivery state.
+- Benchmark trials need first-class runtime correlation so reward changes can be attributed to model, prompt, tool, context, routing, UI projection, environment, or verifier behavior.
+- A2A messages and artifacts support the same separation used by Agent Runtime: communication belongs in messages or channel events, while durable outputs belong in artifact refs linked to tasks.
+
+
+# Source analysis summary
+
+Source: https://limecloud.github.io/agentruntime/en/reference/source-analysis
+
+# Source analysis summary
+
+This page summarizes runtime pressure from implementation families. It is not a port of any single project; it extracts portable semantics for the Agent Runtime contract.
+
+## Terminal coding runtime pressure
+
+A terminal runtime shows that tool calls are not simple request/response records. The standard needs tool schema, safe args, progress, partial and final results, concurrent read-only batches, serialized writes, hooks, permission modes, rule sources, classifiers, sandbox profiles, output spill, telemetry-safe errors, local and remote subagents, and compaction boundaries.
+
+It also shows that task state cannot be only a model-facing checklist. Foreground tasks, local shell tasks, remote agent tasks, in-process teammate tasks, scheduled tasks, backgrounded work, and generated output files all need task ids, output offsets, terminal-state eviction, stop controls, and notifications.
+
+## Scheduler and gateway runtime pressure
+
+Gateway and scheduler runtimes show that background work needs durable storage, secure output refs, origin/delivery context, per-job model/tool overrides, pre-run scripts, prompt-injection gates, inactivity timeouts, delivery failure state, run outputs, and checkpoint/resume scanning. A missed scheduled task or failed delivery is a task fact, not just a log line.
+
+## Typed systems runtime pressure
+
+A typed systems runtime shows that SDKs need stable item lifecycle: thread started, turn started, item started/updated/completed, turn completed, turn failed. Command execution, file changes, tool calls, web search, image generation, todo lists, reasoning, approval policy, sandbox policy, hook schemas, process lifecycle, durable state, goals, jobs, remote control, and rollout reconstruction all need explicit facts.
+
+It also shows why task and run must be separate. Thread goals, plan items, todo lists, job tables, job item assignments, spawn edges, turn status, approval wait guards, and thread read models each cover part of the work. The standard needs task ids, run ids, attempt history, dependency edges, worker assignment, and lost-state handling to join them.
+
+## Desktop agent runtime pressure
+
+A desktop runtime shows that product execution is not a single model request. Submit, queue, resume, interrupt, compact, read models, tool inventory, evidence, replay, review export, turn input snapshots, request telemetry correlation, task profile, candidate sets, routing decisions, cost state, limit state, and quota/rate-limit events need one fact chain.
+
+It also shows that foreground turns, subagent turns, automation jobs, execution summaries, task files, artifacts, and timeline UI projections should converge on the same runtime facts. Scheduler ticks and UI cards should not become separate task authorities.
+
+## Gap matrix
+
+| Gap | Standard surface |
+| --- | --- |
+| Approval exists only as a client dialog | `permission.*` events and action boundary. |
+| Sandbox exists only as config | `sandbox_profile` and `sandbox.*` events. |
+| Hooks are not portable | `hook.*` events and hook input/output contracts. |
+| Commands are just tool text | `process.*` lifecycle and output refs. |
+| Model choice is not explainable | `task_profile`, `candidate_model_set`, `routing_decision`. |
+| Cost and limits live only in logs | `cost.*`, `rate_limit.*`, `quota.*`, read models. |
+| Tasks are only todos or UI cards | `task.*` lifecycle, attempts, graph edges, progress, delivery state. |
+| Subagents are just messages | Durable parent-child graph and job/item model. |
+| Remote execution cannot recover | Channel identity, resume cursor, permission bridge. |
+| Compaction breaks audit | Context boundaries, rollback, reconstruction. |
+| Large output pollutes streams | Output refs, spill, truncation, redaction. |
+
+
+# Glossary
+
+Source: https://limecloud.github.io/agentruntime/en/reference/glossary
+
+# Glossary
+
+- `runtime`: Execution authority that owns agent facts and control semantics.
+- `session`: Durable user-visible work container.
+- `thread`: Ordered execution context inside a session.
+- `turn`: One submitted input cycle.
+- `task`: Durable objective with lifecycle, attempts, relationships, progress, acceptance, and recovery state.
+- `run` / `attempt`: One execution attempt for a task.
+- `step`: Ordered runtime item in a turn, task, or run.
+- `tool_call`: One invocation of a tool or connector.
+- `action_request`: Pending human or policy decision.
+- `subagent`: Child runtime context delegated by a parent runtime.
+- `read model`: Compact view derived from runtime facts for inspection.
+- `snapshot`: Durable state used for recovery and hydration.
+- `evidence pack`: Exported facts for review, replay, verification, or audit.
+- `provider adapter`: Layer that maps provider-native streams to runtime events.
+- `capability surface`: Tools and actions available under current policy and context.
+- `compaction boundary`: Runtime checkpoint where context was summarized or rewritten.
+
+
+# Agent Standards Ecosystem
+
+Source: https://limecloud.github.io/agentruntime/en/reference/agent-ecosystem
+
+# Agent Standards Ecosystem
+
+The Agent standards ecosystem splits agent products into portable contracts. Each standard owns one layer of meaning and links to the others through stable refs instead of swallowing their responsibilities.
+
+This page is the public friend-link map for the current standards. Use it to discover the adjacent protocols and to decide which standard should own a new concept.
+
+## Where Agent Runtime fits
+
+Agent Runtime owns execution facts and controls: sessions, threads, turns, tasks, runs, tools, permissions, model routing, snapshots, remote channels, and recovery.
+
+Runtime accepts, executes, observes, controls, resumes, and audits agent work.
+
+## Current standards
+
+| Standard | Role | Site | LLM context | Repository |
+| --- | --- | --- | --- | --- |
+| Agent Knowledge | Source-grounded knowledge packs for agents. | [site](https://limecloud.github.io/agentknowledge/) | [llms-full](https://limecloud.github.io/agentknowledge/llms-full.txt) | [repo](https://github.com/limecloud/agentknowledge) |
+| Agent UI | Interaction surfaces for agent products. | [site](https://limecloud.github.io/agentui/) | [llms-full](https://limecloud.github.io/agentui/llms-full.txt) | [repo](https://github.com/limecloud/agentui) |
+| Agent Runtime | Execution facts, controls, tasks, tools, and recovery. | [site](https://limecloud.github.io/agentruntime/) | [llms-full](https://limecloud.github.io/agentruntime/llms-full.txt) | [repo](https://github.com/limecloud/agentruntime) |
+| Agent Evidence | Evidence, provenance, verification, review, replay, and export. | [site](https://limecloud.github.io/agentevidence/) | [llms-full](https://limecloud.github.io/agentevidence/llms-full.txt) | [repo](https://github.com/limecloud/agentevidence) |
+| Agent Policy | Risk, permission, approval, retention, waiver, access, and policy decision facts. | [site](https://limecloud.github.io/agentpolicy/) | [llms-full](https://limecloud.github.io/agentpolicy/llms-full.txt) | [repo](https://github.com/limecloud/agentpolicy) |
+| Agent Artifact | Durable deliverables, versions, parts, previews, exports, source links, and handoff packages. | [site](https://limecloud.github.io/agentartifact/) | [llms-full](https://limecloud.github.io/agentartifact/llms-full.txt) | [repo](https://github.com/limecloud/agentartifact) |
+| Agent Tool | Tool declarations, surfaces, invocations, progress, results, permissions, and audit refs. | [site](https://limecloud.github.io/agenttool/) | [llms-full](https://limecloud.github.io/agenttool/llms-full.txt) | [repo](https://github.com/limecloud/agenttool) |
+| Agent Context | Context surfaces, items, source refs, selection, budgets, assembly, injection, compaction, and missing-context facts. | [site](https://limecloud.github.io/agentcontext/) | [llms-full](https://limecloud.github.io/agentcontext/llms-full.txt) | [repo](https://github.com/limecloud/agentcontext) |
+
+## Boundary rule
+
+```text
+Agent Knowledge -> what durable source-grounded context an agent can use
+Agent Runtime   -> how agent work is accepted, executed, controlled, and resumed
+Agent UI        -> how agent work is projected into user-visible surfaces
+Agent Evidence  -> why an agent outcome can be trusted, reviewed, replayed, and exported
+Agent Policy    -> whether an agent action may proceed and under which constraints
+Agent Artifact  -> what durable deliverable the agent produced and how it changes
+Agent Tool      -> what capability was exposed, invoked, progressed, and returned
+Agent Context   -> what context was available, selected, assembled, compacted, missing, and injected
+```
+
+No standard should become the whole stack. A compatible implementation should preserve native ids and link across standards with refs.
+
+## Future standard candidates
+
+| Candidate | Why it may become a standard |
+| --- | --- |
+| Agent Evaluation | Acceptance scenarios, rubrics, eval runs, quality gates, and evidence-backed benchmark records. |
+| Agent Workflow | Portable multi-step work plans, scene launches, background jobs, and handoff states. |
+| Agent Model Routing | Task profiles, model candidates, routing decisions, fallback, quota, and cost records. |
+
+These candidates should remain design notes until they can be specified without relying on one product implementation.
+
+## External alignment
+
+| Reference | Used for |
+| --- | --- |
+| [Agent Skills](https://agentskills.io/) | Skill package format, authoring style, and AI-friendly docs reference. |
+| [Model Context Protocol](https://modelcontextprotocol.io/specification) | Tool, resource, prompt, and JSON-RPC capability reference. |
+| [Agent2Agent Protocol](https://github.com/a2aproject/A2A) | Peer agent tasks, messages, artifacts, and native id reference. |
+| [OpenTelemetry GenAI](https://opentelemetry.io/docs/specs/semconv/gen-ai/) | Trace, span, GenAI operation, and telemetry correlation reference. |
+| [CloudEvents](https://github.com/cloudevents/spec/blob/main/cloudevents/spec.md) | Portable event envelope reference. |
+| [W3C PROV](https://www.w3.org/TR/prov-dm/Overview.html) | Entity, activity, agent, derivation, and attribution reference. |
+
+External protocols are references, not ownership transfers. The Agent standards should preserve their native ids and semantics while defining agent-specific relationships.

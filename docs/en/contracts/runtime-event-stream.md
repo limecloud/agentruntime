@@ -44,6 +44,7 @@ The stream should carry previews and refs for large data:
 - tool arguments and results can use `input_ref`, `output_ref`, `preview`, and `metadata`.
 - artifacts can use `artifact_id`, `read_ref`, `version_id`, `preview_ref`, and `diff_ref`.
 - evidence can use `evidence_id`, `pack_ref`, `trace_ref`, `replay_ref`, and `review_ref`.
+- benchmark trials can use `trajectory_ref`, `reward_ref`, `reward_details_ref`, `dataset_id`, `configuration_id`, and `comparison_ref`.
 
 ## Item and Process Lifecycle
 
@@ -65,8 +66,9 @@ Model routing and remote channels also belong to the stream:
 - `task.attempt.started`, `task.attempt.completed`, and `task.attempt.failed` for per-run execution history.
 - `cost.estimated`, `cost.recorded`, `rate_limit.hit`, `quota.low`, `quota.blocked`.
 - `channel.connected`, `channel.resumed`, `channel.permission_forwarded`.
+- `benchmark.dataset.resolved`, `benchmark.trial.started`, `benchmark.reward.recorded`, and `benchmark.comparison.completed`.
 
-These events may be telemetry-only or read-model-only, but they must be joinable by evidence, replay, and review.
+These events may be telemetry-only or read-model-only, but they must be joinable by evidence, replay, review, and benchmark exports.
 
 ## Provider adaptation
 

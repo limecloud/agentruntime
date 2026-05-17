@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Added benchmark instrumentation contract for Agent QC hill climbing, covering dataset/config/task correlation, trial lifecycle, trajectories, rewards, and comparison decisions.
+- Added benchmark event families, control-plane semantics, Lime profile requirements, schema enum entries, and a benchmark trial pack fixture.
+- Updated evidence/replay, runtime event stream, research sources, navigation, README, and LLM entrypoints to support Lime internal benchmark loops.
+
 ## v0.4.0 - 2026-05-11
 
 ### Added

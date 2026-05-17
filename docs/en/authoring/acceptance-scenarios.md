@@ -78,3 +78,7 @@ Given a remote client reconnects, runtime returns a snapshot first and continues
 ## Job item retry
 
 Given one item in a batch job fails, the job keeps job/item status separately, allows retrying only that item, and preserves attempt count and last error.
+
+## Benchmark trial export
+
+Given Lime runs a benchmark task, the runtime emits benchmark dataset/config/trial facts, preserves the execution trajectory, records reward refs, and exports a trial pack with runtime correlation. A candidate comparison must include baseline/candidate configs, aggregate deltas, evidence completeness, and P0 Agent QC regression count.

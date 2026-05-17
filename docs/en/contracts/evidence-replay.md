@@ -35,6 +35,20 @@ A replay case SHOULD include:
 
 Replay must not depend on UI screenshots or final prose alone.
 
+
+## Benchmark export
+
+When evidence is exported for Agent QC benchmark or hill climbing, the pack SHOULD also include:
+
+- dataset id, dataset version, task id, trial id, and configuration id;
+- baseline/candidate role and the single changed variable when known;
+- trajectory ref, runtime transcript ref, reward ref, and reward details ref;
+- aggregate comparison refs when the export belongs to a candidate decision;
+- P0 Agent QC report ref used to detect regressions;
+- timeout, cost, token, cache, and cleanup metrics when available.
+
+Benchmark export is not a verdict. Agent QC owns promotion, revert, blocked, or needs-review decisions.
+
 ## Observability
 
 A compatible runtime SHOULD map execution into trace concepts:
